@@ -50,6 +50,33 @@ type ProfileStats struct {
 	TotalAssets           int `json:"totalAssets"`
 }
 
+// MaintenanceAlertNotifications ...
+// swagger:model MaintenanceAlertNotifications
+//
+// MaintenanceAlertNotifications object that returns the notifications alert for the maintenance plans that are within 7 days of being due
+type MaintenanceAlertNotifications struct {
+	ID             string    `json:"maintenance_plan_id"`
+	Name           string    `json:"name"`
+	Type           string    `json:"type"`
+	PlanDue        time.Time `json:"plan_due"`
+	IsRead         bool      `json:"is_read"`
+	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+	UpdatedBy      string    `json:"updated_by,omitempty"`
+	Updator        string    `json:"updator,omitempty"`
+	SharableGroups []string  `json:"sharable_groups"`
+}
+
+// MaintenanceAlertNotificationRequest ...
+// swagger:model MaintenanceAlertNotificationRequest
+//
+// MaintenanceAlertNotificationRequest object that is used to update the db based on user selection.
+type MaintenanceAlertNotificationRequest struct {
+	ID        string    `json:"maintenance_plan_id"`
+	IsRead    bool      `json:"is_read"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	UpdatedBy string    `json:"updated_by,omitempty"`
+}
+
 // Location ...
 // swagger:model Location
 //

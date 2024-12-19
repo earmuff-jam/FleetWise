@@ -97,6 +97,8 @@ func main() {
 	router.Handle("/api/v1/profile/list", CustomRequestHandler(handler.GetAllUserProfiles)).Methods(http.MethodGet)
 	router.Handle("/api/v1/profile/{id}", CustomRequestHandler(handler.GetProfile)).Methods(http.MethodGet)
 	router.Handle("/api/v1/profile/{id}/stats", CustomRequestHandler(handler.GetProfileStats)).Methods(http.MethodGet)
+	router.Handle("/api/v1/profile/{id}/notifications", CustomRequestHandler(handler.GetNotifications)).Methods(http.MethodGet)
+	router.Handle("/api/v1/profile/{id}/notifications", CustomRequestHandler(handler.UpdateSelectedMaintenanceNotification)).Methods(http.MethodPut)
 	router.Handle("/api/v1/profile/{id}/recent-activities", CustomRequestHandler(handler.GetRecentActivities)).Methods(http.MethodGet)
 	router.Handle("/api/v1/profile/{id}", CustomRequestHandler(handler.UpdateProfile)).Methods(http.MethodPut)
 	router.Handle("/api/v1/profile/{id}/username", CustomRequestHandler(handler.GetUsername)).Methods(http.MethodGet)

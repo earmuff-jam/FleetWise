@@ -89,6 +89,18 @@ func Test_GetProfileStats_InvalidDBUser(t *testing.T) {
 	assert.Equal(t, "400 Bad Request", res.Status)
 }
 
+func Test_GetNotifications_InvalidDBUser(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0902c692-b8e2-4824-a870-e52f4a0cccf8/notifications", nil)
+	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
+	w := httptest.NewRecorder()
+	db.PreloadAllTestVariables()
+	GetNotifications(w, req, config.CEO_USER)
+	res := w.Result()
+
+	assert.Equal(t, 400, res.StatusCode)
+	assert.Equal(t, "400 Bad Request", res.Status)
+}
+
 func Test_GetProfileApi(t *testing.T) {
 
 	// profile are automatically derieved from the auth table. due to this, we attempt to create a new user

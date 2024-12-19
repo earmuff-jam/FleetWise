@@ -7,6 +7,7 @@ const initialState = {
   error: '',
   profiles: [],
   profileStats: {},
+  maintenanceNotifications: [],
   profileDetails: {},
   avatar: '',
   recentActivities: [],
@@ -44,6 +45,43 @@ const profileSlice = createSlice({
       state.loading = false;
       state.error = '';
       state.profileStats = {};
+    },
+    getMaintenanceNotifications: (state) => {
+      state.error = '';
+      state.maintenanceNotifications = [];
+    },
+    getMaintenanceNotificationsSuccess: (state, action) => {
+      state.maintenanceNotifications = action.payload;
+      state.loading = false;
+      state.error = '';
+    },
+    getMaintenanceNotificationsFailure: (state) => {
+      state.loading = false;
+      state.error = '';
+      state.maintenanceNotifications = [];
+    },
+    toggleMaintenanceNotificationReadOption: (state) => {
+      state.error = '';
+    },
+    toggleMaintenanceNotificationReadOptionSuccess: (state, action) => {
+      const { maintenance_plan_id, is_read, updated_at, updated_by } = action.payload;
+
+      const index = state.maintenanceNotifications.findIndex(
+        (item) => item.maintenance_plan_id === maintenance_plan_id
+      );
+
+      if (index !== -1) {
+        state.maintenanceNotifications[index] = {
+          ...state.maintenanceNotifications[index],
+          is_read,
+          updated_at,
+          updated_by,
+        };
+      }
+      state.error = '';
+    },
+    toggleMaintenanceNotificationReadOptionFailure: (state) => {
+      state.error = '';
     },
     getRecentActivities: (state) => {
       state.loading = true;

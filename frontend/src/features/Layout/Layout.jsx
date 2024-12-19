@@ -52,11 +52,7 @@ const Layout = () => {
           </Box>
         }
       >
-        <AppToolbar
-          profileDetails={profileDetails}
-          handleDrawerOpen={handleDrawerOpen}
-          smScreenSizeAndHigher={smScreenSizeAndHigher}
-        />
+        <AppToolbar profileDetails={profileDetails} handleDrawerOpen={handleDrawerOpen} />
         <Stack sx={{ marginTop: '5rem', marginBottom: '1rem' }}>
           <MenuActionBar
             openDrawer={openDrawer}
