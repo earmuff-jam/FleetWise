@@ -52,8 +52,8 @@ export default function LandingPage() {
             title={formType === 'signin' ? 'Sign In' : 'Sign Up'}
             subtitle={
               formType === 'signin'
-                ? 'Login to manage your account.'
-                : 'Keep an account to keep track of all your inventories.'
+                ? 'Login and manage your account.'
+                : 'Create an account to keep track of all your inventories.'
             }
             handleClose={closeDisplayModal}
             maxSize="xs"
