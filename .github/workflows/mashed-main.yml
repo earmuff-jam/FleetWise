@@ -3,25 +3,33 @@ name: CI
 on: [push]
 
 env:
-  GO111MODULE: "on" # Enable Go modules
+  GO111MODULE: "on"
   DOCKER_DRIVER: overlay
 
 jobs:
   build-backend:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: runner
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: community
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Build Custom Postgres Image
+        run: |
+          docker build -t custom-postgres:latest -f ./server/Dockerfile .
+
+      - name: Run Custom Postgres Container
+        run: |
+          docker run -d -p 5432:5432 --name ci-postgres -e POSTGRES_USER=runner -e POSTGRES_PASSWORD=password -e POSTGRES_DB=community custom-postgres:latest
+          echo "Waiting for Postgres to be ready..."
+          for i in {1..20}; do
+            if docker exec ci-postgres pg_isready -U runner -d community; then
+              echo "Postgres is ready!"
+              break
+            fi
+            echo "Postgres not ready yet, sleeping for 5 seconds..."
+            sleep 5
+          done
 
       - name: Install Golang migrate dependency
         run: |
@@ -53,6 +61,12 @@ jobs:
           echo "Attempting to build go code."
           go version
           cd apilayer/handler && go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out
+
+      - name: Stop Postgres Container
+        if: always()
+        run: |
+          docker stop ci-postgres
+          docker rm ci-postgres
 
   build-frontend:
     runs-on: ubuntu-latest

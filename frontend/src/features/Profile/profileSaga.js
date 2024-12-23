@@ -35,6 +35,30 @@ export function* fetchProfileStats() {
   }
 }
 
+export function* fetchMaintenanceNotifications() {
+  try {
+    const USER_ID = localStorage.getItem('userID');
+    const response = yield call(instance.get, `${BASEURL}/profile/${USER_ID}/notifications`);
+    yield put(profileActions.getMaintenanceNotificationsSuccess(response.data));
+  } catch (e) {
+    yield put(profileActions.getMaintenanceNotificationsFailure(e));
+  }
+}
+
+export function* fetchToggleMaintenanceNotificationReadOption(action) {
+  try {
+    const USER_ID = localStorage.getItem('userID');
+    yield call(instance.put, `${BASEURL}/profile/${USER_ID}/notifications`, {
+      ...action.payload,
+      updated_by: USER_ID,
+    });
+
+    yield put(profileActions.toggleMaintenanceNotificationReadOptionSuccess(action.payload));
+  } catch (e) {
+    yield put(profileActions.toggleMaintenanceNotificationReadOptionFailure(e));
+  }
+}
+
 export function* fetchRecentActivities() {
   try {
     const USER_ID = localStorage.getItem('userID');
@@ -155,6 +179,14 @@ export function* watchFetchProfileStats() {
   yield takeLatest(`profile/getProfileStats`, fetchProfileStats);
 }
 
+export function* watchFetchMaintenanceNotifications() {
+  yield takeLatest(`profile/getMaintenanceNotifications`, fetchMaintenanceNotifications);
+}
+
+export function* watchFetchToggleMaintenanceNotificationReadOption() {
+  yield takeLatest(`profile/toggleMaintenanceNotificationReadOption`, fetchToggleMaintenanceNotificationReadOption);
+}
+
 export function* watchFetchRecentActivities() {
   yield takeLatest(`profile/getRecentActivities`, fetchRecentActivities);
 }
@@ -199,4 +231,6 @@ export default [
   watchFetchExistingUserDetails,
   watchUpdateExistingUserDetails,
   watchFetchUpdateProfileImage,
+  watchFetchMaintenanceNotifications,
+  watchFetchToggleMaintenanceNotificationReadOption,
 ];

@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -177,6 +178,105 @@ func FetchUserStats(user string, userID string) (model.ProfileStats, error) {
 	}
 
 	return profileStats, nil
+}
+
+// FetchNotifications ...
+func FetchNotifications(user string, userID string) ([]model.MaintenanceAlertNotifications, error) {
+	db, err := SetupDB(user)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	sqlStr := `SELECT 
+		maintenance_plan_id, 
+		name,
+		"type", 
+		plan_due, 
+		is_read, 
+		updated_at,
+		updated_by,
+		sharable_groups
+	FROM community.maintenance_alert ma
+	WHERE ma.is_read IS NOT TRUE
+	AND $1::UUID = ANY(ma.sharable_groups);`
+
+	rows, err := db.Query(sqlStr, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notifications []model.MaintenanceAlertNotifications
+
+	for rows.Next() {
+		var maintenanceAlertNotification model.MaintenanceAlertNotifications
+		var sharableGroups pq.StringArray
+
+		err = rows.Scan(
+			&maintenanceAlertNotification.ID,
+			&maintenanceAlertNotification.Name,
+			&maintenanceAlertNotification.Type,
+			&maintenanceAlertNotification.PlanDue,
+			&maintenanceAlertNotification.IsRead,
+			&maintenanceAlertNotification.UpdatedAt,
+			&maintenanceAlertNotification.UpdatedBy,
+			&sharableGroups,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		maintenanceAlertNotification.SharableGroups = sharableGroups
+		notifications = append(notifications, maintenanceAlertNotification)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return notifications, nil
+}
+
+// UpdateSelectedNotification ...
+func UpdateSelectedNotification(user string, userID string, draftSelectedMaintenanceAlert model.MaintenanceAlertNotificationRequest) error {
+	db, err := SetupDB(user)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	sqlStr := `UPDATE community.maintenance_alert 
+	SET 
+		is_read = $1, 
+		updated_at = $2, 
+		updated_by = $3 
+	WHERE 
+		maintenance_plan_id = $4
+	AND $3::UUID = ANY(sharable_groups);`
+
+	_, err = tx.Exec(sqlStr,
+		draftSelectedMaintenanceAlert.IsRead,
+		time.Now(),
+		userID,
+		draftSelectedMaintenanceAlert.ID,
+	)
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("failed to update query: %w", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }
 
 // UpdateUserProfile ...

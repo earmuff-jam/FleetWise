@@ -120,6 +120,101 @@ func GetProfileStats(rw http.ResponseWriter, r *http.Request, user string) {
 	json.NewEncoder(rw).Encode(resp)
 }
 
+// GetNotifications ...
+// swagger:route GET /api/v1/profile/{id}/notifications Profiles getNotifications
+//
+// # Retrieves the notifications of all the maintenance plans that are in alert status.
+// Alert status is defined as having due_date within 7 days from the current timestamp.
+//
+// Parameters:
+//   - +name: id
+//     in: path
+//     description: The userID of the selected user
+//     required: true
+//     type: string
+//
+// Responses:
+// 200: []MaintenanceAlertNotifications
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func GetNotifications(rw http.ResponseWriter, r *http.Request, user string) {
+
+	vars := mux.Vars(r)
+	userID := vars["id"]
+
+	if len(userID) <= 0 {
+		log.Printf("Unable to retrieve profile with empty id")
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(nil)
+		return
+	}
+
+	resp, err := db.FetchNotifications(user, userID)
+	if err != nil {
+		log.Printf("Unable to retrieve profile notifications. error: +%v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+
+	}
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode(resp)
+}
+
+// UpdateSelectedMaintenanceNotification ...
+// swagger:route GET /api/v1/profile/{id}/notifications Profiles updateSelectedMaintenanceNotification
+//
+// # Updates a selected maintenance notification between read and unread state
+//
+// Parameters:
+//   - +name: id
+//     in: path
+//     description: The userID of the selected user
+//     required: true
+//     type: string
+//   - +name: MaintenanceAlertNotificationRequest
+//     in: body
+//     description: The maintenance alert notification object to update
+//     type: MaintenanceAlertNotificationRequest
+//     required: true
+//
+// Responses:
+// 200: MessageResponse
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func UpdateSelectedMaintenanceNotification(rw http.ResponseWriter, r *http.Request, user string) {
+	vars := mux.Vars(r)
+	userID := vars["id"]
+
+	if len(userID) <= 0 {
+		log.Printf("Unable to update profile with empty id")
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(nil)
+		return
+	}
+
+	var updateMaintenanceAlertNotification model.MaintenanceAlertNotificationRequest
+	if err := json.NewDecoder(r.Body).Decode(&updateMaintenanceAlertNotification); err != nil {
+		log.Printf("Error decoding data. error: %+v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err := db.UpdateSelectedNotification(user, userID, updateMaintenanceAlertNotification)
+	if err != nil {
+		log.Printf("Unable to update selected notification. error: +%v", err)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode("200 OK")
+}
+
 // GetFavouriteItems ...
 // swagger:route GET /api/v1/profile/{id}/fav Profiles getFavouriteItems
 //
