@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { enqueueSnackbar } from 'notistack';
+
 import { Button, Stack } from '@mui/material';
 import { authActions } from '@features/LandingPage/authSlice';
 import { SIGN_UP_FORM_FIELDS } from '@features/LandingPage/constants';
+
 import SignupFormFields from '@features/LandingPage/Authentication/Signup/SignupFormFields';
 import SingupCheckboxField from '@features/LandingPage/Authentication/Signup/SignupCheckboxField';
 import SignupTermsConditions from '@features/LandingPage/Authentication/Signup/SignupTermsConditions';
@@ -37,6 +40,9 @@ export default function Signup({ handleClose }) {
         return acc;
       }, {});
       dispatch(authActions.getSignup(formattedData));
+      enqueueSnackbar('Successfully created new user. Please login.', {
+        variant: 'success',
+      });
       handleClose(false);
     }
   };

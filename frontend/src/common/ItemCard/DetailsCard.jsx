@@ -6,17 +6,18 @@ import { produce } from 'immer';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { Card, CardMedia, Paper, Stack } from '@mui/material';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Card, CardMedia, Paper, Stack } from '@mui/material';
 
 import SimpleModal from '@common/SimpleModal';
 import SharableGroups from '@common/SharableGroups';
 import ImagePicker from '@common/ImagePicker/ImagePicker';
+import LocationPicker from '@common/Location/LocationPicker';
+
 import DetailsCardItemContent from '@common/ItemCard/ItemContent/DetailsCardItemContent';
 import DetailsCardItemActions from '@common/ItemCard/ItemContent/DetailsCardItemActions';
 import { categoryItemDetailsActions } from '@features/CategoryItemDetails/categoryItemDetailsSlice';
 import { maintenancePlanItemActions } from '@features/MaintenancePlanItemDetails/maintenancePlanItemSlice';
-import LocationPicker from '@common/Location/LocationPicker';
 
 dayjs.extend(relativeTime);
 
@@ -87,8 +88,8 @@ export default function DetailsCard({ selectedItem, selectedImage, categoryMode 
           />
         </Card>
         {selectedItem?.location?.lat ? (
-          <Paper elevation={2} sx={{ width: { xs: '100%', sm: '20rem' }, height: '10rem', flexGrow: 1 }}>
-            <LocationPicker location={selectedItem?.location} height="26vh" />
+          <Paper elevation={2} sx={{ width: { xs: '100%', sm: '20rem' }, height: 'inherit', flexGrow: 1 }}>
+            <LocationPicker location={selectedItem?.location} height={'100%'} />
           </Paper>
         ) : null}
       </Stack>

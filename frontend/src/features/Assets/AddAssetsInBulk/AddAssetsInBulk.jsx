@@ -2,8 +2,10 @@ import * as XLSX from 'xlsx';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { enqueueSnackbar } from 'notistack';
 import { Button, Stack } from '@mui/material';
 import { SaveRounded } from '@mui/icons-material';
+
 import { inventoryActions } from '@features/Assets/inventorySlice';
 import ViewFileContent from '@features/Assets/AddAssetsInBulk/ViewFileContent';
 import AddAssetsInBulkActions from '@features/Assets/AddAssetsInBulk/AddAssetsInBulkActions';
@@ -66,6 +68,9 @@ export default function AddAssetsInBulk({ handleClose }) {
     if (Array.isArray(uploadedFileInJson) && uploadedFileInJson.length > 0) {
       dispatch(inventoryActions.addBulkInventory(uploadedFileInJson));
     }
+    enqueueSnackbar('Uploaded inventories in bulk.', {
+      variant: 'success',
+    });
     resetData();
   };
 

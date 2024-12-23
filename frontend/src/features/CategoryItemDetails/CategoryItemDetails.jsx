@@ -27,7 +27,7 @@ export default function CategoryItemDetails() {
     loading = false,
   } = useSelector((state) => state.categoryItemDetails);
 
-  const [rowSelected, setRowSelected] = useState([]);
+  const [selectedIDList, setSelectedIDList] = useState([]);
   const [displayModal, setDisplayModal] = useState(false);
   const [openConfirmationBoxModal, setOpenConfirmationBoxModal] = useState(false);
 
@@ -40,22 +40,25 @@ export default function CategoryItemDetails() {
 
   const resetSelection = () => {
     setDisplayModal(false);
-    setRowSelected([]);
+    setSelectedIDList([]);
   };
 
   const resetConfirmationBoxModal = () => setOpenConfirmationBoxModal(false);
 
   const confirmDelete = () => {
-    dispatch(categoryItemDetailsActions.removeItemsFromCategory({ id: selectedCategory?.id, rowSelected }));
+    dispatch(categoryItemDetailsActions.removeItemsFromCategory({ id: selectedCategory?.id, selectedIDList }));
     enqueueSnackbar(`Removed association of assets for ${selectedCategory.name}.`, {
       variant: 'default',
     });
+    setSelectedIDList([]);
     resetConfirmationBoxModal();
   };
 
   const addItems = () => {
     const collaborators = selectedCategory.sharable_groups;
-    dispatch(categoryItemDetailsActions.addItemsInCategory({ id: selectedCategory?.id, rowSelected, collaborators }));
+    dispatch(
+      categoryItemDetailsActions.addItemsInCategory({ id: selectedCategory?.id, selectedIDList, collaborators })
+    );
     enqueueSnackbar(`Added association of assets for ${selectedCategory.name}.`, {
       variant: 'success',
     });
@@ -93,8 +96,8 @@ export default function CategoryItemDetails() {
         image={selectedCategoryImage}
       />
       <ItemContent
-        selectedIDList={rowSelected}
-        setSelectedIDList={setRowSelected}
+        selectedIDList={selectedIDList}
+        setSelectedIDList={setSelectedIDList}
         items={itemsInCategory}
         handleOpenModal={handleOpenModal}
         handleRemoveAssociation={handleRemoveAssociation}
@@ -106,13 +109,13 @@ export default function CategoryItemDetails() {
           handleClose={resetSelection}
           showSecondaryButton
           secondaryButtonAction={addItems}
-          disableSecondaryButton={rowSelected.length <= 0}
+          disableSecondaryButton={selectedIDList.length <= 0}
           secondaryButtonIcon={<AddRounded />}
           maxSize="md"
         >
           <AddItem
-            selectedIDList={rowSelected}
-            setSelectedIDList={setRowSelected}
+            selectedIDList={selectedIDList}
+            setSelectedIDList={setSelectedIDList}
             resetSelection={resetSelection}
             associatedItems={itemsInCategory}
           />

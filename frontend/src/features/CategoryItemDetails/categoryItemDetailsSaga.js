@@ -39,11 +39,11 @@ export function* getItemsForCategory(action) {
 export function* fetchAddItemsInCategory(action) {
   try {
     const userID = localStorage.getItem('userID');
-    const { id, rowSelected, collaborators } = action.payload;
+    const { id, selectedIDList, collaborators } = action.payload;
     const response = yield call(instance.post, `${BASEURL}/category/items`, {
       id,
       userID,
-      assetIDs: rowSelected,
+      assetIDs: selectedIDList,
       collaborators: collaborators,
     });
     yield put(categoryItemDetailsActions.addItemsInCategorySuccess(response.data));
@@ -55,13 +55,13 @@ export function* fetchAddItemsInCategory(action) {
 export function* removeItemsFromCategory(action) {
   try {
     const userID = localStorage.getItem('userID');
-    const { id, rowSelected } = action.payload;
+    const { id, selectedIDList } = action.payload;
     yield call(instance.post, `${BASEURL}/category/remove/items`, {
       id,
       userID,
-      assetIDs: rowSelected,
+      assetIDs: selectedIDList,
     });
-    yield put(categoryItemDetailsActions.removeItemsFromCategorySuccess(rowSelected));
+    yield put(categoryItemDetailsActions.removeItemsFromCategorySuccess(selectedIDList));
   } catch (e) {
     yield put(categoryItemDetailsActions.removeItemsFromCategoryFailure(e));
   }

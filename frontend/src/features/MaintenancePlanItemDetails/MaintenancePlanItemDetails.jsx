@@ -51,6 +51,7 @@ export default function MaintenancePlanItemDetails() {
     enqueueSnackbar(`Removed association of assets for ${selectedMaintenancePlan.name}.`, {
       variant: 'default',
     });
+    setSelectedIDList([]);
     resetConfirmationBoxModal();
   };
 

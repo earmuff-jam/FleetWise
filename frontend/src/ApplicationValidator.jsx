@@ -1,7 +1,6 @@
 import steps from './tour/steps';
 import { useSelector } from 'react-redux';
 import { Suspense, useEffect, useState } from 'react';
-import { SnackbarProvider } from 'notistack';
 import { TourProvider } from '@reactour/tour';
 import { RouterProvider } from 'react-router-dom';
 import { Dialog } from '@mui/material';
@@ -24,17 +23,9 @@ const ApplicationValidator = () => {
 
   return loggedInUser ? (
     <TourProvider steps={steps}>
-      <SnackbarProvider
-        dense
-        preventDuplicate
-        maxSnack={3}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        autoHideDuration={3000}
-      >
-        <Suspense fallback={<Dialog open={loading} title="Loading..." />}>
-          <RouterProvider router={router} />
-        </Suspense>
-      </SnackbarProvider>
+      <Suspense fallback={<Dialog open={loading} title="Loading..." />}>
+        <RouterProvider router={router} />
+      </Suspense>
     </TourProvider>
   ) : (
     <LandingPage />
