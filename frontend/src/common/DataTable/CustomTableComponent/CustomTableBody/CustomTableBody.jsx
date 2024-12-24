@@ -23,7 +23,7 @@ export default function CustomTableBody({
         const selectedID = row.id;
         const isItemSelected = isSelected(selectedID);
         return (
-          <TableRow hover key={row.id}>
+          <TableRow hover key={row.id} data-tour="13">
             {!hideCheckBox && (
               <CustomCheckboxTableCell
                 selectedID={selectedID}

@@ -53,7 +53,7 @@ export default function AssetList() {
   }, []);
 
   return (
-    <Stack flexGrow="1" spacing={2}>
+    <Stack flexGrow="1" spacing={2} data-tour="7">
       <AssetListHeader
         gridMode={gridMode}
         setGridMode={setGridMode}

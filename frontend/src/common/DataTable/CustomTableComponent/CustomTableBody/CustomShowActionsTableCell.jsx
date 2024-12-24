@@ -13,12 +13,12 @@ export default function CustomShowActionsTableCell({
     <TableCell>
       <Stack direction="row">
         {!hideIconButton && (
-          <IconButton onClick={() => handleEdit(selectedID)} size="small">
+          <IconButton onClick={() => handleEdit(selectedID)} size="small" data-tour="12">
             <EditRounded color="primary" fontSize="small" />
           </IconButton>
         )}
         {!hideMoreDetailsButton && (
-          <IconButton size="small" onClick={() => onRowSelect(row)}>
+          <IconButton size="small" onClick={() => onRowSelect(row)} data-tour="11">
             <FileOpenRounded color="primary" fontSize="small" />
           </IconButton>
         )}

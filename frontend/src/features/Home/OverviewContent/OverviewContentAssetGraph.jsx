@@ -12,7 +12,7 @@ export default function OverviewContentAssetGraph({ assets = [], categories = []
   }));
 
   return (
-    <>
+    <Stack data-tour="6">
       <RowHeader title="Graph" caption="View details for asset summary" />
       <Card>
         <CardContent>
@@ -23,6 +23,6 @@ export default function OverviewContentAssetGraph({ assets = [], categories = []
           </Stack>
         </CardContent>
       </Card>
-    </>
+    </Stack>
   );
 }

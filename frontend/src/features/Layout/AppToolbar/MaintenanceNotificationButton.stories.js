@@ -1,18 +1,18 @@
-import AppToolbarActionButtons from '@features/Layout/AppToolbar/AppToolbarActionButtons';
+import MaintenanceNotificationButton from '@features/Layout/AppToolbar/MaintenanceNotificationButton';
 
 export default {
-  title: 'Layout/AppToolbar/AppToolbarActionButtons',
-  component: AppToolbarActionButtons,
+  title: 'Layout/AppToolbar/MaintenanceNotificationButton',
+  component: MaintenanceNotificationButton,
   tags: ['autodocs'],
 };
 
-const Template = (args) => <AppToolbarActionButtons {...args} />;
+const Template = (args) => <MaintenanceNotificationButton {...args} />;
 
-export const AppToolbarActionButtonsDefault = Template.bind({});
-export const AppToolbarActionButtonsEmptyProfileDetails = Template.bind({});
-export const AppToolbarActionButtonsSmallFormFactor = Template.bind({});
+export const MaintenanceNotificationButtonDefault = Template.bind({});
+export const MaintenanceNotificationButtonEmptyProfileDetails = Template.bind({});
+export const MaintenanceNotificationButtonSmallFormFactor = Template.bind({});
 
-AppToolbarActionButtonsDefault.args = {
+MaintenanceNotificationButtonDefault.args = {
   profileDetails: {
     id: 'fa956520-fc6c-4783-acc6-4ba743fae9dc',
     username: 'IngestSvcUser',
@@ -30,7 +30,7 @@ AppToolbarActionButtonsDefault.args = {
   smScreenSizeAndHigher: false,
 };
 
-AppToolbarActionButtonsSmallFormFactor.args = {
+MaintenanceNotificationButtonSmallFormFactor.args = {
   profileDetails: {
     id: 'fa956520-fc6c-4783-acc6-4ba743fae9dc',
     username: 'IngestSvcUser',
@@ -48,7 +48,7 @@ AppToolbarActionButtonsSmallFormFactor.args = {
   smScreenSizeAndHigher: true,
 };
 
-AppToolbarActionButtonsEmptyProfileDetails.args = {
+MaintenanceNotificationButtonEmptyProfileDetails.args = {
   profileDetails: {},
   smScreenSizeAndHigher: false,
 };

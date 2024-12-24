@@ -59,7 +59,7 @@ const CategoryList = ({ displayConcise = false }) => {
   }, []);
 
   return (
-    <Stack sx={{ py: 2 }}>
+    <Stack sx={{ py: 2 }} data-tour="14">
       <SectionCardHeader
         title="Categories"
         caption={selectedFilter ? `Applying ${selectedFilter} status filter` : 'Organize items into categories'}

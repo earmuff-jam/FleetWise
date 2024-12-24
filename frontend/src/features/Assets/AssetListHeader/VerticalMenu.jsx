@@ -29,6 +29,7 @@ export default function VerticalMenu({
         aria-expanded={open ? 'true' : undefined}
         aria-haspopup="true"
         onClick={handleClick}
+        data-tour="10"
       >
         <MoreVertIcon />
       </IconButton>

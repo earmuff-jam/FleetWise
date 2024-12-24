@@ -12,7 +12,7 @@ export default function OverviewContentAssetBreakdown({ assets = [], categories 
   const handleClick = (to) => navigate(to);
 
   return (
-    <>
+    <Stack data-tour="5">
       <RowHeader title="Asset Breakdown" caption="View details about your categories and plans." />
       <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
         <OverviewCardWrapper>
@@ -46,6 +46,6 @@ export default function OverviewContentAssetBreakdown({ assets = [], categories 
           />
         </OverviewCardWrapper>
       </Stack>
-    </>
+    </Stack>
   );
 }

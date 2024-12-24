@@ -15,7 +15,7 @@ export default function OverviewContentSummary({ assets = [] }) {
   }, 0);
 
   return (
-    <>
+    <Stack data-tour="4">
       <RowHeader title="Cost Summary" caption="View details about associated costs and unestimated assets." />
       <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
         <OverviewCardWrapper>
@@ -39,6 +39,6 @@ export default function OverviewContentSummary({ assets = [] }) {
           />
         </OverviewCardWrapper>
       </Stack>
-    </>
+    </Stack>
   );
 }

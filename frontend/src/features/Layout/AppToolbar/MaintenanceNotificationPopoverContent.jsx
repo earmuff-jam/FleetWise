@@ -1,10 +1,16 @@
 import dayjs from 'dayjs';
+import { EmptyComponent } from '@common/utils';
 
 import { CircleRounded, DoneRounded } from '@mui/icons-material';
 import { Menu, MenuItem, Skeleton, Stack, Typography } from '@mui/material';
-import { EmptyComponent } from '@common/utils';
 
-export default function AppToolbarPopoverContent({ loading, anchorEl, handleClose, toggleReadOption, options = [] }) {
+export default function MaintenanceNotificationPopoverContent({
+  loading,
+  anchorEl,
+  handleClose,
+  toggleReadOption,
+  options = [],
+}) {
   const open = Boolean(anchorEl);
 
   if (loading) return <Skeleton height="100%" />;

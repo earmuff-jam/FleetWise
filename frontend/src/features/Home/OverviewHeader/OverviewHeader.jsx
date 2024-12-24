@@ -12,7 +12,7 @@ export default function OverviewHeader({
   assetsPastDue = [],
 }) {
   return (
-    <>
+    <Stack data-tour="3">
       <RowHeader title="Asset Summary" caption="View details about your assets." />
       <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap">
         <OverviewCardWrapper>
@@ -43,6 +43,6 @@ export default function OverviewHeader({
           />
         </OverviewCardWrapper>
       </Stack>
-    </>
+    </Stack>
   );
 }

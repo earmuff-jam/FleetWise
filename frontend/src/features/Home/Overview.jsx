@@ -37,9 +37,9 @@ export default function Overview() {
   }
 
   return (
-    <>
+    <Stack data-tour="1">
       <RowHeader title="Overview" caption="View a summarized report about your assets." />
-      <Stack spacing={2}>
+      <Stack spacing={2} data-tour="2">
         <OverviewHeader
           assetsUnderCategories={assetsUnderCategories}
           assetsUnderMaintenancePlans={assetsUnderMaintenancePlans}
@@ -51,6 +51,6 @@ export default function Overview() {
           maintenancePlans={assetSummary?.AssetSummaryList?.filter((v) => v.type.toUpperCase() === 'M')}
         />
       </Stack>
-    </>
+    </Stack>
   );
 }
