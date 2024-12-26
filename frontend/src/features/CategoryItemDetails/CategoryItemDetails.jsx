@@ -70,7 +70,7 @@ export default function CategoryItemDetails() {
   };
 
   useEffect(() => {
-    if (!loading && !selectedCategoryImage) {
+    if (!loading) {
       dispatch(categoryItemDetailsActions.getSelectedImage({ id }));
     }
   }, [loading]);

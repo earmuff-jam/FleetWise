@@ -21,6 +21,16 @@ export function* getSelectedMaintenancePlan(action) {
   }
 }
 
+export function* updateCollaborators(action) {
+  try {
+    const { id } = action.payload;
+    const response = yield call(instance.put, `${BASEURL}/plan/${id}`, { ...action.payload });
+    yield put(maintenancePlanItemActions.updateCollaboratorsSuccess(response.data));
+  } catch (e) {
+    yield put(maintenancePlanItemActions.updateCollaboratorsFailure(e));
+  }
+}
+
 export function* getItemsInMaintenancePlan(action) {
   try {
     const mID = action.payload;
@@ -109,6 +119,10 @@ export function* watchGetItemsInMaintenancePlan() {
   yield takeLatest(`maintenancePlanItem/getItemsInMaintenancePlan`, getItemsInMaintenancePlan);
 }
 
+export function* watchUpdateCollaborators() {
+  yield takeLatest(`maintenancePlanItem/updateCollaborators`, updateCollaborators);
+}
+
 export function* watchFetchAddItemsInPlan() {
   yield takeLatest(`maintenancePlanItem/addItemsInPlan`, fetchAddItemsInPlan);
 }
@@ -131,5 +145,6 @@ export default [
   watchGetSelectedMaintenancePlan,
   watchRemoveItemsFromMaintenancePlan,
   watchGetSelectedImage,
+  watchUpdateCollaborators,
   watchUploadImage,
 ];

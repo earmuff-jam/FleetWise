@@ -113,16 +113,21 @@ export default function SelectedAsset() {
   };
 
   const handleUpload = (id, imgFormData) => {
-    dispatch(inventoryActions.uploadImage({ id: id, selectedImage: imgFormData }));
+    dispatch(inventoryActions.uploadAndRefreshData({ id: id, selectedImage: imgFormData }));
     setEditImgMode(false);
   };
 
   useEffect(() => {
     if (id.length > 0) {
       dispatch(inventoryActions.getInvByID(id));
-      dispatch(inventoryActions.getSelectedImage({ id }));
     }
   }, [id]);
+
+  useEffect(() => {
+    if (!loading && !selectedImage) {
+      dispatch(inventoryActions.getSelectedImage({ id }));
+    }
+  }, [loading]);
 
   useEffect(() => {
     if (!loading || !storageLocationsLoading) {
@@ -146,8 +151,8 @@ export default function SelectedAsset() {
       selectedAsset.updated_by.value = inventory.updated_by || '';
       selectedAsset.updated_at.value = inventory.updated_at || '';
       selectedAsset.sharable_groups.value = inventory.sharable_groups || [];
-      selectedAsset.creator_name = inventory.creator_name;
-      selectedAsset.updator_name = inventory.updater_name;
+      selectedAsset.creator_name = inventory?.creator_name || '';
+      selectedAsset.updator_name = inventory?.updater_name || '';
 
       if (inventory?.return_datetime) {
         setReturnDateTime(dayjs(inventory.return_datetime));

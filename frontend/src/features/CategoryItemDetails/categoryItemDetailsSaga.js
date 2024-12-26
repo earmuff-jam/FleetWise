@@ -21,6 +21,16 @@ export function* getCategory(action) {
   }
 }
 
+export function* updateCollaborators(action) {
+  try {
+    const { id } = action.payload;
+    const response = yield call(instance.put, `${BASEURL}/category/${id}`, { ...action.payload });
+    yield put(categoryItemDetailsActions.updateCollaboratorsSuccess(response.data));
+  } catch (e) {
+    yield put(categoryItemDetailsActions.updateCollaboratorsFailure(e));
+  }
+}
+
 export function* getItemsForCategory(action) {
   try {
     const catID = action.payload;
@@ -109,6 +119,10 @@ export function* watchGetItemsForCategory() {
   yield takeLatest(`categoryItemDetails/getItemsForCategory`, getItemsForCategory);
 }
 
+export function* watchUpdateCollaborators() {
+  yield takeLatest(`categoryItemDetails/updateCollaborators`, updateCollaborators);
+}
+
 export function* watchFetchAddItemsInCategory() {
   yield takeLatest(`categoryItemDetails/addItemsInCategory`, fetchAddItemsInCategory);
 }
@@ -127,9 +141,10 @@ export function* watchGetSelectedImage() {
 
 export default [
   watchGetCategory,
-  watchGetItemsForCategory,
-  watchFetchAddItemsInCategory,
-  watchRemoveItemsFromCategory,
   watchUploadImage,
   watchGetSelectedImage,
+  watchGetItemsForCategory,
+  watchUpdateCollaborators,
+  watchRemoveItemsFromCategory,
+  watchFetchAddItemsInCategory,
 ];

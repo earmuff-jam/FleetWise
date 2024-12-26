@@ -80,10 +80,10 @@ export default function MaintenancePlanItemDetails() {
   };
 
   useEffect(() => {
-    if (!loading && selectedMaintenancePlanImage) {
+    if (!loading) {
       dispatch(maintenancePlanItemActions.getSelectedImage({ id }));
     }
-  }, [loading]);
+  }, [id, loading]);
 
   useEffect(() => {
     if (id) {
