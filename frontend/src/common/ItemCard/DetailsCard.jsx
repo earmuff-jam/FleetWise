@@ -56,7 +56,7 @@ export default function DetailsCard({ selectedItem, selectedImage, categoryMode 
       }
     });
     if (categoryMode) {
-      dispatch(categoryItemDetailsActions.updateCategory(draftSelectionDetails));
+      dispatch(categoryItemDetailsActions.updateCollaborators(draftSelectionDetails));
       enqueueSnackbar('Updated collaborators for selected category.', {
         variant: 'success',
       });
@@ -64,7 +64,7 @@ export default function DetailsCard({ selectedItem, selectedImage, categoryMode 
         navigate('/');
       }
     } else {
-      dispatch(maintenancePlanItemActions.updatePlan(draftSelectionDetails));
+      dispatch(maintenancePlanItemActions.updateCollaborators(draftSelectionDetails));
       enqueueSnackbar('Updated collaborators for selected maintenance plan.', {
         variant: 'success',
       });

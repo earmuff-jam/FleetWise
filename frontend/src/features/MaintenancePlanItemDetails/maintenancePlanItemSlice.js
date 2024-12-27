@@ -27,6 +27,19 @@ const maintenancePlanItemSlice = createSlice({
       state.error = '';
       state.selectedMaintenancePlan = {};
     },
+    updateCollaborators: (state) => {
+      state.loading = true;
+      state.error = '';
+    },
+    updateCollaboratorsSuccess: (state, action) => {
+      state.selectedMaintenancePlan = action.payload;
+      state.loading = false;
+      state.error = '';
+    },
+    updateCollaboratorsFailure: (state) => {
+      state.loading = false;
+      state.error = '';
+    },
     getItemsInMaintenancePlan: (state) => {
       state.loading = true;
       state.error = '';
@@ -75,6 +88,7 @@ const maintenancePlanItemSlice = createSlice({
     },
     uploadImageSuccess: (state) => {
       state.loading = false;
+      state.selectedMaintenancePlanImage = '';
       state.error = '';
     },
     uploadImageFailure: (state) => {

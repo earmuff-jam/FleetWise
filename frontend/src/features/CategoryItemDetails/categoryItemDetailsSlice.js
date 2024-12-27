@@ -27,6 +27,19 @@ const categoryItemDetailsSlice = createSlice({
       state.error = '';
       state.selectedCategory = {};
     },
+    updateCollaborators: (state) => {
+      state.loading = true;
+      state.error = '';
+    },
+    updateCollaboratorsSuccess: (state, action) => {
+      state.selectedCategory = action.payload;
+      state.loading = false;
+      state.error = '';
+    },
+    updateCollaboratorsFailure: (state) => {
+      state.loading = false;
+      state.error = '';
+    },
     getItemsForCategory: (state) => {
       state.loading = true;
       state.error = '';
@@ -77,6 +90,7 @@ const categoryItemDetailsSlice = createSlice({
     },
     uploadImageSuccess: (state) => {
       state.loading = false;
+      state.selectedCategoryImage = '';
       state.error = '';
     },
     uploadImageFailure: (state) => {
