@@ -18,13 +18,14 @@ const RecentActivityList = () => {
   };
 
   return (
-    <Stack>
+    <Stack data-tour="recentActivities-0">
       <RowHeader
         title="Recent Activities"
         caption="View all of your recent activities here. You can view all associated activities performed by yourself. Track changes for the last ten assets. Download all recent activities for the past 30 days."
         primaryButtonTextLabel="Export"
         primaryStartIcon={<DownloadRounded />}
         handleClickPrimaryButton={downloadRecentActivities}
+        primaryBtnDataTour="recentActivities-1"
       />
       <Divider sx={{ marginTop: '1rem', marginBottom: '1rem' }} />
       <RecentActivityAccordion />

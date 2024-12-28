@@ -1,11 +1,15 @@
-import steps from './tour/steps';
-import { useSelector } from 'react-redux';
 import { Suspense, useEffect, useState } from 'react';
+
+import { useSelector } from 'react-redux';
+
 import { TourProvider } from '@reactour/tour';
 import { RouterProvider } from 'react-router-dom';
+
 import { Dialog } from '@mui/material';
-import { router } from './common/router';
-import LandingPage from './features/LandingPage/LandingPage';
+import { router } from '@common/router';
+
+import DEFAULT_TOUR_STEPS from '@utils/tour/steps';
+import LandingPage from '@features/LandingPage/LandingPage';
 
 const ApplicationValidator = () => {
   const { loading } = useSelector((state) => state.auth);
@@ -22,7 +26,7 @@ const ApplicationValidator = () => {
   }, [loading]);
 
   return loggedInUser ? (
-    <TourProvider steps={steps}>
+    <TourProvider steps={DEFAULT_TOUR_STEPS}>
       <Suspense fallback={<Dialog open={loading} title="Loading..." />}>
         <RouterProvider router={router} />
       </Suspense>

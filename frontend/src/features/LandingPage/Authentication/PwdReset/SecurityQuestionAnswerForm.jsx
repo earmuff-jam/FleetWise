@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
 import { FORGOT_PASSWORD_FORM_FIELDS } from '../../constants';
 import { Button, List, ListItem, ListItemText, Skeleton, Stack, TextField, Typography } from '@mui/material';
-import RowHeader from '../../../../common/RowHeader';
 import { useSelector } from 'react-redux';
+import RowHeader from '@common/RowHeader';
 
 export const SECURITY_QUESTIONS = [
   {

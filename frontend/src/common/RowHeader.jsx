@@ -14,6 +14,8 @@ const RowHeader = ({
   secondaryButtonDisabled,
   handleClickPrimaryButton,
   handleClickSecondaryButton,
+  primaryBtnDataTour,
+  secondaryBtnDataTour,
   children,
 }) => {
   return (
@@ -38,6 +40,7 @@ const RowHeader = ({
             size="small"
             color="primary"
             variant="outlined"
+            data-tour={primaryBtnDataTour}
             disabled={primaryButtonDisabled}
             onClick={handleClickPrimaryButton}
             startIcon={primaryStartIcon}
@@ -50,6 +53,7 @@ const RowHeader = ({
             size="small"
             color="primary"
             variant="outlined"
+            data-tour={secondaryBtnDataTour}
             disabled={secondaryButtonDisabled}
             onClick={handleClickSecondaryButton}
             startIcon={secondaryStartIcon}

@@ -1,8 +1,8 @@
 import { Paper, Skeleton, Table, TableContainer } from '@mui/material';
 
-import { EmptyComponent } from '../../utils';
-import CustomTableBody from './CustomTableBody/CustomTableBody';
-import CustomTableHeader from './CustomTableHeader/CustomTableHeader';
+import { EmptyComponent } from '@common/utils';
+import CustomTableBody from '@common/DataTable/CustomTableComponent/CustomTableBody/CustomTableBody';
+import CustomTableHeader from '@common/DataTable/CustomTableComponent/CustomTableHeader/CustomTableHeader';
 
 /**
  * TableComponent React Function - Displays the inventory table

@@ -6,13 +6,20 @@ export default function SectionCardHeaderButton({
   handleButtonClick,
   handleIconButtonClick,
   disableDownloadIcon,
+  addBtnDataTour,
+  downloadBtnDataTour,
 }) {
   return (
     <Stack direction="row" spacing={1}>
-      <Button onClick={handleButtonClick} startIcon={<AddRounded />} variant="outlined">
+      <Button onClick={handleButtonClick} startIcon={<AddRounded />} variant="outlined" data-tour={addBtnDataTour}>
         {title}
       </Button>
-      <IconButton size="small" onClick={handleIconButtonClick} disabled={disableDownloadIcon}>
+      <IconButton
+        size="small"
+        onClick={handleIconButtonClick}
+        disabled={disableDownloadIcon}
+        data-tour={downloadBtnDataTour}
+      >
         <FileDownload fontSize="small" />
       </IconButton>
     </Stack>

@@ -6,7 +6,14 @@ import { CloseRounded, FilterAltRounded, SortRounded } from '@mui/icons-material
 
 import { STATUS_OPTIONS } from '@common/StatusOptions/constants';
 
-export default function FilterAndSortMenu({ sortingOrder, setSortingOrder, selectedFilter, setSelectedFilter }) {
+export default function FilterAndSortMenu({
+  sortingOrder,
+  setSortingOrder,
+  selectedFilter,
+  setSelectedFilter,
+  filterBtnDataTour,
+  sortBtnDataTour,
+}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -27,11 +34,11 @@ export default function FilterAndSortMenu({ sortingOrder, setSortingOrder, selec
 
   return (
     <Stack sx={{ flexDirection: 'row', gap: '1rem', mb: '1rem' }}>
-      <IconButton size="small" onClick={handleOpenMenu}>
+      <IconButton size="small" onClick={handleOpenMenu} data-tour={filterBtnDataTour}>
         <FilterAltRounded fontSize="small" />
       </IconButton>
       <Tooltip title={`${sortingOrder ? 'DESC' : 'ASC'}`}>
-        <IconButton size="small" onClick={toggleSort} disabled={Boolean(selectedFilter)}>
+        <IconButton size="small" onClick={toggleSort} disabled={Boolean(selectedFilter)} data-tour={sortBtnDataTour}>
           <SortRounded fontSize="small" />
         </IconButton>
       </Tooltip>

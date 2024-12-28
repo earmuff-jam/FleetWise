@@ -3,12 +3,11 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { enqueueSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux';
-
-import { ADD_ASSET_FORM } from './constants';
-import { inventoryActions } from '../inventorySlice';
-
 import { Box, Skeleton, Typography } from '@mui/material';
+import { inventoryActions } from '@features/Assets/inventorySlice';
+
 import AddAssetSteps from '@features/Assets/AddAssetFormDetails/AddAssetSteps';
+import { ADD_ASSET_FORM } from '@features/Assets/AddAssetFormDetails/constants';
 import AddAssetFormSelection from '@features/Assets/AddAssetFormDetails/AddAssetFormSelection';
 import AddAssetActionButtons from '@features/Assets/AddAssetFormDetails/AddAssetActionButtons';
 import AddAssetFormInstructions from '@features/Assets/AddAssetFormDetails/AddAssetFormInstructions';

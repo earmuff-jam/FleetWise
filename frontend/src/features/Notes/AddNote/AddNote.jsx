@@ -1,17 +1,17 @@
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import { Button, Stack } from '@mui/material';
-import { ADD_NOTES_FORM_FIELDS } from '../constants';
 import { useDispatch } from 'react-redux';
 import { AddRounded, CheckCircleRounded } from '@mui/icons-material';
-import { notesActions } from '../notesSlice';
-import ColorPicker from '../../../common/ColorPicker';
 import dayjs from 'dayjs';
-import AddNoteHeader from './AddNoteHeader';
-import AddNoteStatusOptions from './AddNoteStatusOptions';
-import CustomDatePicker from '../../../common/DatePicker/CustomDatePicker';
-import AddNoteLocationPicker from './AddNoteLocationPicker';
 import { STATUS_OPTIONS } from '@common/StatusOptions/constants';
+import ColorPicker from '@common/ColorPicker';
+import CustomDatePicker from '@common/DatePicker/CustomDatePicker';
+import { ADD_NOTES_FORM_FIELDS } from '@features/Notes/constants';
+import { notesActions } from '@features/Notes/notesSlice';
+import AddNoteHeader from '@features/Notes/AddNote/AddNoteHeader';
+import AddNoteStatusOptions from '@features/Notes/AddNote/AddNoteStatusOptions';
+import AddNoteLocationPicker from '@features/Notes/AddNote/AddNoteLocationPicker';
 
 const AddNote = ({ setEditMode, setSelectedNoteID, noteID, notes }) => {
   const dispatch = useDispatch();

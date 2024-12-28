@@ -1,13 +1,15 @@
-import { Paper, Stack, useMediaQuery } from '@mui/material';
-import { useTheme } from '@emotion/react';
 import { useState } from 'react';
+import { useTheme } from '@emotion/react';
 import { useSelector } from 'react-redux';
 import SimpleModal from '@common/SimpleModal';
-import UserDemographics from '@features/Profile/UserDemographics/UserDemographics';
-import UserDetails from '@features/Profile/UserDetails/UserDetails';
+import { Paper, Stack, useMediaQuery } from '@mui/material';
+
 import UserStatus from '@features/Profile/UserStatus/UserStatus';
-import AppearanceSettings from '@features/Profile/AppearanceSettings/AppearanceSettings';
 import ProfileForm from '@features/Profile/ProfileForm/ProfileForm';
+
+import UserDetails from '@features/Profile/UserDetails/UserDetails';
+import UserDemographics from '@features/Profile/UserDemographics/UserDemographics';
+import AppearanceSettings from '@features/Profile/AppearanceSettings/AppearanceSettings';
 
 const ProfilePage = () => {
   const theme = useTheme();
@@ -17,15 +19,15 @@ const ProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} data-tour="profile-0">
       <Stack direction={onlySmallScreen ? 'column' : 'row'} spacing={1}>
         <UserDemographics data={data} handleEditMode={() => setEditMode(!editMode)} />
         <UserDetails data={data} />
       </Stack>
-      <Paper sx={{ padding: '1rem' }}>
+      <Paper sx={{ padding: '1rem' }} data-tour="profile-5">
         <UserStatus profileStats={profileStats} onlySmallScreen={onlySmallScreen} />
       </Paper>
-      <Paper sx={{ padding: '1rem' }}>
+      <Paper sx={{ padding: '1rem' }} data-tour="profile-6">
         <AppearanceSettings loading={loading} profileDetails={data} />
       </Paper>
       {editMode && (

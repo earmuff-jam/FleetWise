@@ -2,8 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { FavoriteRounded } from '@mui/icons-material';
 import { CardContent, IconButton, Stack, Typography } from '@mui/material';
-
-import { profileActions } from '../../../features/Profile/profileSlice';
+import { profileActions } from '@features/Profile/profileSlice';
 
 export default function DetailsCardItemContent({ selectedItem, categoryMode }) {
   const dispatch = useDispatch();

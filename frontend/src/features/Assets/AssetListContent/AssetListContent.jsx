@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import SimpleModal from '@common/SimpleModal';
 import { Stack, TextField } from '@mui/material';
-import GridComponent from '@common/DataTable/GridComponent';
+import GridComponent from '@features/Assets/AssetListContent/GridComponent';
 import { inventoryActions } from '@features/Assets/inventorySlice';
 
 import { CheckRounded, CloseRounded, EditRounded } from '@mui/icons-material';

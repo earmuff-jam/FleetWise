@@ -28,7 +28,7 @@ const NotesList = () => {
   }, []);
 
   return (
-    <Stack spacing="1rem">
+    <Stack spacing="1rem" data-tour="notes-0">
       <NoteHeader handleClick={handleEditMode} />
       <Note notes={notes} loading={loading} setEditMode={setEditMode} setSelectedNoteID={setSelectedNoteID} />
       {editMode && (
