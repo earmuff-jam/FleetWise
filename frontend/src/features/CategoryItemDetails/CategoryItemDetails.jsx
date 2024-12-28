@@ -87,13 +87,16 @@ export default function CategoryItemDetails() {
   }
 
   return (
-    <Stack direction="column" spacing="1rem">
+    <Stack spacing={3} data-tour="selected-category-0">
       <ItemHeader
         categoryMode
         label={selectedCategory?.name ? `${selectedCategory.name} Overview` : 'Category Overview'}
         caption="View details of selected category"
         item={selectedCategory}
         image={selectedCategoryImage}
+        favBtnDataTour="selected-category-1"
+        shareBtnDataTour="selected-category-2"
+        imageBtnDataTour="selected-category-3"
       />
       <ItemContent
         selectedIDList={selectedIDList}
@@ -101,8 +104,11 @@ export default function CategoryItemDetails() {
         items={itemsInCategory}
         handleOpenModal={handleOpenModal}
         handleRemoveAssociation={handleRemoveAssociation}
+        tableDataTour="selected-category-6"
+        primaryBtnDataTour="selected-category-4"
+        secondaryBtnDataTour="selected-category-5"
       />
-      <ItemGraphWrapper associatedAssets={itemsInCategory} />
+      <ItemGraphWrapper associatedAssets={itemsInCategory} graphDataTour="selected-category-7" />
       {displayModal && (
         <SimpleModal
           title={`Add items to ${selectedCategory?.name}`}

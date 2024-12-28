@@ -1,7 +1,6 @@
 import { TableBody, TableCell, TableRow } from '@mui/material';
-
-import CustomCheckboxTableCell from './CustomCheckboxTableCell';
-import CustomShowActionsTableCell from './CustomShowActionsTableCell';
+import CustomCheckboxTableCell from '@common/DataTable/CustomTableComponent/CustomTableBody/CustomCheckboxTableCell';
+import CustomShowActionsTableCell from '@common/DataTable/CustomTableComponent/CustomTableBody/CustomShowActionsTableCell';
 
 export default function CustomTableBody({
   data,

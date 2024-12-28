@@ -22,7 +22,7 @@ export default function UserDemographics({ data = {}, handleEditMode }) {
 
   return (
     <Paper sx={{ padding: '1rem' }}>
-      <Stack alignItems={'center'}>
+      <Stack alignItems={'center'} data-tour="profile-1">
         {editMode ? (
           <ImagePicker
             id={data.id}
@@ -51,7 +51,7 @@ export default function UserDemographics({ data = {}, handleEditMode }) {
         </Typography>
       </Stack>
       <Divider sx={{ marginTop: '1rem', marginBottom: '1rem' }} />
-      <Stack spacing={1}>
+      <Stack spacing={1} data-tour="profile-2">
         <UserDemographicsRow>
           <Typography variant="subtitle2" color="text.secondary">
             Username

@@ -57,7 +57,7 @@ export default function Reports() {
   }, [reportLoading]);
 
   return (
-    <Stack spacing={1}>
+    <Stack spacing={1} data-tour="reports-0">
       <ReportsHeader
         sinceValue={sinceValue}
         reports={reports}

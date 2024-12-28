@@ -1,7 +1,7 @@
+import { profileActions } from '@features/Profile/profileSlice';
 import { Autocomplete, Button, Chip, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { profileActions } from '../features/Profile/profileSlice';
 
 export default function SharableGroups({ handleSubmit, existingGroups, creator }) {
   const dispatch = useDispatch();

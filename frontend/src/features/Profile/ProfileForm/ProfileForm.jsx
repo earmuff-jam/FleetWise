@@ -1,11 +1,13 @@
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
-import { BLANK_PROFILE_DETAILS } from '../constants';
-import dayjs from 'dayjs';
+
 import relativeTime from 'dayjs/plugin/relativeTime.js';
+
 import { useDispatch, useSelector } from 'react-redux';
-import { profileActions } from '../profileSlice';
-import TextFieldWithLabel from '../../../common/TextFieldWithLabel/TextFieldWithLabel';
+import { profileActions } from '@features/Profile/profileSlice';
+import { BLANK_PROFILE_DETAILS } from '@features/Profile/constants';
+import TextFieldWithLabel from '@common/TextFieldWithLabel/TextFieldWithLabel';
 
 dayjs.extend(relativeTime);
 

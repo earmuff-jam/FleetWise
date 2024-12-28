@@ -1,8 +1,9 @@
 import { Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 
-export default function ReportCardWrapper({ title, chipLabel, value, footerText, footerSuffix, children }) {
+export default function ReportCardWrapper({ title, chipLabel, value, footerText, footerSuffix, dataTour, children }) {
   return (
     <Card
+      data-tour={dataTour}
       sx={{
         display: 'flex',
         flexDirection: 'column',

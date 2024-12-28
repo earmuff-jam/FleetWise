@@ -7,6 +7,7 @@ import RowHeader from '@common/RowHeader';
 import { EmptyComponent } from '@common/utils';
 import DataTable from '@common/DataTable/DataTable';
 import { ASSETS_IN_REPORTS_HEADER } from '@features/Reports/constants';
+import { Stack } from '@mui/material';
 
 dayjs.extend(relativeTime);
 
@@ -34,9 +35,9 @@ export default function ReportContent({ sinceValue, assets }) {
   });
 
   return (
-    <>
+    <Stack data-tour={'reports-7'}>
       <RowHeader title="Asset Details" caption={`Asset movement since ${dayjs(sinceValue).fromNow()}`} />
       <DataTable table={table} />
-    </>
+    </Stack>
   );
 }

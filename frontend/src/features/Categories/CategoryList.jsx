@@ -59,7 +59,7 @@ const CategoryList = ({ displayConcise = false }) => {
   }, []);
 
   return (
-    <Stack sx={{ py: 2 }}>
+    <Stack sx={{ py: 2 }} data-tour="categories-0">
       <SectionCardHeader
         title="Categories"
         caption={selectedFilter ? `Applying ${selectedFilter} status filter` : 'Organize items into categories'}
@@ -70,6 +70,10 @@ const CategoryList = ({ displayConcise = false }) => {
         sortingOrder={sortingOrder}
         setSortingOrder={setSortingOrder}
         handleDownload={handleDownload}
+        addBtnDataTour={'categories-1'}
+        downloadBtnDataTour={'categories-2'}
+        filterBtnDataTour={'categories-3'}
+        sortBtnDataTour={'categories-4'}
         disableDownloadIcon={Boolean(categories) && categories.length <= 0}
       />
       <SectionCardContent

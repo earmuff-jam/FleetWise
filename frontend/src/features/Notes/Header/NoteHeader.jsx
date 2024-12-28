@@ -7,7 +7,7 @@ export default function NoteHeader({ handleClick }) {
       <Typography variant="h5" color="text.secondary" gutterBottom>
         Notes
       </Typography>
-      <IconButton onClick={handleClick} size="small">
+      <IconButton onClick={handleClick} size="small" data-tour="notes-1">
         <AddRounded fontSize="small" />
       </IconButton>
     </Stack>

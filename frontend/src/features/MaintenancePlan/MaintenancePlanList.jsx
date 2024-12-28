@@ -54,7 +54,7 @@ const MaintenancePlanList = () => {
   }, []);
 
   return (
-    <Box sx={{ py: 2 }}>
+    <Box sx={{ py: 2 }} data-tour="plans-0">
       <SectionCardHeader
         title="Maintenance Plans"
         caption={selectedFilter ? `Applying ${selectedFilter} status filter` : 'Assign items to maintenance plans'}
@@ -65,6 +65,10 @@ const MaintenancePlanList = () => {
         sortingOrder={sortingOrder}
         setSortingOrder={setSortingOrder}
         handleDownload={handleDownload}
+        addBtnDataTour={'plans-1'}
+        downloadBtnDataTour={'plans-2'}
+        filterBtnDataTour={'plans-3'}
+        sortBtnDataTour={'plans-4'}
         disableDownloadIcon={Boolean(maintenancePlan) && maintenancePlan.length <= 0}
       />
       <SectionCardContent

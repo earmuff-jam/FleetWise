@@ -11,6 +11,9 @@ export default function ItemContent({
   items,
   handleOpenModal,
   handleRemoveAssociation,
+  primaryBtnDataTour,
+  secondaryBtnDataTour,
+  tableDataTour,
 }) {
   const handleRowSelection = (_, id) => {
     if (id === 'all') {
@@ -48,7 +51,7 @@ export default function ItemContent({
 
   return (
     <Paper elevation={1} sx={{ padding: '1rem' }}>
-      <Stack spacing={2}>
+      <Stack spacing={2} data-tour={tableDataTour}>
         <RowHeader
           title="Items"
           caption={`Total ${pluralizeWord('item', items?.length || 0)}`}
@@ -59,6 +62,8 @@ export default function ItemContent({
           secondaryStartIcon={<RemoveRounded color="error" />}
           handleClickSecondaryButton={handleRemoveAssociation}
           secondaryButtonDisabled={selectedIDList.length <= 0}
+          primaryBtnDataTour={primaryBtnDataTour}
+          secondaryBtnDataTour={secondaryBtnDataTour}
         />
         <TableComponent
           showActions={false}

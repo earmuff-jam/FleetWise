@@ -43,11 +43,11 @@ export default function AssetListHeader({
             renderInput={(params) => <TextField variant="standard" {...params} label="Search ..." />}
           />
         ) : (
-          <IconButton onClick={() => setShowSearch(!showSearch)}>
+          <IconButton onClick={() => setShowSearch(!showSearch)} data-tour="assets-1">
             <SearchRounded />
           </IconButton>
         )}
-        <IconButton size="small" onClick={() => setGridMode(!gridMode)}>
+        <IconButton size="small" onClick={() => setGridMode(!gridMode)} data-tour="assets-2">
           {!gridMode ? (
             <GridViewRounded color="primary" fontSize="small" />
           ) : (

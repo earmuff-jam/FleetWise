@@ -97,12 +97,15 @@ export default function MaintenancePlanItemDetails() {
   }
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} data-tour="selected-plan-0">
       <ItemHeader
         label={selectedMaintenancePlan?.name ? `${selectedMaintenancePlan.name} Overview` : 'Maintenance Plan Overview'}
         caption="View details of selected maintenance plan"
         item={selectedMaintenancePlan}
         image={selectedMaintenancePlanImage}
+        favBtnDataTour="selected-plan-1"
+        shareBtnDataTour="selected-plan-2"
+        imageBtnDataTour="selected-plan-3"
       />
       <ItemContent
         selectedIDList={selectedIDList}
@@ -110,8 +113,11 @@ export default function MaintenancePlanItemDetails() {
         items={itemsInMaintenancePlan}
         handleOpenModal={handleOpenModal}
         handleRemoveAssociation={handleRemoveAssociation}
+        tableDataTour="selected-plan-6"
+        primaryBtnDataTour="selected-plan-4"
+        secondaryBtnDataTour="selected-plan-5"
       />
-      <ItemGraphWrapper associatedAssets={itemsInMaintenancePlan} />
+      <ItemGraphWrapper associatedAssets={itemsInMaintenancePlan} graphDataTour="selected-plan-7" />
       {displayModal && (
         <SimpleModal
           title={`Add items to ${selectedMaintenancePlan?.name}`}

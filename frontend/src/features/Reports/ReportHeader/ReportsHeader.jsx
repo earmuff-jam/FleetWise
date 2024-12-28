@@ -39,6 +39,8 @@ export default function ReportsHeader({
         handleClickPrimaryButton={handleFilter}
         secondaryStartIcon={<DownloadRounded />}
         secondaryButtonTextLabel={'Export'}
+        primaryBtnDataTour={'reports-1'}
+        secondaryBtnDataTour={'reports-2'}
         handleClickSecondaryButton={() => downloadReports()}
       />
       <Stack sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: '1rem' }}>
@@ -48,15 +50,17 @@ export default function ReportsHeader({
           value={`$${reports[0]?.total_valuation.toFixed(2) || 0.0}`}
           footerText="Total cost of items in"
           footerSuffix="dollar value."
+          dataTour={'reports-3'}
         />
         <ReportCardWrapper
           title="Categorized Assets"
+          dataTour={'reports-4'}
           chipLabel={`Since ${formatDate(sinceValue)}`}
           value={`$${reports[0]?.cost_category_items.toFixed(2) || 0.0}`}
         />
       </Stack>
       <Stack sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: '1rem' }}>
-        <ReportCardWrapper title="Recently Added Asset">
+        <ReportCardWrapper title="Recently Added Asset" dataTour={'reports-5'}>
           <ReportItemDetails
             loading={loading}
             avatarValue={
@@ -66,7 +70,7 @@ export default function ReportsHeader({
             caption={selectedAsset?.description || ''}
           />
         </ReportCardWrapper>
-        <ReportCardWrapper title="Maintenance due">
+        <ReportCardWrapper title="Maintenance due" dataTour={'reports-6'}>
           <ReportItemDetails
             loading={loading}
             avatarValue={

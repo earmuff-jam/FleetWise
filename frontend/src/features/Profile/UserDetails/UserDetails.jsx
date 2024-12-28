@@ -17,6 +17,7 @@ export default function UserDetails({ data = {} }) {
         flexDirection: 'column',
         flexGrow: 1,
       }}
+      data-tour="profile-3"
     >
       <Typography variant="h5" color="text.secondary">
         User details
@@ -26,7 +27,7 @@ export default function UserDetails({ data = {} }) {
         {data.about_me || BIO_PLACEHOLDER}
       </Typography>
       <Box sx={{ flexGrow: 1 }} />
-      <Stack spacing={1}>
+      <Stack spacing={1} data-tour="profile-4">
         <Stack direction={'row'} alignItems={'center'} spacing={1}>
           <OnlinePredictionRounded color="primary" />
           <Typography variant="subtitle2" color="text.secondary">

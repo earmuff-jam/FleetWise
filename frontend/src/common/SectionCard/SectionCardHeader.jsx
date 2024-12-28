@@ -15,6 +15,10 @@ export default function SectionCardHeader({
   setSortingOrder,
   handleDownload,
   disableDownloadIcon,
+  addBtnDataTour,
+  downloadBtnDataTour,
+  filterBtnDataTour,
+  sortBtnDataTour,
 }) {
   return (
     <>
@@ -25,6 +29,8 @@ export default function SectionCardHeader({
           handleButtonClick={toggleModal}
           handleIconButtonClick={handleDownload}
           disableDownloadIcon={disableDownloadIcon}
+          addBtnDataTour={addBtnDataTour}
+          downloadBtnDataTour={downloadBtnDataTour}
         />
       </Stack>
       <FilterAndSortMenu
@@ -32,6 +38,8 @@ export default function SectionCardHeader({
         setSortingOrder={setSortingOrder}
         selectedFilter={selectedFilter}
         setSelectedFilter={setSelectedFilter}
+        filterBtnDataTour={filterBtnDataTour}
+        sortBtnDataTour={sortBtnDataTour}
       />
     </>
   );
