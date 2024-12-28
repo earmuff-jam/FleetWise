@@ -92,7 +92,9 @@ export default function SignupFormFields({ formFields, setFormFields, submit }) 
             submit(e);
           }
         }}
-        onBlur={() => dispatch(authActions.isValidUserEmail({ email: formFields.email.value }))}
+        onBlur={() =>
+          formFields.email.value.length > 3 && dispatch(authActions.isValidUserEmail({ email: formFields.email.value }))
+        }
         InputProps={{
           startAdornment: <InputAdornment position="start">{formFields['email'].icon}</InputAdornment>,
         }}
