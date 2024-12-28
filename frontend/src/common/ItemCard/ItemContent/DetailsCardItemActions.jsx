@@ -3,7 +3,13 @@ import dayjs from 'dayjs';
 import { AddPhotoAlternateRounded, ShareRounded } from '@mui/icons-material';
 import { Badge, Button, CardActions, IconButton, Stack, Typography } from '@mui/material';
 
-export default function DetailsCardItemActions({ selectedItem, handleOpenModal, setEditImgMode }) {
+export default function DetailsCardItemActions({
+  selectedItem,
+  handleOpenModal,
+  setEditImgMode,
+  imageBtnDataTour,
+  shareBtnDataTour,
+}) {
   const isShared = selectedItem?.sharable_groups?.length > 1 || false;
 
   return (
@@ -21,11 +27,11 @@ export default function DetailsCardItemActions({ selectedItem, handleOpenModal, 
             horizontal: 'left',
           }}
         >
-          <Button size="small" endIcon={<ShareRounded />} onClick={handleOpenModal}>
+          <Button size="small" endIcon={<ShareRounded />} onClick={handleOpenModal} data-tour={shareBtnDataTour}>
             Share
           </Button>
         </Badge>
-        <IconButton onClick={() => setEditImgMode(true)}>
+        <IconButton onClick={() => setEditImgMode(true)} data-tour={imageBtnDataTour}>
           <AddPhotoAlternateRounded color="primary" />
         </IconButton>
       </Stack>

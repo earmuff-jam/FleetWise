@@ -167,6 +167,64 @@ const PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS = [
   },
 ];
 
+const SELECTED_CATEGORY_PAGE_DATA_TOUR_STEPS = [
+  {
+    title: 'View details about your selected category.',
+  },
+  {
+    title: 'Mark category as favourites so that they can be displayed on the left menu bar easily.',
+  },
+  {
+    title: 'Share the category and its items to other collaborators.',
+  },
+  {
+    title: 'Upload images to represent the category',
+  },
+  {
+    title:
+      'Click on the add button to add assets to a selected category. Assets can be shared across many other categories.',
+  },
+  {
+    title: 'Select assets that you would like to remove and press remove button.',
+  },
+  {
+    title: 'View list of all assets that are assigned to this specific category.',
+  },
+  {
+    title:
+      'View a graph representation of the assets that belong to the category. If you have more than 10 items in the selected category, then only the last 10 are displayed.',
+  },
+];
+
+const SELECTED_MAINTENANCE_PLAN_PAGE_DATA_TOUR_STEPS = [
+  {
+    title: 'View details about your selected maintenance plan.',
+  },
+  {
+    title: 'Mark maintenance plan as favourites so that they can be displayed on the left menu bar easily.',
+  },
+  {
+    title: 'Share the maintenance plan and its items to other collaborators.',
+  },
+  {
+    title: 'Upload images to represent the maintenance plan.',
+  },
+  {
+    title:
+      'Click on the add button to add assets to a selected maintenance plan. Assets can be shared across many other maintenance plans.',
+  },
+  {
+    title: 'Select assets that you would like to remove and press remove button.',
+  },
+  {
+    title: 'View list of all assets that are assigned to this specific maintenance plan.',
+  },
+  {
+    title:
+      'View a graph representation of the assets that belong to the maintenance plan. If you have more than 10 items in the selected maintenance plan, then only the last 10 are displayed.',
+  },
+];
+
 /**
  * Step Mapper function
  *
@@ -176,7 +234,10 @@ const PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS = [
  * previous and current tour since the end cannot be less than the start
  */
 export const DEFAULT_STEP_MAPPER = {
-  '/': { start: 0, end: OVERVIEW_PAGE_TOUR_STEPS.length },
+  '/': {
+    start: 0,
+    end: OVERVIEW_PAGE_TOUR_STEPS.length,
+  },
   '/inventories/list': {
     start: OVERVIEW_PAGE_TOUR_STEPS.length,
     end: OVERVIEW_PAGE_TOUR_STEPS.length + ASSETS_PAGE_TOUR_STEPS.length,
@@ -257,6 +318,50 @@ export const DEFAULT_STEP_MAPPER = {
       RECENT_ACTIVITIES_PAGE_TOUR_STEPS.length +
       PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS.length,
   },
+  '/category/id': {
+    start:
+      OVERVIEW_PAGE_TOUR_STEPS.length +
+      ASSETS_PAGE_TOUR_STEPS.length +
+      CATEGORIES_PAGE_TOUR_STEPS.length +
+      MAINTENANCE_PAGE_TOUR_STEPS.length +
+      REPORTS_PAGE_TOUR_STEPS.length +
+      PROFILE_PAGE_TOUR_STEPS.length +
+      RECENT_ACTIVITIES_PAGE_TOUR_STEPS.length +
+      PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS.length,
+    end:
+      OVERVIEW_PAGE_TOUR_STEPS.length +
+      ASSETS_PAGE_TOUR_STEPS.length +
+      CATEGORIES_PAGE_TOUR_STEPS.length +
+      MAINTENANCE_PAGE_TOUR_STEPS.length +
+      REPORTS_PAGE_TOUR_STEPS.length +
+      PROFILE_PAGE_TOUR_STEPS.length +
+      RECENT_ACTIVITIES_PAGE_TOUR_STEPS.length +
+      PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS.length +
+      SELECTED_CATEGORY_PAGE_DATA_TOUR_STEPS.length,
+  },
+  '/plan/id': {
+    start:
+      OVERVIEW_PAGE_TOUR_STEPS.length +
+      ASSETS_PAGE_TOUR_STEPS.length +
+      CATEGORIES_PAGE_TOUR_STEPS.length +
+      MAINTENANCE_PAGE_TOUR_STEPS.length +
+      REPORTS_PAGE_TOUR_STEPS.length +
+      PROFILE_PAGE_TOUR_STEPS.length +
+      RECENT_ACTIVITIES_PAGE_TOUR_STEPS.length +
+      PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS.length +
+      SELECTED_CATEGORY_PAGE_DATA_TOUR_STEPS.length,
+    end:
+      OVERVIEW_PAGE_TOUR_STEPS.length +
+      ASSETS_PAGE_TOUR_STEPS.length +
+      CATEGORIES_PAGE_TOUR_STEPS.length +
+      MAINTENANCE_PAGE_TOUR_STEPS.length +
+      REPORTS_PAGE_TOUR_STEPS.length +
+      PROFILE_PAGE_TOUR_STEPS.length +
+      RECENT_ACTIVITIES_PAGE_TOUR_STEPS.length +
+      PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS.length +
+      SELECTED_CATEGORY_PAGE_DATA_TOUR_STEPS.length +
+      SELECTED_MAINTENANCE_PLAN_PAGE_DATA_TOUR_STEPS.length,
+  },
 };
 
 const DEFAULT_TOUR_STEPS = [
@@ -268,6 +373,8 @@ const DEFAULT_TOUR_STEPS = [
   ...derieveTourSteps(PROFILE_PAGE_TOUR_STEPS, 'profile'),
   ...derieveTourSteps(RECENT_ACTIVITIES_PAGE_TOUR_STEPS, 'recentActivities'),
   ...derieveTourSteps(PERSONAL_NOTES_PAGE_DATA_TOUR_STEPS, 'notes'),
+  ...derieveTourSteps(SELECTED_CATEGORY_PAGE_DATA_TOUR_STEPS, 'selected-category'),
+  ...derieveTourSteps(SELECTED_MAINTENANCE_PLAN_PAGE_DATA_TOUR_STEPS, 'selected-plan'),
 ];
 
 export default DEFAULT_TOUR_STEPS;

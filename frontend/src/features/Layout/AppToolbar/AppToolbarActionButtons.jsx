@@ -1,29 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Badge, Button, IconButton, Stack, Tooltip } from '@mui/material';
+import { Badge, IconButton, Stack } from '@mui/material';
+import { CircleNotifications } from '@mui/icons-material';
 
-import {
-  DarkModeRounded,
-  LightModeOutlined,
-  LogoutRounded,
-  CircleNotifications,
-  BlindRounded,
-} from '@mui/icons-material';
-
-import { authActions } from '@features/LandingPage/authSlice';
 import { profileActions } from '@features/Profile/profileSlice';
 import AppToolbarPopoverContent from '@features/Layout/AppToolbar/AppToolbarPopoverContent';
-import { useTour } from '@reactour/tour';
-import { useLocation, useParams } from 'react-router-dom';
-import DEFAULT_TOUR_STEPS, { DEFAULT_STEP_MAPPER } from '@utils/tour/steps';
+import AppToolBarMoreButtons from '@features/Layout/AppToolbar/AppToolBarMoreButtons';
 
 export default function AppToolbarActionButtons({ profileDetails }) {
-  const { id } = useParams();
   const dispatch = useDispatch();
-  const location = useLocation();
 
-  const { setIsOpen, setCurrentStep, setSteps } = useTour();
   const { maintenanceNotifications = [], loading } = useSelector((state) => state.profile);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -33,25 +20,6 @@ export default function AppToolbarActionButtons({ profileDetails }) {
 
   const toggleReadOption = (id, selection) => {
     dispatch(profileActions.toggleMaintenanceNotificationReadOption({ maintenance_plan_id: id, is_read: !selection }));
-  };
-
-  const handleAppearance = () => {
-    const draftData = { ...profileDetails, appearance: !profileDetails.appearance || false };
-    dispatch(profileActions.updateProfileDetails({ draftData }));
-  };
-
-  const setTour = () => {
-    const currentStep = id ? DEFAULT_STEP_MAPPER['/id'] : DEFAULT_STEP_MAPPER[location.pathname];
-    const formattedSteps = DEFAULT_TOUR_STEPS.slice(currentStep.start, currentStep.end);
-    setIsOpen(true);
-    setCurrentStep(0);
-    setSteps(formattedSteps);
-  };
-
-  const handleLogout = () => {
-    dispatch(authActions.getLogout());
-    localStorage.clear();
-    window.location.href = '/';
   };
 
   useEffect(() => {
@@ -68,17 +36,7 @@ export default function AppToolbarActionButtons({ profileDetails }) {
           <CircleNotifications />
         </Badge>
       </IconButton>
-      <IconButton size="small" onClick={handleAppearance} data-tour="overview-6">
-        {profileDetails?.appearance ? <LightModeOutlined fontSize="small" /> : <DarkModeRounded fontSize="small" />}
-      </IconButton>
-      <Tooltip title="log out">
-        <IconButton size="small" onClick={handleLogout}>
-          <LogoutRounded fontSize="small" />
-        </IconButton>
-      </Tooltip>
-      <Button startIcon={<BlindRounded />} onClick={setTour}>
-        Help with this page
-      </Button>
+      <AppToolBarMoreButtons profileDetails={profileDetails} />
       <AppToolbarPopoverContent
         loading={loading}
         anchorEl={anchorEl}

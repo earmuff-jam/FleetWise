@@ -4,7 +4,7 @@ import { FavoriteRounded } from '@mui/icons-material';
 import { CardContent, IconButton, Stack, Typography } from '@mui/material';
 import { profileActions } from '@features/Profile/profileSlice';
 
-export default function DetailsCardItemContent({ selectedItem, categoryMode }) {
+export default function DetailsCardItemContent({ selectedItem, categoryMode, favBtnDataTour }) {
   const dispatch = useDispatch();
   const { favItems = [] } = useSelector((state) => state.profile);
 
@@ -35,7 +35,11 @@ export default function DetailsCardItemContent({ selectedItem, categoryMode }) {
   return (
     <CardContent>
       <Stack direction="row" alignItems="flex-start">
-        <IconButton size="small" onClick={(ev) => handleFavItem(ev, selectedItem.id, isFavourite)}>
+        <IconButton
+          size="small"
+          onClick={(ev) => handleFavItem(ev, selectedItem.id, isFavourite)}
+          data-tour={favBtnDataTour}
+        >
           <FavoriteRounded fontSize="small" sx={{ color: isFavourite ? selectedItem.color : 'secondary.main' }} />
         </IconButton>
         <Typography gutterBottom variant="h5">

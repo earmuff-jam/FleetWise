@@ -21,7 +21,14 @@ import { maintenancePlanItemActions } from '@features/MaintenancePlanItemDetails
 
 dayjs.extend(relativeTime);
 
-export default function DetailsCard({ selectedItem, selectedImage, categoryMode = false }) {
+export default function DetailsCard({
+  selectedItem,
+  selectedImage,
+  favBtnDataTour,
+  imageBtnDataTour,
+  shareBtnDataTour,
+  categoryMode = false,
+}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userID = localStorage.getItem('userID');
@@ -80,11 +87,17 @@ export default function DetailsCard({ selectedItem, selectedImage, categoryMode 
       <Stack sx={{ flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
         <Card sx={{ flexGrow: 1 }}>
           <CardMedia sx={{ height: '10rem' }} image={selectedImage || '/blank_canvas.png'} />
-          <DetailsCardItemContent selectedItem={selectedItem} categoryMode={categoryMode} />
+          <DetailsCardItemContent
+            selectedItem={selectedItem}
+            categoryMode={categoryMode}
+            favBtnDataTour={favBtnDataTour}
+          />
           <DetailsCardItemActions
             selectedItem={selectedItem}
             handleOpenModal={handleOpenModal}
             setEditImgMode={setEditImgMode}
+            imageBtnDataTour={imageBtnDataTour}
+            shareBtnDataTour={shareBtnDataTour}
           />
         </Card>
         {selectedItem?.location?.lat ? (
