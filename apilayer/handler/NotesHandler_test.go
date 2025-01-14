@@ -26,7 +26,7 @@ func Test_GetNotes(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -56,7 +56,7 @@ func Test_GetNotes_NoID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -85,7 +85,7 @@ func Test_GetNotes_WrongID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -109,7 +109,7 @@ func Test_GetNotes_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/notes", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetNotes(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -125,7 +125,7 @@ func Test_AddNewNote(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -178,7 +178,7 @@ func Test_AddNewNote_NoID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -213,7 +213,7 @@ func Test_AddNewNote_WrongID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -243,7 +243,7 @@ func Test_AddNewNote_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/notes", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddNewNote(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -260,7 +260,7 @@ func Test_UpdateNote(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -335,7 +335,7 @@ func Test_UpdateNote_NoID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -370,7 +370,7 @@ func Test_UpdateNote_NoUserID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	_, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -405,7 +405,7 @@ func Test_UpdateNote_WrongID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -435,7 +435,7 @@ func Test_UpdateNote_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/notes", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateNote(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -451,7 +451,7 @@ func Test_RemoveNote(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -519,7 +519,7 @@ func Test_RemoveNote_IncorrectUserID(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{"id": "incorrect-user-id"})
 	req = mux.SetURLVars(req, map[string]string{"noteID": "incorrect-note-id"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveNote(w, req, config.CTO_USER)
 	res := w.Result()
 	assert.Equal(t, 400, res.StatusCode)
@@ -531,7 +531,7 @@ func Test_RemoveNote_InvalidDBUser(t *testing.T) {
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	req = mux.SetURLVars(req, map[string]string{"noteID": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveNote(w, req, config.CEO_USER)
 	res := w.Result()
 

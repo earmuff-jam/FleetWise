@@ -18,6 +18,10 @@ type AssetSummary struct {
 	SharableGroups []string  `json:"sharable_groups"`
 }
 
+// AssetsAndSummaryResponse ...
+// swagger:model AssetsAndSummaryResponse
+//
+// AssetsAndSummaryResponse struct that contains the Assets and Summary Responses
 type AssetsAndSummaryResponse struct {
 	AssetSummaryList []AssetSummary
 	AssetList        []Inventory
