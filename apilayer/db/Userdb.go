@@ -111,7 +111,11 @@ func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 	draftUser.PreBuiltToken = userCredsWithToken.Cookie
 	draftUser.LicenceKey = userCredsWithToken.LicenceKey
 
-	updateJwtToken(user, draftUser)
+	err = updateJwtToken(user, draftUser)
+	if err != nil {
+		log.Printf("unable to upsert token. error: %+v", err)
+		return &model.UserCredentials{}, err
+	}
 	return draftUser, nil
 }
 
@@ -132,7 +136,7 @@ func updateJwtToken(user string, draftUser *model.UserCredentials) error {
 		return err
 	}
 
-	err = upsertLicenseKey(draftUser.Id, draftUser.LicenceKey, tx)
+	err = upsertLicenseKey(draftUser.ID.String(), draftUser.LicenceKey, tx)
 	if err != nil {
 		log.Printf("unable to add license key. error: %+v", err)
 		tx.Rollback()
