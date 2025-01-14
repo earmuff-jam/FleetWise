@@ -24,8 +24,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/mohit2530/communityCare/bucket"
-	"github.com/mohit2530/communityCare/db"
 	"github.com/mohit2530/communityCare/handler"
+	"github.com/mohit2530/communityCare/service"
 )
 
 // MessageResponse ...
@@ -132,11 +132,11 @@ func main() {
 	router.Handle("/api/v1/{id}/fetchImage", CustomRequestHandler(handler.FetchImage)).Methods(http.MethodGet)
 
 	cors := handlers.CORS(
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization", "Authorization2"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization", "Role2"}),
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete}),
 		handlers.AllowCredentials(),
 		handlers.AllowedOrigins([]string{"http://localhost", "http://localhost:5173", "http://localhost:5173", "http://localhost:8081"}),
-		handlers.ExposedHeaders([]string{"Authorization2", "Role2"}),
+		handlers.ExposedHeaders([]string{"Role2"}),
 	)
 
 	http.Handle("/", cors(router))
@@ -153,15 +153,15 @@ func main() {
 // It also serves as a method to validate incomming requests and refresh token if necessary.
 func (u CustomRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	cookie := r.Header.Get("authorization2")
-	if len(cookie) <= 0 {
-		log.Printf("missing license key")
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		log.Printf(" missing license key")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	currentUser := validateCurrentUser()
-	err := db.ValidateCredentials(currentUser, cookie)
+	err = service.ValidateCredentials(currentUser, cookie.Value)
 	if err != nil {
 		log.Printf("failed to validate token. error: %+v", err)
 		w.WriteHeader(http.StatusUnauthorized)

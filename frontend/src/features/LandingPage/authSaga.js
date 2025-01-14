@@ -22,17 +22,6 @@ export function* fetchUserLogin(action) {
       throw new Error(`Failed to find user`);
     }
 
-    // Get the "Authorization2" header from the response
-    const authorization2Header = response.headers.get('authorization2');
-    const role2Header = response.headers.get('Role2');
-
-    if (!authorization2Header) {
-      throw new Error('Authorization2 Header not found');
-    }
-
-    // save the user token and userID to the local storage instance of the application
-    localStorage.setItem('access', authorization2Header);
-    localStorage.setItem('role', role2Header);
     const data = yield response.json();
     localStorage.setItem('userID', data);
     yield put(authActions.getUserIDSuccess(data));

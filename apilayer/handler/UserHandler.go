@@ -159,7 +159,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(rw).Encode("unable to retrieve user from env")
 		return
 	}
-	resp, err := db.RetrieveUser(user, draftUser)
+	resp, err := service.FetchUser(user, draftUser)
 	if err != nil {
 		log.Printf("Unable to sign user in. error: +%v", err)
 		rw.WriteHeader(http.StatusBadRequest)
@@ -167,7 +167,12 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rw.Header().Add("Authorization2", draftUser.PreBuiltToken)
+	http.SetCookie(rw, &http.Cookie{
+		Name:    "token",
+		Value:   draftUser.PreBuiltToken,
+		Expires: draftUser.ExpirationTime,
+	})
+
 	rw.Header().Add("Role2", draftUser.Role)
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
@@ -264,12 +269,6 @@ func ResetEmailToken(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	service.PerformEmailNotificationService(user, draftUserEmail.EmailAddress)
-	if err != nil {
-		log.Printf("unable to resend email notification. error: %+v", err)
-		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(err)
-		return
-	}
 
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
