@@ -1,10 +1,12 @@
 import dayjs from 'dayjs';
 
 import { DeleteRounded, EditRounded } from '@mui/icons-material';
-import { AccordionDetails, Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { AccordionDetails, Box, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { STATUS_OPTIONS } from '@common/StatusOptions/constants';
+import LocationPicker from '@common/Location/LocationPicker';
+import { useTheme } from '@emotion/react';
 
 dayjs.extend(relativeTime);
 
@@ -15,6 +17,9 @@ export default function NoteAccordionDetails({
   setConfirmDelete,
   setDeleteID,
 }) {
+  const theme = useTheme();
+  const higherThanSmallScreen = useMediaQuery(theme.breakpoints.up('sm'));
+
   return (
     <AccordionDetails>
       <Stack spacing={1}>
@@ -24,7 +29,7 @@ export default function NoteAccordionDetails({
             sx={{
               justifyContent: 'space-between',
               flexGrow: 1,
-              p: 1,
+              padding: '1rem',
               borderRadius: '0.2rem',
             }}
           >
@@ -62,7 +67,10 @@ export default function NoteAccordionDetails({
                 </Tooltip>
               </Stack>
             </Stack>
-            <Typography variant="subtitle2">{note.description}</Typography>
+            <Stack direction="row" spacing={2} sx={{ margin: '1rem 0rem' }}>
+              {note?.location?.lat && higherThanSmallScreen ? <LocationPicker location={note?.location} /> : null}
+              <Typography variant="subtitle2">{note.description}</Typography>
+            </Stack>
             <Box>
               <Typography variant="caption">
                 By {note.updator} {dayjs(note.updated_at).fromNow()}

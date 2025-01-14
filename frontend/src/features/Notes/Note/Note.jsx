@@ -54,7 +54,7 @@ const Note = ({ notes, loading, setEditMode, setSelectedNoteID }) => {
   return (
     <>
       {formattedNotes.map((v, index) => (
-        <Accordion key={index} elevation={0}>
+        <Accordion key={index} elevation={0} defaultExpanded={index === 0 ? true : false}>
           <NoteAccordionSummary title={v.category} totalNotes={v.totalNotes} color={v.color} />
           <NoteAccordionDetails
             details={v.details}

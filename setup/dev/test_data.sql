@@ -12,14 +12,14 @@ UPDATE community.profiles SET
 username = 'john',
 full_name = 'John Doe',
 phone_number = '1234567890',
-about_me = 'I like to climb trees and hike with my friends'
+about_me = 'Lorem Ipsum has been the industry standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'
 WHERE email_address = 'admin@gmail.com';
 
 -- ADD NOTES SQL TEST DATA --
 INSERT INTO community.notes (title, description, status, color, location, created_by, updated_by, sharable_groups)
 VALUES (
-    'Buy kitty litter for four of my kittens',
-    'Do not buy the brand from walmart, buy from a generic well known place',
+    'What is lorem ipsum?',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages.',
     (SELECT id FROM community.statuses s LIMIT 1),
     '#2a6dbc',
      '(-72.625481, 42.203217)',
