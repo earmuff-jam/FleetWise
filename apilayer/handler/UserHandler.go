@@ -9,6 +9,7 @@ import (
 
 	"github.com/mohit2530/communityCare/db"
 	"github.com/mohit2530/communityCare/model"
+	"github.com/mohit2530/communityCare/service"
 )
 
 // Signup ...
@@ -97,14 +98,14 @@ func Signup(rw http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(rw).Encode("error")
 	}
 
-	// the authority to log into backend as a certain user
-	resp, err := db.SaveUser(backendClientUsr, draftUser)
+	resp, err := service.RegisterUser(backendClientUsr, draftUser)
 	if err != nil {
 		log.Printf("Unable to create new user. error: +%v", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
+
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	json.NewEncoder(rw).Encode(resp)
@@ -214,6 +215,65 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	json.NewEncoder(rw).Encode(resp)
+}
+
+// VerifyEmailAddress ...
+// swagger:route GET /api/v1/verify Authentication VerifyEmailAddress
+//
+// # Used to verify if the user correctly verified the selected email address. If the token
+// is valid, then the user was successfully verified
+//
+// Responses:
+// 200: MessageResponse
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
+
+}
+
+// ResetEmailToken ...
+// swagger:route POST /api/v1/reset Authentication ResetEmailToken
+//
+// # Resets the token in the database and allows users to resend email in case the token
+// is incorrect or failed to reach the user.
+//
+// Responses:
+// 200: MessageResponse
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func ResetEmailToken(rw http.ResponseWriter, r *http.Request) {
+
+	draftUserEmail := &model.UserEmail{}
+	err := json.NewDecoder(r.Body).Decode(draftUserEmail)
+	r.Body.Close()
+	if err != nil {
+		log.Printf("unable to validate user email address. error: +%v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	user := os.Getenv("CLIENT_USER")
+	if len(user) == 0 {
+		log.Printf("unable to retrieve user from env. Unable to sign in.")
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode("unable to retrieve user from env")
+		return
+	}
+
+	service.PerformEmailNotificationService(user, draftUserEmail.EmailAddress)
+	if err != nil {
+		log.Printf("unable to resend email notification. error: %+v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode("200 OK")
 }
 
 // Logout ...
