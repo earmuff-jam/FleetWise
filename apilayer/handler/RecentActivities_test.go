@@ -17,7 +17,7 @@ import (
 )
 
 func Test_GetRecentActivities(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",
 		Role:              "TESTER",
@@ -50,7 +50,7 @@ func Test_GetRecentActivities(t *testing.T) {
 }
 
 func Test_GetRecentActivities_NoLimit(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",
 		Role:              "TESTER",
@@ -72,7 +72,7 @@ func Test_GetRecentActivities_NoLimit(t *testing.T) {
 }
 
 func Test_GetRecentActivities_UntilDate(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",
 		Role:              "TESTER",
@@ -109,7 +109,7 @@ func Test_GetRecentActivities_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0902c692-b8e2-4824-a870-e52f4a0cccf8/recent-activities", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetRecentActivities(w, req, config.CEO_USER)
 	res := w.Result()
 

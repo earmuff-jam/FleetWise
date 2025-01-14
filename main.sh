@@ -77,7 +77,7 @@ loadUnitTest() {
 
     sleep +2
     echo "running unit test on test db instance $POSTGRES_DB"
-    cd apilayer/handler && go test -coverprofile=../logs/coverage.out ./... && go tool cover -html=../logs/coverage.out
+    cd apilayer && go test -coverprofile=logs/coverage.out ./... && go tool cover -html=logs/coverage.out
 
     echo "activity complete. close running containers manually."
 

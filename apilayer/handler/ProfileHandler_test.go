@@ -18,7 +18,7 @@ import (
 
 func Test_GetAllUserProfiles(t *testing.T) {
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/list", nil)
 	w := httptest.NewRecorder()
@@ -45,7 +45,7 @@ func Test_GetAllUserProfiles_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/event/0902c692-b8e2-4824-a870-e52f4a0cccf8/shared", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllUserProfiles(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -55,7 +55,7 @@ func Test_GetAllUserProfiles_InvalidDBUser(t *testing.T) {
 
 func Test_GetProfileStats(t *testing.T) {
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0902c692-b8e2-4824-a870-e52f4a0cccf8/stats", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0902c692-b8e2-4824-a870-e52f4a0cccf8"})
@@ -81,7 +81,7 @@ func Test_GetProfileStats_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0902c692-b8e2-4824-a870-e52f4a0cccf8/stats", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetProfileStats(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -93,7 +93,7 @@ func Test_GetNotifications_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0902c692-b8e2-4824-a870-e52f4a0cccf8/notifications", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetNotifications(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -110,7 +110,7 @@ func Test_GetProfileApi(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -146,7 +146,7 @@ func Test_GetUsernameApi(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -190,7 +190,7 @@ func Test_UpdateProfileApi(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -269,7 +269,7 @@ func Test_UpdateProfileApi(t *testing.T) {
 }
 
 func Test_GetFavouriteItems(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",
@@ -303,7 +303,7 @@ func Test_GetFavouriteItems(t *testing.T) {
 }
 
 func Test_SaveFovouriteItems_Category(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",

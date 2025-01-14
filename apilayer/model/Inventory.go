@@ -75,18 +75,6 @@ type InventoryItemToUpdate struct {
 	UserID string `json:"userID"`
 }
 
-// TransferInventory
-// swagger:model TransferInventory
-//
-// TransferInventory is the object used when a item from the personal well is transfered into the event item well.
-type TransferInventory struct {
-	Column  string   `json:"column"`
-	Value   string   `json:"value"`
-	EventID string   `json:"eventID"`
-	ItemIDs []string `json:"itemIDs"`
-	UserID  string   `json:"userID"`
-}
-
 // UpdateAssetColumn
 // swagger:model UpdateAssetColumn
 //
@@ -95,4 +83,18 @@ type UpdateAssetColumn struct {
 	AssetID     string `json:"assetID"`
 	ColumnName  string `json:"columnName"`
 	InputColumn string `json:"inputColumn"`
+}
+
+// StorageLocation ...
+// swagger:model StorageLocation
+//
+// Storage Location is the location where the item has been stored
+type StorageLocation struct {
+	ID             string    `json:"id"`
+	Location       string    `json:"location"`
+	CreatedBy      string    `json:"created_by"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedBy      string    `json:"updated_by"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	SharableGroups []string  `json:"sharable_groups"`
 }

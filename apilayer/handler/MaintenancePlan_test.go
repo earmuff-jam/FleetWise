@@ -26,7 +26,7 @@ func Test_GetAllMaintenancePlans(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -56,7 +56,7 @@ func Test_GetAllMaintenancePlans(t *testing.T) {
 func Test_GetAllMaintenancePlans_IncorrectPlanID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/maintenance-plans?id=%s&limit=%d", "", 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllMaintenancePlans(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -73,7 +73,7 @@ func Test_GetAllMaintenancePlans_InvalidDBUser(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -81,7 +81,7 @@ func Test_GetAllMaintenancePlans_InvalidDBUser(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/maintenance-plans?id=%s&limit=%d", prevUser.ID.String(), 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllMaintenancePlans(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -97,7 +97,7 @@ func Test_GetMaintenancePlan(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -147,7 +147,7 @@ func Test_GetMaintenancePlan(t *testing.T) {
 func Test_GetMaintenancePlan_IncorrectPlanID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/plan?id=%s&mID=%s", "", ""), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -164,7 +164,7 @@ func Test_GetMaintenancePlan_InvalidDBUser(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -172,7 +172,7 @@ func Test_GetMaintenancePlan_InvalidDBUser(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/plan?id=%s&mID=%s", prevUser.ID.String(), ""), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetMaintenancePlan(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -189,7 +189,7 @@ func Test_CreateMaintenancePlan(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -243,7 +243,7 @@ func Test_CreateMaintenancePlan_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	CreateMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -276,7 +276,7 @@ func Test_UpdateMaintenancePlan(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -341,7 +341,7 @@ func Test_UpdateMaintenancePlan_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/plan", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -369,7 +369,7 @@ func Test_RemoveMaintenancePlan(t *testing.T) {
 	req := httptest.NewRequest(http.MethodDelete, "/api/v1/plan/0802c692-b8e2-4824-a870-e52f4a0cccf8", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -381,7 +381,7 @@ func Test_RemoveMaintenancePlan_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/plan/0802c692-b8e2-4824-a870-e52f4a0cccf8", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -413,7 +413,7 @@ func Test_GetAllMaintenancePlanItems(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -462,7 +462,7 @@ func Test_GetAllMaintenancePlanItems(t *testing.T) {
 func Test_GetAllMaintenancePlanItems_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/plans/items?id=%s&limit=%d&mID=%s", "", 5, ""), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllMaintenancePlanItems(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -490,7 +490,7 @@ func Test_AddItemsInMaintenancePlan(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -608,7 +608,7 @@ func Test_AddItemsInMaintenancePlan_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/plans/items", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddItemsInMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -641,7 +641,7 @@ func Test_RemoveAssociationFromMaintenancePlan(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -782,7 +782,7 @@ func Test_RemoveAssociationFromMaintenancePlan_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/plan/remove/items", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveAssociationFromMaintenancePlan(w, req, config.CTO_USER)
 	res := w.Result()
 
