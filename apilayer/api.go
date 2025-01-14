@@ -59,11 +59,12 @@ func main() {
 
 	// public routes
 	router.HandleFunc("/api/v1/signup", handler.Signup).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/v1/reset", handler.ResetEmailToken).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/v1/verify", handler.VerifyEmailAddress).Methods("GET")
+
 	router.HandleFunc("/api/v1/signin", handler.Signin).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/isValidEmail", handler.IsValidUserEmail).Methods("POST")
 	router.HandleFunc("/api/v1/logout", handler.Logout).Methods("GET", "OPTIONS")
-
-	router.HandleFunc("/api/v1/event/{id}/ws", handler.HandleWebsocket)
 
 	// secure routes
 	router.Handle("/api/v1/locations", CustomRequestHandler(handler.GetAllStorageLocations)).Methods(http.MethodGet)
@@ -103,10 +104,6 @@ func main() {
 	router.Handle("/api/v1/profile/{id}", CustomRequestHandler(handler.UpdateProfile)).Methods(http.MethodPut)
 	router.Handle("/api/v1/profile/{id}/username", CustomRequestHandler(handler.GetUsername)).Methods(http.MethodGet)
 
-	// image
-	router.Handle("/api/v1/{id}/uploadImage", CustomRequestHandler(handler.UploadImage)).Methods(http.MethodPost)
-	router.Handle("/api/v1/{id}/fetchImage", CustomRequestHandler(handler.FetchImage)).Methods(http.MethodGet)
-
 	// inventories
 	router.Handle("/api/v1/profile/{id}/inventories", CustomRequestHandler(handler.GetAllInventories)).Methods(http.MethodGet)
 	router.Handle("/api/v1/profile/{id}/inventories/{invID}", CustomRequestHandler(handler.GetInventoryByID)).Methods(http.MethodGet)
@@ -129,6 +126,10 @@ func main() {
 
 	// reports
 	router.Handle("/api/v1/reports/{id}", CustomRequestHandler(handler.GetReports)).Methods(http.MethodGet)
+
+	// image
+	router.Handle("/api/v1/{id}/uploadImage", CustomRequestHandler(handler.UploadImage)).Methods(http.MethodPost)
+	router.Handle("/api/v1/{id}/fetchImage", CustomRequestHandler(handler.FetchImage)).Methods(http.MethodGet)
 
 	cors := handlers.CORS(
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization", "Authorization2"}),
@@ -159,25 +160,20 @@ func (u CustomRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	currentUser := validateCredsWithAuthorizedDbUser()
-	isValid, err := validateJwtTokenWithUser(currentUser, cookie)
+	currentUser := validateCurrentUser()
+	err := db.ValidateCredentials(currentUser, cookie)
 	if err != nil {
 		log.Printf("failed to validate token. error: %+v", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
-	if isValid {
-		u(w, r, currentUser)
-	} else {
-		// no token || invalid token
-		http.Error(w, "Internal Server Error.", http.StatusUnauthorized)
-		return
-	}
+	u(w, r, currentUser)
 }
 
-// validateCredsWithAuthorizedDbUser ...
-func validateCredsWithAuthorizedDbUser() string {
+// validateCurrentUser ...
+//
+// function is used to check if currentUser exists in the system. defaults to system user from os/user
+func validateCurrentUser() string {
 	currentUser := os.Getenv("CLIENT_USER")
 	if len(currentUser) == 0 {
 		user, _ := user.Current()
@@ -185,15 +181,4 @@ func validateCredsWithAuthorizedDbUser() string {
 		currentUser = user.Username
 	}
 	return currentUser
-}
-
-// validateJWTWithUserCredentials ...
-//
-// to validate the user jwt token. the cookie string is the unique id for the oauth table
-func validateJwtTokenWithUser(currentUser string, cookie string) (bool, error) {
-	err := db.ValidateCredentials(currentUser, cookie)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
 }

@@ -2,14 +2,10 @@ package model
 
 import (
 	"encoding/json"
-	"log"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
-	"github.com/mohit2530/communityCare/config"
 )
 
 // UserCredentials ...
@@ -28,32 +24,6 @@ type UserCredentials struct {
 	LicenceKey        string    `json:"licence_key,omitempty"`
 	ExpirationTime    time.Time `json:"expiration_time,omitempty"`
 	jwt.StandardClaims
-}
-
-// ProduceAuthToken provides the ability to add the cookie to the logged in user
-// This cookie is required to preview any secure payloads.
-// Expiration time: 1 mins default
-func (us *UserCredentials) ProduceAuthToken(draftUser *UserCredentials) {
-
-	draftTime := os.Getenv("TOKEN_VALIDITY_TIME")
-	produceTime, err := strconv.ParseInt(draftTime, 10, 64)
-	if err != nil {
-		produceTime = 1
-	}
-	draftUser.ExpirationTime = time.Now().Add(time.Duration(produceTime) * time.Minute)
-	draftUser.StandardClaims = jwt.StandardClaims{
-		ExpiresAt: draftUser.ExpirationTime.Unix(),
-	}
-
-	var licenseKey = config.BASE_LICENSE_KEY
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, us)
-	tokenStr, err := token.SignedString(licenseKey)
-	if err != nil {
-		log.Printf("unable to decode token. error :- %+v", err)
-		return
-	}
-	draftUser.LicenceKey = string(licenseKey)
-	draftUser.PreBuiltToken = tokenStr
 }
 
 // User ...
@@ -105,16 +75,4 @@ type User struct {
 // UserEmail object. Used to validate if the email already exists in the db
 type UserEmail struct {
 	EmailAddress string `json:"email"`
-}
-
-// WebsocketMsg ...
-// swagger:model WebsocketMsg
-//
-// WebsocketMsg object. Used to communicate between active users
-type WebsocketMsg struct {
-	ActiveUsersCount int    `json:"activeUsersCount"`
-	EventID          string `json:"eventID"`
-	Msg              string `json:"msg"`
-	User             string `json:"user"`
-	UserID           string `json:"userID"`
 }
