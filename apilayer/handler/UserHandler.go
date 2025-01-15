@@ -233,7 +233,7 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 // swagger:route GET /api/v1/verify Authentication VerifyEmailAddress
 //
 // # Used to verify if the user correctly verified the selected email address. If the token
-// is valid, then the user was successfully verified
+// is valid, then the user was successfully verified. Updates the db with verification check.
 //
 // Responses:
 // 200: MessageResponse
