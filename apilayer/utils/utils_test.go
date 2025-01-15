@@ -10,7 +10,7 @@ import (
 
 func Test_ValidateJwtToken(t *testing.T) {
 
-	resp, err := stormRider.CreateJWT(&types.Credentials{}, "15", "")
+	resp, err := stormRider.CreateJWT(&types.Credentials{}, "")
 
 	assert.NoError(t, err)
 	assert.GreaterOrEqual(t, len(resp.LicenceKey), 10)
