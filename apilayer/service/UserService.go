@@ -259,7 +259,7 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 		return
 	}
 
-	log.Printf("email notification sent to %s on %+v", emailAddress, time.Now())
+	log.Printf("Email notification sent to %s on %+v", emailAddress, time.Now())
 }
 
 // ValidateCredentials ...
