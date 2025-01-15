@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	stormRider "github.com/earmuff-jam/ciri-stormrider"
 	"github.com/earmuff-jam/ciri-stormrider/types"
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ import (
 
 const (
 	EMAIL_SUBJECT_LINE  = "Verify your email address for FleetWise Application"
-	WEB_APPLICATION_URI = "/api/v1/verify/"
+	WEB_APPLICATION_URI = "/api/v1/"
 )
 
 // FetchUser ...
@@ -40,7 +41,22 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserCreden
 		log.Printf("unable to retrieve user details. error: %+v", err)
 		return nil, err
 	}
-	userCredsWithToken, err := stormRider.CreateJWT(&types.Credentials{}, draftTime, "")
+
+	formattedTime, err := strconv.ParseInt(draftTime, 10, 64)
+	if err != nil {
+		log.Printf("unable to parse provided time. erorr: %+v", err)
+		return nil, err
+	}
+
+	draftCredentials := types.Credentials{
+		Claims: jwt.StandardClaims{
+			ExpiresAt: formattedTime,
+			Subject:   draftUser.ID.String(),
+		},
+	}
+
+	userCredsWithToken, err := stormRider.CreateJWT(&draftCredentials, "")
+
 	if err != nil {
 		log.Printf("unable to create JWT token. error: %+v", err)
 		return nil, err
@@ -64,12 +80,14 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserCreden
 func updateJwtToken(user string, draftUser *model.UserCredentials) error {
 	db, err := db.SetupDB(user)
 	if err != nil {
+		log.Printf("unable to setup db. error: %+v", err)
 		return err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
+		log.Printf("unable to setup transaction for db. error: %+v", err)
 		return err
 	}
 
@@ -163,7 +181,8 @@ func RegisterUser(userName string, draftUser *model.UserCredentials) (*model.Use
 		return nil, err
 	}
 
-	PerformEmailNotificationService(userName, draftUser.Email)
+	PerformEmailNotificationService(userName, draftUser.Email, draftUser.ID.String())
+
 	return resp, nil
 }
 
@@ -171,13 +190,26 @@ func RegisterUser(userName string, draftUser *model.UserCredentials) (*model.Use
 //
 // Updates user fields in db with new token and sends email notification for email verification
 // to client using Send Grid api. This function is also re-used when users attempt to re-verify the
-// token if Send Grid fails to send the api.
+// token if Send Grid fails to send the api. The userID is passed in the subject in the token to verify
+// if the user is correct.
 //
 // Error handling is ignored since email notification service failures are ignored and we still want the user
 // to login and perform regular operations even without verification of email.
-func PerformEmailNotificationService(username string, emailAddress string) {
+func PerformEmailNotificationService(username string, emailAddress string, userID string) {
 
-	credentials, err := stormRider.CreateJWT(&types.Credentials{}, "15", "")
+	formattedTime, err := strconv.ParseInt(config.DefaultTokenValidityTime, 10, 64)
+	if err != nil {
+		log.Printf("unable to parse provided time. erorr: %+v", err)
+		return
+	}
+
+	draftCredentials := types.Credentials{
+		Claims: jwt.StandardClaims{
+			Subject:   userID,
+			ExpiresAt: formattedTime,
+		},
+	}
+	credentials, err := stormRider.CreateJWT(&draftCredentials, "")
 	if err != nil {
 		log.Printf("unable to create email token for verification services. error: %+v", err)
 		return
@@ -219,13 +251,15 @@ func PerformEmailNotificationService(username string, emailAddress string) {
 	`, verificationLink, verificationLink)
 
 	message := mail.NewSingleEmail(from, EMAIL_SUBJECT_LINE, to, plainText, htmlContent)
-	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+	client := sendgrid.NewSendClient(os.Getenv("SEND_GRID_API_KEY"))
 
 	_, err = client.Send(message)
 	if err != nil {
 		log.Printf("unable to send email verification. error: %+v", err)
 		return
 	}
+
+	log.Printf("email notification sent to %s on %+v", emailAddress, time.Now())
 }
 
 // ValidateCredentials ...
@@ -266,12 +300,26 @@ func ValidateCredentials(user string, ID string) error {
 	// token is about to expire. if the user is continuing with activity, create new token
 	formattedTimeToLive := time.Until(expirationTime)
 	if formattedTimeToLive <= 30*time.Second && formattedTimeToLive > 0 {
-		updatedToken, err := stormRider.RefreshToken(config.DefaultTokenValidityTime, "")
+
+		formattedTime, err := strconv.ParseInt(config.DefaultTokenValidityTime, 10, 64)
+		if err != nil {
+			log.Printf("unable to parse provided time. erorr: %+v", err)
+			return err
+		}
+
+		draftCredentials := &types.Credentials{
+			Claims: jwt.StandardClaims{
+				ExpiresAt: formattedTime,
+			},
+		}
+
+		updatedToken, err := stormRider.RefreshToken(draftCredentials, "")
 		if err != nil {
 			log.Printf("unable to refresh token. error :%+v", err)
 			tx.Rollback()
 			return err
 		}
+
 		parsedUserID, err := uuid.Parse(ID)
 		if err != nil {
 			log.Printf("unable to determine user id. error :%+v", err)
