@@ -59,7 +59,6 @@ func main() {
 
 	// public routes
 	router.HandleFunc("/api/v1/signup", handler.Signup).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/v1/reset", handler.ResetEmailToken).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/verify", handler.VerifyEmailAddress).Methods("GET")
 
 	router.HandleFunc("/api/v1/signin", handler.Signin).Methods("POST", "OPTIONS")
@@ -67,6 +66,7 @@ func main() {
 	router.HandleFunc("/api/v1/logout", handler.Logout).Methods("GET", "OPTIONS")
 
 	// secure routes
+	router.Handle("/api/v1/reset", CustomRequestHandler(handler.ResetEmailToken)).Methods(http.MethodPost)
 	router.Handle("/api/v1/locations", CustomRequestHandler(handler.GetAllStorageLocations)).Methods(http.MethodGet)
 
 	// summary
@@ -150,7 +150,10 @@ func main() {
 }
 
 // ServerHTTP is a wrapper function to derieve the user authentication.
-// It also serves as a method to validate incomming requests and refresh token if necessary.
+//
+// Performs check to validate if there is a current user in the system that
+// can communication with the db as a user and also validates jwt for incoming
+// requests and refresh token if necessary.
 func (u CustomRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie("token")

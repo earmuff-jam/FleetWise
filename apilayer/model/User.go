@@ -18,6 +18,7 @@ type UserCredentials struct {
 	Username          string    `json:"username,omitempty"`
 	Birthday          string    `json:"birthday,omitempty"`
 	Role              string    `json:"role"`
+	IsVerified        bool      `json:"is_verified"`
 	UserAgent         string    `json:"user_agent,omitempty"`
 	EncryptedPassword string    `json:"password,omitempty"`
 	PreBuiltToken     string    `json:"pre_token,omitempty"`
@@ -69,10 +70,15 @@ type User struct {
 	DeletedAt                time.Time       `json:"deleted_at,omitempty"`
 }
 
-// UserEmail ...
-// swagger:model UserEmail
+// UserResponse ...
+// swagger:model UserResponse
 //
-// UserEmail object. Used to validate if the email already exists in the db
-type UserEmail struct {
-	EmailAddress string `json:"email"`
+// UserResponse object is used to perform manipulation in the web layer. This object
+// is populated based on the need to know basis of the response model. It is also
+// used to validate if the email already exists and is used to verify if the selected user
+// is a verified user
+type UserResponse struct {
+	ID           string `json:"id,omitempty"`
+	IsVerified   bool   `json:"is_verified,omitempty"`
+	EmailAddress string `json:"email,omitempty"`
 }
