@@ -28,7 +28,7 @@ const (
 // FetchUser ...
 //
 // Function is used to retrieve user details and perform jwt maniupulation in the application
-func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserCredentials, error) {
+func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserResponse, error) {
 
 	draftTime := os.Getenv("TOKEN_VALIDITY_TIME")
 	if len(draftTime) <= 0 {
@@ -67,9 +67,14 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserCreden
 	err = updateJwtToken(user, draftUser)
 	if err != nil {
 		log.Printf("unable to upsert token. error: %+v", err)
-		return &model.UserCredentials{}, err
+		return nil, err
 	}
-	return draftUser, nil
+
+	return &model.UserResponse{
+		ID:           draftUser.ID.String(),
+		EmailAddress: draftUser.Email,
+		IsVerified:   draftUser.IsVerified,
+	}, nil
 }
 
 // updateJwtToken ...

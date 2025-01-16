@@ -17,6 +17,7 @@ const (
 	ErrorTokenValidation        = "unable to validate token"
 	ErrorTokenSubjectValidation = "unable to validate token subject"
 	ErrorFetchingCurrentUser    = "unable to retrieve system user"
+	ErrorUserIsAlreadyVerified  = "unable to validate user. user is already verified"
 )
 
 // Signup ...
@@ -159,6 +160,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	draftUser.UserAgent = r.UserAgent()
+
 	user := os.Getenv("CLIENT_USER")
 	if len(user) == 0 {
 		log.Printf("unable to retrieve user from env. Unable to sign in.")
@@ -166,6 +168,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(rw).Encode("unable to retrieve user from env")
 		return
 	}
+
 	resp, err := service.FetchUser(user, draftUser)
 	if err != nil {
 		log.Printf("Unable to sign user in. error: +%v", err)
@@ -183,7 +186,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Add("Role2", draftUser.Role)
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	json.NewEncoder(rw).Encode(resp.ID)
+	json.NewEncoder(rw).Encode(resp)
 }
 
 // IsValidUserEmail ...
@@ -198,7 +201,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 // 500: MessageResponse
 func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 
-	draftUserEmail := &model.UserEmail{}
+	draftUserEmail := &model.UserResponse{}
 	err := json.NewDecoder(r.Body).Decode(draftUserEmail)
 	r.Body.Close()
 	if err != nil {
@@ -291,52 +294,59 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode("Verified. Return to application to sign in.")
+
 }
 
 // ResetEmailToken ...
 // swagger:route POST /api/v1/reset Authentication ResetEmailToken
 //
 // # Resets the token in the database and allows users to resend email in case the token
-// is incorrect or failed to reach the user.
+// is incorrect or failed to reach the user. This route is kept under the secure route
+// because a user must be logged in before they can activate a verification token.
 //
 // Responses:
 // 200: MessageResponse
 // 400: MessageResponse
 // 404: MessageResponse
 // 500: MessageResponse
-func ResetEmailToken(rw http.ResponseWriter, r *http.Request) {
+func ResetEmailToken(rw http.ResponseWriter, r *http.Request, user string) {
 
-	draftUserEmail := &model.UserEmail{}
-	err := json.NewDecoder(r.Body).Decode(draftUserEmail)
+	draftUser := &model.UserResponse{}
+	err := json.NewDecoder(r.Body).Decode(draftUser)
 	r.Body.Close()
 	if err != nil {
+		log.Printf("unable to validate user details. error: +%v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	if len(draftUser.EmailAddress) <= 0 {
 		log.Printf("unable to validate user email address. error: +%v", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 
-	user := os.Getenv("CLIENT_USER")
-	if len(user) == 0 {
-		log.Printf("unable to retrieve user from env. Unable to sign in.")
+	if len(draftUser.ID) <= 0 {
+		log.Printf("unable to validate user id. error: +%v", err)
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode("unable to retrieve user from env")
+		json.NewEncoder(rw).Encode(err)
 		return
 	}
 
-	draftUser, err := service.FetchUser(user, &model.UserCredentials{
-		Email: draftUserEmail.EmailAddress,
-	})
-
-	if err != nil {
-		log.Printf("unable to fetch details for selected user. error: %+v", err)
+	if draftUser.IsVerified {
+		log.Printf("duplicate request detected. error: %+v", ErrorUserIsAlreadyVerified)
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode("unable to retrieve user from env")
+		json.NewEncoder(rw).Encode(ErrorUserIsAlreadyVerified)
 		return
 	}
 
 	// draft user id is required so that the jwt token can be associated with the user
-	service.PerformEmailNotificationService(user, draftUserEmail.EmailAddress, draftUser.ID.String())
+	service.PerformEmailNotificationService(user, draftUser.EmailAddress, draftUser.ID)
 
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)

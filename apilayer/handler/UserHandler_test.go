@@ -153,7 +153,7 @@ func Test_GetLogout(t *testing.T) {
 
 func Test_IsValidUserEmail_Success_Valid_Email(t *testing.T) {
 	t.Skip()
-	draftUserEmail := model.UserEmail{
+	draftUserEmail := model.UserResponse{
 		EmailAddress: "admin@gmail.com",
 	}
 	reqBody, err := json.Marshal(draftUserEmail)
@@ -184,7 +184,7 @@ func Test_IsValidUserEmail_Success_Valid_Email(t *testing.T) {
 
 func Test_IsValidUserEmail_Success_Invalid_Email(t *testing.T) {
 	t.Skip()
-	draftUserEmail := model.UserEmail{
+	draftUserEmail := model.UserResponse{
 		EmailAddress: "admin23@gmail.com",
 	}
 	reqBody, err := json.Marshal(draftUserEmail)

@@ -82,12 +82,12 @@ func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 	defer db.Close()
 
 	// retrive the encrypted pwd. EMAIL must be UNIQUE field.
-	sqlStr := `SELECT id, role, encrypted_password FROM auth.users WHERE email=$1;`
+	sqlStr := `SELECT id, role, encrypted_password, is_verified FROM auth.users WHERE email=$1;`
 
 	result := db.QueryRow(sqlStr, draftUser.Email)
 
 	storedCredentials := &model.UserCredentials{}
-	err = result.Scan(&storedCredentials.ID, &storedCredentials.Role, &storedCredentials.EncryptedPassword)
+	err = result.Scan(&storedCredentials.ID, &storedCredentials.Role, &storedCredentials.EncryptedPassword, &storedCredentials.IsVerified)
 	if err != nil {
 		log.Printf("unable to retrieve user details. error: +%v", err)
 		return nil, err
@@ -100,6 +100,7 @@ func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 
 	draftUser.ID = storedCredentials.ID
 	draftUser.Role = storedCredentials.Role
+	draftUser.IsVerified = storedCredentials.IsVerified
 
 	return draftUser, nil
 }

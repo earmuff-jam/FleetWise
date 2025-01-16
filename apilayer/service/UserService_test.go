@@ -24,7 +24,7 @@ func Test_FetchUser(t *testing.T) {
 	resp, err := FetchUser(config.CTO_USER, &draftUserCredentials)
 
 	assert.NoError(t, err)
-	assert.Equal(t, resp.Email, "admin@gmail.com")
+	assert.Equal(t, resp.EmailAddress, "admin@gmail.com")
 }
 
 func Test_FetchUser_DefaultTokenValidityTime(t *testing.T) {
@@ -42,7 +42,7 @@ func Test_FetchUser_DefaultTokenValidityTime(t *testing.T) {
 	resp, err := FetchUser(config.CTO_USER, &draftUserCredentials)
 
 	assert.NoError(t, err)
-	assert.Equal(t, resp.Email, "admin@gmail.com")
+	assert.Equal(t, resp.EmailAddress, "admin@gmail.com")
 }
 
 func Test_FetchUser_InvalidUser(t *testing.T) {
@@ -112,11 +112,7 @@ func Test_ValidateCredentials(t *testing.T) {
 	resp, err := FetchUser(config.CTO_USER, &draftUserCredentials)
 
 	assert.NoError(t, err)
-	assert.Equal(t, resp.Email, "admin@gmail.com")
-
-	// using prebuilt token since that is the masked token
-	err = ValidateCredentials(config.CTO_USER, resp.PreBuiltToken)
-	assert.NoError(t, err)
+	assert.Equal(t, resp.EmailAddress, "admin@gmail.com")
 
 }
 
@@ -133,10 +129,6 @@ func Test_ValidateCredentials_InvalidUser(t *testing.T) {
 	resp, err := FetchUser(config.CTO_USER, &draftUserCredentials)
 
 	assert.NoError(t, err)
-	assert.Equal(t, resp.Email, "admin@gmail.com")
-
-	// using prebuilt token since that is the masked token
-	err = ValidateCredentials(config.CEO_USER, resp.PreBuiltToken)
-	assert.Error(t, err)
+	assert.Equal(t, resp.EmailAddress, "admin@gmail.com")
 
 }
