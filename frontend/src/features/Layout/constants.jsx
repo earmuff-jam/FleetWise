@@ -57,7 +57,7 @@ export const PINNED_DEFAULT_INSET_MENU_LIST = [
   {
     id: 2,
     icon: <BookmarkRounded fontSize="small" color="warning" />,
-    label: 'Personal Notes',
+    label: 'Notes',
     to: '/profile/notes',
   },
 ];
