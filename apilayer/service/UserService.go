@@ -36,6 +36,12 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserRespon
 		draftTime = config.DefaultTokenValidityTime
 	}
 
+	secretToken := os.Getenv("TOKEN_SECRET_KEY")
+	if len(secretToken) <= 0 {
+		log.Print("unable to retrieve secret token key. defaulting to default values")
+		secretToken = ""
+	}
+
 	draftUser, err := db.RetrieveUser(user, draftUser)
 	if err != nil {
 		log.Printf("unable to retrieve user details. error: %+v", err)
@@ -55,7 +61,7 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserRespon
 		},
 	}
 
-	userCredsWithToken, err := stormRider.CreateJWT(&draftCredentials, "")
+	userCredsWithToken, err := stormRider.CreateJWT(&draftCredentials, secretToken)
 
 	if err != nil {
 		log.Printf("unable to create JWT token. error: %+v", err)
@@ -208,13 +214,19 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 		return
 	}
 
+	secretToken := os.Getenv("TOKEN_SECRET_KEY")
+	if len(secretToken) <= 0 {
+		log.Print("unable to retrieve secret token key. defaulting to default values")
+		secretToken = ""
+	}
+
 	draftCredentials := types.Credentials{
 		Claims: jwt.StandardClaims{
 			Subject:   userID,
 			ExpiresAt: formattedTime,
 		},
 	}
-	credentials, err := stormRider.CreateJWT(&draftCredentials, "")
+	credentials, err := stormRider.CreateJWT(&draftCredentials, secretToken)
 	if err != nil {
 		log.Printf("unable to create email token for verification services. error: %+v", err)
 		return
@@ -312,13 +324,19 @@ func ValidateCredentials(user string, ID string) error {
 			return err
 		}
 
+		secretToken := os.Getenv("TOKEN_SECRET_KEY")
+		if len(secretToken) <= 0 {
+			log.Print("unable to retrieve secret token key. defaulting to default values")
+			secretToken = ""
+		}
+
 		draftCredentials := &types.Credentials{
 			Claims: jwt.StandardClaims{
 				ExpiresAt: formattedTime,
 			},
 		}
 
-		updatedToken, err := stormRider.RefreshToken(draftCredentials, "")
+		updatedToken, err := stormRider.RefreshToken(draftCredentials, secretToken)
 		if err != nil {
 			log.Printf("unable to refresh token. error :%+v", err)
 			tx.Rollback()

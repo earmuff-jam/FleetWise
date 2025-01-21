@@ -253,6 +253,12 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	secretToken := os.Getenv("TOKEN_SECRET_KEY")
+	if len(secretToken) <= 0 {
+		log.Print("unable to retrieve secret token key. defaulting to default values")
+		secretToken = ""
+	}
+
 	tokenString := r.URL.Query().Get("token")
 	if tokenString == "" {
 		log.Printf("unable to validate request params. error: +%v", ErrorTokenValidation)
@@ -261,7 +267,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isValid, err := stormRider.ValidateJWT(tokenString, "")
+	isValid, err := stormRider.ValidateJWT(tokenString, secretToken)
 
 	if err != nil || !isValid {
 		log.Printf("unable to validate token. error: %+v", err)
@@ -270,7 +276,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := stormRider.ParseJwtToken(tokenString, "")
+	resp, err := stormRider.ParseJwtToken(tokenString, secretToken)
 	if err != nil {
 		log.Printf("unable to validate token. error: %+v", err)
 		rw.WriteHeader(http.StatusBadRequest)

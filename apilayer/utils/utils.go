@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"log"
+	"os"
 
 	stormRider "github.com/earmuff-jam/ciri-stormrider"
 )
@@ -12,7 +13,13 @@ import (
 // Method is used to validate the provided JWT token
 func ValidateJwtToken(token string) error {
 
-	isValid, err := stormRider.ValidateJWT(token, "")
+	secretToken := os.Getenv("TOKEN_SECRET_KEY")
+	if len(secretToken) <= 0 {
+		log.Print("unable to retrieve secret token key. defaulting to default values")
+		secretToken = ""
+	}
+
+	isValid, err := stormRider.ValidateJWT(token, secretToken)
 	if err != nil {
 		log.Printf("invalid token detected. error :%+v", err)
 		return err
