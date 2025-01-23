@@ -4,7 +4,7 @@ export default function HeroContentCenterText() {
   return (
     <Stack textAlign="center">
       <Typography variant="h1" fontWeight="900">
-        Asset Alert
+        Fleetwise
       </Typography>
       <Typography variant="h4" fontWeight="100">
         Build and track your assets with ease

@@ -161,7 +161,7 @@ const profileSlice = createSlice({
       ws['!cols'] = wsColsWidth;
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, dayjs().format('YYYY-MM-DD'));
-      XLSX.writeFile(wb, 'assetAlert.xlsx');
+      XLSX.writeFile(wb, 'fleetwise.xlsx');
       state.loading = false;
       state.error = '';
     },

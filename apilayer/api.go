@@ -1,4 +1,4 @@
-// # Documentation for the Asset alert api layer.
+// # Documentation for the Fleet wise api layer.
 //
 // Scehmes: https
 // BasePath: /

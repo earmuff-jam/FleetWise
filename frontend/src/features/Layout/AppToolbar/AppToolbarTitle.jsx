@@ -9,7 +9,7 @@ export default function AppToolbarTitle({ onClick }) {
       </IconButton>
       <Stack flexGrow={1} direction="row" alignItems="center">
         <Typography variant="h4" color="text.secondary" sx={{ cursor: 'pointer' }}>
-          AssetAlert
+          Fleetwise
         </Typography>
       </Stack>
     </>

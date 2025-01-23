@@ -41,7 +41,20 @@ definitions:
                 x-go-name: UpdatedAt
         title: AssetSummary ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
+    AssetsAndSummaryResponse:
+        properties:
+            AssetList:
+                items:
+                    $ref: '#/definitions/Inventory'
+                type: array
+            AssetSummaryList:
+                items:
+                    $ref: '#/definitions/AssetSummary'
+                type: array
+        title: AssetsAndSummaryResponse ...
+        type: object
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     Category:
         properties:
             color:
@@ -100,7 +113,7 @@ definitions:
                 x-go-name: Updator
         title: Category ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     CategoryItem:
         properties:
             category_id:
@@ -136,7 +149,7 @@ definitions:
                 x-go-name: Updator
         title: CategoryItem ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     CategoryItemRequest:
         properties:
             assetIDs:
@@ -157,7 +170,7 @@ definitions:
                 x-go-name: UserID
         title: CategoryItemRequest ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     CategoryItemResponse:
         properties:
             category_id:
@@ -211,213 +224,7 @@ definitions:
                 x-go-name: Updator
         title: CategoryItemResponse ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    Event:
-        properties:
-            attendees:
-                items:
-                    type: string
-                type: array
-                x-go-name: Attendees
-            boundingbox:
-                items:
-                    type: string
-                type: array
-                x-go-name: BoundingBox
-            cause:
-                type: string
-                x-go-name: Cause
-            city:
-                type: string
-                x-go-name: City
-            class:
-                type: string
-                x-go-name: Class
-            collaborators:
-                items:
-                    type: string
-                type: array
-                x-go-name: Collaborators
-            comments:
-                type: string
-                x-go-name: Comments
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            created_by:
-                type: string
-                x-go-name: CreatedBy
-            creator_name:
-                type: string
-                x-go-name: CreatorName
-            deactivated:
-                type: boolean
-                x-go-name: Deactivated
-            deactivated_reason:
-                type: string
-                x-go-name: DeactivatedReason
-            description:
-                type: string
-                x-go-name: Description
-            display_name:
-                type: string
-                x-go-name: DisplayName
-            id:
-                type: string
-                x-go-name: ID
-            image_url:
-                type: string
-                x-go-name: ImageURL
-            importance:
-                type: string
-                x-go-name: Importance
-            lat:
-                type: string
-                x-go-name: Lattitude
-            license:
-                type: string
-                x-go-name: License
-            lon:
-                type: string
-                x-go-name: Longitude
-            max_attendees:
-                format: int64
-                type: integer
-                x-go-name: MaxAttendees
-            osm_type:
-                type: string
-                x-go-name: OsmType
-            place_id:
-                type: string
-                x-go-name: PlaceID
-            powered_by:
-                type: string
-                x-go-name: PoweredBy
-            price:
-                format: double
-                type: number
-                x-go-name: Price
-            project_type:
-                type: string
-                x-go-name: ProjectType
-            registration_link:
-                type: string
-                x-go-name: RegistrationLink
-            required_total_man_hours:
-                format: int64
-                type: integer
-                x-go-name: TotalManHours
-            sharable_groups:
-                items:
-                    type: string
-                type: array
-                x-go-name: SharableGroups
-            skills_required:
-                items:
-                    type: string
-                type: array
-                x-go-name: ProjectSkills
-            start_date:
-                format: date-time
-                type: string
-                x-go-name: StartDate
-            state:
-                type: string
-                x-go-name: State
-            street:
-                type: string
-                x-go-name: Street
-            text:
-                type: string
-                x-go-name: OsmID
-            title:
-                type: string
-                x-go-name: Title
-            type:
-                type: string
-                x-go-name: Type
-            updated_at:
-                format: date-time
-                type: string
-                x-go-name: UpdatedAt
-            updated_by:
-                type: string
-                x-go-name: UpdatedBy
-            updator_name:
-                type: string
-                x-go-name: UpdatorName
-            zip:
-                type: string
-                x-go-name: ZipCode
-        title: Event ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    EventCause:
-        properties:
-            cause:
-                type: string
-                x-go-name: Cause
-            id:
-                type: string
-                x-go-name: ID
-        title: EventCause ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    Expense:
-        properties:
-            category_id:
-                type: string
-                x-go-name: CategoryID
-            category_name:
-                type: string
-                x-go-name: Category
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            created_by:
-                type: string
-                x-go-name: CreatedBy
-            creator_name:
-                type: string
-                x-go-name: CreatorName
-            eventID:
-                type: string
-                x-go-name: EventID
-            id:
-                type: string
-                x-go-name: ID
-            item_cost:
-                type: string
-                x-go-name: ItemCost
-            item_name:
-                type: string
-                x-go-name: ItemName
-            notes:
-                type: string
-                x-go-name: Notes
-            purchase_location:
-                type: string
-                x-go-name: PurchaseLocation
-            sharable_groups:
-                items:
-                    type: string
-                type: array
-                x-go-name: SharableGroups
-            updated_at:
-                format: date-time
-                type: string
-                x-go-name: UpdatedAt
-            updated_by:
-                type: string
-                x-go-name: UpdatedBy
-            updator_name:
-                type: string
-                x-go-name: UpdatorName
-        title: Expense ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     FavouriteItem:
         properties:
             category_id:
@@ -469,7 +276,7 @@ definitions:
                 x-go-name: Updator
         title: FavouriteItem ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     Inventory:
         properties:
             associated_image_url:
@@ -568,7 +375,7 @@ definitions:
                 x-go-name: UpdaterName
         title: Inventory ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     InventoryItemToUpdate:
         properties:
             column:
@@ -585,7 +392,7 @@ definitions:
                 x-go-name: Value
         title: InventoryItemToUpdate ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     InventoryListRequest:
         properties:
             InventoryList:
@@ -601,81 +408,7 @@ definitions:
                 x-go-name: CreatedBy
         title: InventoryListRequest ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    Item:
-        properties:
-            bought_at:
-                type: string
-                x-go-name: BoughtAt
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            created_by:
-                type: string
-                x-go-name: CreatedBy
-            creator_name:
-                type: string
-                x-go-name: CreatorName
-            description:
-                type: string
-                x-go-name: Description
-            eventID:
-                type: string
-                x-go-name: EventID
-            id:
-                type: string
-                x-go-name: ID
-            location:
-                type: string
-                x-go-name: Location
-            name:
-                type: string
-                x-go-name: Name
-            quantity:
-                format: int64
-                type: integer
-                x-go-name: Quantity
-            storage_location_id:
-                type: string
-                x-go-name: LocationID
-            unit_price:
-                format: double
-                type: number
-                x-go-name: UnitPrice
-            updated_at:
-                format: date-time
-                type: string
-                x-go-name: UpdatedAt
-            updated_by:
-                type: string
-                x-go-name: UpdatedBy
-            updater_name:
-                type: string
-                x-go-name: UpdaterName
-        title: Item ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    ItemToUpdate:
-        properties:
-            column:
-                type: string
-                x-go-name: Column
-            eventID:
-                type: string
-                x-go-name: EventID
-            itemID:
-                type: string
-                x-go-name: ItemID
-            userID:
-                type: string
-                x-go-name: UserID
-            value:
-                type: string
-                x-go-name: Value
-        title: ItemToUpdate ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     Location:
         properties:
             lat:
@@ -688,7 +421,61 @@ definitions:
                 x-go-name: Lon
         title: Location ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
+    MaintenanceAlertNotificationRequest:
+        properties:
+            is_read:
+                type: boolean
+                x-go-name: IsRead
+            maintenance_plan_id:
+                type: string
+                x-go-name: ID
+            updated_at:
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
+            updated_by:
+                type: string
+                x-go-name: UpdatedBy
+        title: MaintenanceAlertNotificationRequest ...
+        type: object
+        x-go-package: github.com/earmuff-jam/fleetwise/model
+    MaintenanceAlertNotifications:
+        properties:
+            is_read:
+                type: boolean
+                x-go-name: IsRead
+            maintenance_plan_id:
+                type: string
+                x-go-name: ID
+            name:
+                type: string
+                x-go-name: Name
+            plan_due:
+                format: date-time
+                type: string
+                x-go-name: PlanDue
+            sharable_groups:
+                items:
+                    type: string
+                type: array
+                x-go-name: SharableGroups
+            type:
+                type: string
+                x-go-name: Type
+            updated_at:
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
+            updated_by:
+                type: string
+                x-go-name: UpdatedBy
+            updator:
+                type: string
+                x-go-name: Updator
+        title: MaintenanceAlertNotifications ...
+        type: object
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     MaintenanceItemRequest:
         properties:
             assetIDs:
@@ -709,7 +496,7 @@ definitions:
                 x-go-name: UserID
         title: MaintenanceItemRequest ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     MaintenanceItemResponse:
         properties:
             created_at:
@@ -763,7 +550,7 @@ definitions:
                 x-go-name: Updator
         title: MaintenanceItemResponse ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     MaintenancePlan:
         properties:
             color:
@@ -829,14 +616,14 @@ definitions:
                 x-go-name: Updator
         title: MaintenancePlan ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     MessageResponse:
         properties:
             Message:
                 type: string
         title: MessageResponse ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare
+        x-go-package: github.com/earmuff-jam/fleetwise
     Note:
         properties:
             color:
@@ -894,47 +681,7 @@ definitions:
                 x-go-name: Updator
         title: Notes ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    Notification:
-        properties:
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            created_by:
-                type: string
-                x-go-name: CreatedBy
-            creator_name:
-                type: string
-                x-go-name: CreatorName
-            event_id:
-                type: string
-                x-go-name: EventID
-            id:
-                type: string
-                x-go-name: ID
-            is_resolved:
-                type: boolean
-                x-go-name: IsResolved
-            is_viewed:
-                type: boolean
-                x-go-name: IsViewed
-            title:
-                type: string
-                x-go-name: Title
-            updated_at:
-                format: date-time
-                type: string
-                x-go-name: UpdatedAt
-            updated_by:
-                type: string
-                x-go-name: UpdatedBy
-            updater_name:
-                type: string
-                x-go-name: UpdaterName
-        title: Notification ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     Profile:
         properties:
             about_me:
@@ -990,7 +737,7 @@ definitions:
                 x-go-name: Username
         title: Profile ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     ProfileStats:
         properties:
             totalAssets:
@@ -1007,18 +754,7 @@ definitions:
                 x-go-name: TotalMaintenancePlans
         title: ProfileStats ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    ProjectType:
-        properties:
-            id:
-                type: string
-                x-go-name: ID
-            type:
-                type: string
-                x-go-name: Type
-        title: ProjectType ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     RawInventory:
         properties:
             barcode:
@@ -1049,7 +785,7 @@ definitions:
                 x-go-name: SKU
         title: RawInventory ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     RecentActivity:
         properties:
             activity_id:
@@ -1095,7 +831,7 @@ definitions:
                 x-go-name: Updator
         title: RecentActivity ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     Report:
         properties:
             cost_category_items:
@@ -1140,55 +876,7 @@ definitions:
                 x-go-name: UpdaterName
         title: Report ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    ReportEvent:
-        properties:
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            created_by:
-                type: string
-                x-go-name: CreatedBy
-            creator_name:
-                type: string
-                x-go-name: CreatorName
-            description:
-                type: string
-                x-go-name: Description
-            event_id:
-                type: string
-                x-go-name: EventID
-            event_location:
-                type: string
-                x-go-name: EventLocation
-            id:
-                type: string
-                x-go-name: ID
-            organizer_name:
-                type: string
-                x-go-name: OrganizerName
-            sharable_groups:
-                items:
-                    type: string
-                type: array
-                x-go-name: SharableGroups
-            subject:
-                type: string
-                x-go-name: Subject
-            updated_at:
-                format: date-time
-                type: string
-                x-go-name: UpdatedAt
-            updated_by:
-                type: string
-                x-go-name: UpdatedBy
-            updator_name:
-                type: string
-                x-go-name: UpdatorName
-        title: ReportEvent ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     StandardClaims:
         description: |-
             Structured version of Claims Section, as referenced at
@@ -1221,20 +909,6 @@ definitions:
                 x-go-name: Subject
         type: object
         x-go-package: github.com/dgrijalva/jwt-go
-    State:
-        properties:
-            abbreviation:
-                type: string
-                x-go-name: Abbreviation
-            id:
-                type: string
-                x-go-name: ID
-            name:
-                type: string
-                x-go-name: Name
-        title: State ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
     StatusList:
         properties:
             color:
@@ -1277,7 +951,7 @@ definitions:
                 x-go-name: UpdaterName
         title: StatusList ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     StorageLocation:
         properties:
             created_at:
@@ -1307,29 +981,7 @@ definitions:
                 x-go-name: UpdatedBy
         title: StorageLocation ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    TransferInventory:
-        description: TransferInventory
-        properties:
-            column:
-                type: string
-                x-go-name: Column
-            eventID:
-                type: string
-                x-go-name: EventID
-            itemIDs:
-                items:
-                    type: string
-                type: array
-                x-go-name: ItemIDs
-            userID:
-                type: string
-                x-go-name: UserID
-            value:
-                type: string
-                x-go-name: Value
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     UpdateAssetColumn:
         description: UpdateAssetColumn
         properties:
@@ -1343,7 +995,7 @@ definitions:
                 type: string
                 x-go-name: InputColumn
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     User:
         properties:
             InstanceID:
@@ -1472,7 +1124,7 @@ definitions:
                 x-go-name: UpdatedAt
         title: User ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
     UserCredentials:
         properties:
             aud:
@@ -1500,6 +1152,9 @@ definitions:
                 format: uuid
                 type: string
                 x-go-name: ID
+            is_verified:
+                type: boolean
+                x-go-name: IsVerified
             iss:
                 type: string
                 x-go-name: Issuer
@@ -1533,79 +1188,24 @@ definitions:
                 x-go-name: Username
         title: UserCredentials ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    UserEmail:
+        x-go-package: github.com/earmuff-jam/fleetwise/model
+    UserResponse:
         properties:
             email:
                 type: string
                 x-go-name: EmailAddress
-        title: UserEmail ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    VolunteeringDetails:
-        properties:
-            created_at:
-                format: date-time
-                type: string
-                x-go-name: CreatedAt
-            created_by:
-                type: string
-                x-go-name: CreatedBy
-            eventID:
-                type: string
-                x-go-name: EventID
             id:
                 type: string
                 x-go-name: ID
-            project_skills_id:
-                type: string
-                x-go-name: EventSkillsID
-            title:
-                type: string
-                x-go-name: Title
-            updated_at:
-                format: date-time
-                type: string
-                x-go-name: UpdatedAt
-            updated_by:
-                type: string
-                x-go-name: UpdatedBy
-            userID:
-                type: string
-                x-go-name: UserID
-            volunteer_hours:
-                type: string
-                x-go-name: Hours
-            volunteeringActivity:
-                type: string
-                x-go-name: VolunteeringActivity
-        title: VolunteeringDetails ...
+            is_verified:
+                type: boolean
+                x-go-name: IsVerified
+        title: UserResponse ...
         type: object
-        x-go-package: github.com/mohit2530/communityCare/model
-    WebsocketMsg:
-        properties:
-            activeUsersCount:
-                format: int64
-                type: integer
-                x-go-name: ActiveUsersCount
-            eventID:
-                type: string
-                x-go-name: EventID
-            msg:
-                type: string
-                x-go-name: Msg
-            user:
-                type: string
-                x-go-name: User
-            userID:
-                type: string
-                x-go-name: UserID
-        title: WebsocketMsg ...
-        type: object
-        x-go-package: github.com/mohit2530/communityCare/model
+        x-go-package: github.com/earmuff-jam/fleetwise/model
 info:
     description: 'Scehmes: https'
-    title: Documentation for the Asset alert api layer.
+    title: Documentation for the Fleet wise api layer.
     version: 1.0.0
 paths:
     /api/profile/{id}/inventories:
@@ -2832,6 +2432,43 @@ paths:
             summary: '# Retrieves the selected inventory that matches the passed in ID created by the user.'
             tags:
                 - Assets
+    /api/v1/profile/{id}/notifications:
+        get:
+            operationId: updateSelectedMaintenanceNotification
+            parameters:
+                - description: The userID of the selected user
+                  in: path
+                  name: id
+                  required: true
+                  type: string
+                - description: The maintenance alert notification object to update
+                  in: body
+                  name: MaintenanceAlertNotificationRequest
+                  required: true
+                  schema:
+                    $ref: '#/definitions/MaintenanceAlertNotificationRequest'
+                    description: The maintenance alert notification object to update
+                    type: object
+            responses:
+                "200":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "400":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "404":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "500":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+            summary: Updates a selected maintenance notification between read and unread state
+            tags:
+                - Profiles
     /api/v1/profile/{id}/stats:
         get:
             operationId: getProfileStats
@@ -2928,6 +2565,32 @@ paths:
             summary: '# Retrieves user actions for categories, maintenance plans, and assets. List all created, updated, or deleted.'
             tags:
                 - GetRecentActivities
+    /api/v1/reset:
+        post:
+            description: |-
+                is incorrect or failed to reach the user. This route is kept under the secure route
+                because a user must be logged in before they can activate a verification token.
+            operationId: ResetEmailToken
+            responses:
+                "200":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "400":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "404":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "500":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+            summary: Resets the token in the database and allows users to resend email in case the token
+            tags:
+                - Authentication
     /api/v1/signin:
         post:
             operationId: signin
@@ -3004,6 +2667,30 @@ paths:
                     schema:
                         $ref: '#/definitions/MessageResponse'
             summary: '# Sign up users into the database system.'
+            tags:
+                - Authentication
+    /api/v1/verify:
+        get:
+            description: is valid, then the user was successfully verified. Updates the db with verification check.
+            operationId: VerifyEmailAddress
+            responses:
+                "200":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "400":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "404":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+                "500":
+                    description: MessageResponse
+                    schema:
+                        $ref: '#/definitions/MessageResponse'
+            summary: Used to verify if the user correctly verified the selected email address. If the token
             tags:
                 - Authentication
 produces:
