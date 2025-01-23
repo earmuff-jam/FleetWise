@@ -7,8 +7,17 @@ import (
 	"os"
 	"time"
 
+	stormRider "github.com/earmuff-jam/ciri-stormrider"
 	"github.com/mohit2530/communityCare/db"
 	"github.com/mohit2530/communityCare/model"
+	"github.com/mohit2530/communityCare/service"
+)
+
+const (
+	ErrorTokenValidation        = "unable to validate token"
+	ErrorTokenSubjectValidation = "unable to validate token subject"
+	ErrorFetchingCurrentUser    = "unable to retrieve system user"
+	ErrorUserIsAlreadyVerified  = "unable to validate user. user is already verified"
 )
 
 // Signup ...
@@ -97,14 +106,14 @@ func Signup(rw http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(rw).Encode("error")
 	}
 
-	// the authority to log into backend as a certain user
-	resp, err := db.SaveUser(backendClientUsr, draftUser)
+	resp, err := service.RegisterUser(backendClientUsr, draftUser)
 	if err != nil {
 		log.Printf("Unable to create new user. error: +%v", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
+
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	json.NewEncoder(rw).Encode(resp)
@@ -151,6 +160,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	draftUser.UserAgent = r.UserAgent()
+
 	user := os.Getenv("CLIENT_USER")
 	if len(user) == 0 {
 		log.Printf("unable to retrieve user from env. Unable to sign in.")
@@ -158,7 +168,8 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(rw).Encode("unable to retrieve user from env")
 		return
 	}
-	resp, err := db.RetrieveUser(user, draftUser)
+
+	resp, err := service.FetchUser(user, draftUser)
 	if err != nil {
 		log.Printf("Unable to sign user in. error: +%v", err)
 		rw.WriteHeader(http.StatusBadRequest)
@@ -166,11 +177,16 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rw.Header().Add("Authorization2", draftUser.PreBuiltToken)
+	http.SetCookie(rw, &http.Cookie{
+		Name:    "token",
+		Value:   draftUser.PreBuiltToken,
+		Expires: draftUser.ExpirationTime,
+	})
+
 	rw.Header().Add("Role2", draftUser.Role)
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	json.NewEncoder(rw).Encode(resp.ID)
+	json.NewEncoder(rw).Encode(resp)
 }
 
 // IsValidUserEmail ...
@@ -185,7 +201,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 // 500: MessageResponse
 func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 
-	draftUserEmail := &model.UserEmail{}
+	draftUserEmail := &model.UserResponse{}
 	err := json.NewDecoder(r.Body).Decode(draftUserEmail)
 	r.Body.Close()
 	if err != nil {
@@ -214,6 +230,133 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
 	json.NewEncoder(rw).Encode(resp)
+}
+
+// VerifyEmailAddress ...
+// swagger:route GET /api/v1/verify Authentication VerifyEmailAddress
+//
+// # Used to verify if the user correctly verified the selected email address. If the token
+// is valid, then the user was successfully verified. Updates the db with verification check.
+//
+// Responses:
+// 200: MessageResponse
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
+
+	user := os.Getenv("CLIENT_USER")
+	if len(user) == 0 {
+		log.Printf("unable to retrieve client user. error: %+v", ErrorFetchingCurrentUser)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(ErrorFetchingCurrentUser)
+		return
+	}
+
+	secretToken := os.Getenv("TOKEN_SECRET_KEY")
+	if len(secretToken) <= 0 {
+		log.Print("unable to retrieve secret token key. defaulting to default values")
+		secretToken = ""
+	}
+
+	tokenString := r.URL.Query().Get("token")
+	if tokenString == "" {
+		log.Printf("unable to validate request params. error: +%v", ErrorTokenValidation)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(ErrorTokenValidation)
+		return
+	}
+
+	isValid, err := stormRider.ValidateJWT(tokenString, secretToken)
+
+	if err != nil || !isValid {
+		log.Printf("unable to validate token. error: %+v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(ErrorTokenValidation)
+		return
+	}
+
+	resp, err := stormRider.ParseJwtToken(tokenString, secretToken)
+	if err != nil {
+		log.Printf("unable to validate token. error: %+v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(ErrorTokenValidation)
+		return
+	}
+
+	draftUserID := resp.Claims.Subject
+	if len(draftUserID) <= 0 {
+		log.Printf("unable to validate token. error: %+v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(ErrorTokenSubjectValidation)
+		return
+	}
+
+	err = db.VerifyUser(user, draftUserID)
+	if err != nil {
+		log.Printf("unable to complete verification of the user. error: %+v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode("Verified. Return to application to sign in.")
+
+}
+
+// ResetEmailToken ...
+// swagger:route POST /api/v1/reset Authentication ResetEmailToken
+//
+// # Resets the token in the database and allows users to resend email in case the token
+// is incorrect or failed to reach the user. This route is kept under the secure route
+// because a user must be logged in before they can activate a verification token.
+//
+// Responses:
+// 200: MessageResponse
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func ResetEmailToken(rw http.ResponseWriter, r *http.Request, user string) {
+
+	draftUser := &model.UserResponse{}
+	err := json.NewDecoder(r.Body).Decode(draftUser)
+	r.Body.Close()
+	if err != nil {
+		log.Printf("unable to validate user details. error: +%v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	if len(draftUser.EmailAddress) <= 0 {
+		log.Printf("unable to validate user email address. error: +%v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	if len(draftUser.ID) <= 0 {
+		log.Printf("unable to validate user id. error: +%v", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	if draftUser.IsVerified {
+		log.Printf("duplicate request detected. error: %+v", ErrorUserIsAlreadyVerified)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(ErrorUserIsAlreadyVerified)
+		return
+	}
+
+	// draft user id is required so that the jwt token can be associated with the user
+	service.PerformEmailNotificationService(user, draftUser.EmailAddress, draftUser.ID)
+
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode("200 OK")
 }
 
 // Logout ...

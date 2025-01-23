@@ -32,7 +32,7 @@ func Test_GetSignInApi_Success(t *testing.T) {
 		t.Errorf("failed to marshal JSON: %v", err)
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/sigin", bytes.NewBuffer(requestBody))
 	w := httptest.NewRecorder()
 	Signin(w, req)
@@ -56,7 +56,7 @@ func Test_GetSignInApi_Failure(t *testing.T) {
 		t.Errorf("failed to marshal JSON: %v", err)
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/sigin", bytes.NewBuffer(requestBody))
 	w := httptest.NewRecorder()
 	Signin(w, req)
@@ -86,7 +86,7 @@ func Test_GetSignUpApi_Success(t *testing.T) {
 		t.Errorf("failed to marshal JSON: %v", err)
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/signup", bytes.NewBuffer(requestBody))
 	w := httptest.NewRecorder()
 	Signup(w, req)
@@ -119,7 +119,7 @@ func Test_GetSignUpApi_Failure(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to marshal JSON: %v", err)
 	}
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/signup", bytes.NewBuffer(requestBody))
 	w := httptest.NewRecorder()
 	Signup(w, req)
@@ -140,7 +140,7 @@ func Test_GetLogout(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to marshal JSON: %v", err)
 	}
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/logout", bytes.NewBuffer(requestBody))
 	w := httptest.NewRecorder()
 	Logout(w, req)
@@ -153,14 +153,14 @@ func Test_GetLogout(t *testing.T) {
 
 func Test_IsValidUserEmail_Success_Valid_Email(t *testing.T) {
 	t.Skip()
-	draftUserEmail := model.UserEmail{
+	draftUserEmail := model.UserResponse{
 		EmailAddress: "admin@gmail.com",
 	}
 	reqBody, err := json.Marshal(draftUserEmail)
 	if err != nil {
 		t.Errorf("failed to marshall json. error: %+v", err)
 	}
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/isValidEmail", bytes.NewBuffer(reqBody))
 	w := httptest.NewRecorder()
 	IsValidUserEmail(w, req)
@@ -184,14 +184,14 @@ func Test_IsValidUserEmail_Success_Valid_Email(t *testing.T) {
 
 func Test_IsValidUserEmail_Success_Invalid_Email(t *testing.T) {
 	t.Skip()
-	draftUserEmail := model.UserEmail{
+	draftUserEmail := model.UserResponse{
 		EmailAddress: "admin23@gmail.com",
 	}
 	reqBody, err := json.Marshal(draftUserEmail)
 	if err != nil {
 		t.Errorf("failed to marshall json. error: %+v", err)
 	}
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/isValidEmail", bytes.NewBuffer(reqBody))
 	w := httptest.NewRecorder()
 	IsValidUserEmail(w, req)

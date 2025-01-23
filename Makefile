@@ -12,7 +12,7 @@ swagger:
 startserver:
 	cd apilayer && \
 	GO111MODULE=on \
-	go run main.go
+	go run api.go
 
 # api unit tests without coverage printed out
 gotest:

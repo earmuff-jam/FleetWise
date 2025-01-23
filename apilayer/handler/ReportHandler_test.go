@@ -17,7 +17,7 @@ import (
 )
 
 func Test_GetReports(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",
 		Role:              "TESTER",
@@ -56,7 +56,7 @@ func Test_GetReports(t *testing.T) {
 }
 
 func Test_GetReports_UntilDate_IncludeOverdue(t *testing.T) {
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	draftUserCredentials := model.UserCredentials{
 		Email:             "admin@gmail.com",
 		Role:              "TESTER",
@@ -98,7 +98,7 @@ func Test_GetReports_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/reports/0902c692-b8e2-4824-a870-e52f4a0cccf8", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetReports(w, req, config.CEO_USER)
 	res := w.Result()
 

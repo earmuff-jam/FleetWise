@@ -25,7 +25,7 @@ func Test_GetAllCategories(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -55,7 +55,7 @@ func Test_GetAllCategories(t *testing.T) {
 func Test_GetAllCategories_IncorrectCategoryID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllCategories(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -72,7 +72,7 @@ func Test_GetAllCategories_InvalidDBUser(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -80,7 +80,7 @@ func Test_GetAllCategories_InvalidDBUser(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", prevUser.ID.String(), 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllCategories(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -97,7 +97,7 @@ func Test_GetCategory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -149,7 +149,7 @@ func Test_GetCategory(t *testing.T) {
 func Test_GetCategory_IncorrectCategoryID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetCategory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -166,7 +166,7 @@ func Test_GetCategory_InvalidDBUser(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -174,7 +174,7 @@ func Test_GetCategory_InvalidDBUser(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", prevUser.ID.String(), 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetCategory(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -191,7 +191,7 @@ func Test_GetAllCategoryItems(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -242,7 +242,7 @@ func Test_GetAllCategoryItems(t *testing.T) {
 func Test_GetAllCategoryItems_IncorrectCategoryID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllCategoryItems(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -259,7 +259,7 @@ func Test_GetAllCategoryItems_InvalidDBUser(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -267,7 +267,7 @@ func Test_GetAllCategoryItems_InvalidDBUser(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", prevUser.ID.String(), 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllCategoryItems(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -284,7 +284,7 @@ func Test_CreateCategory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -335,7 +335,7 @@ func Test_CreateCategory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	CreateCategory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -368,7 +368,7 @@ func Test_AddItemsInCategory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -483,7 +483,7 @@ func Test_AddItemsInCategory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddItemsInCategory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -516,7 +516,7 @@ func Test_RemoveAssociationFromCategory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -654,7 +654,7 @@ func Test_RemoveAssociationFromCategory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveAssociationFromCategory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -687,7 +687,7 @@ func Test_UpdateCategory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -751,7 +751,7 @@ func Test_UpdateCategory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories/%s", ""), nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateCategory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -779,7 +779,7 @@ func Test_RemoveCategory(t *testing.T) {
 	req := httptest.NewRequest(http.MethodDelete, "/api/v1/category/0802c692-b8e2-4824-a870-e52f4a0cccf8", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveCategory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -791,7 +791,7 @@ func Test_RemoveCategory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveCategory(w, req, config.CTO_USER)
 	res := w.Result()
 

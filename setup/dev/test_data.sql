@@ -5,7 +5,7 @@ SET SEARCH_PATH TO community, auth;
 -- due to the ability to share categories or plan between collaborators, we have test cases for different users as well. --
 -- new test users are automatically added at the end of the script so that they can test sharable groups and containers --
 -- two users are admin@gmail.com or user@gmail.com --
-INSERT INTO auth.users(email, username, role, encrypted_password, birthdate) values ('admin@gmail.com', 'batman', 'TESTER', '$2a$08$DtBpJRoDduzqR/ERz/JvFe2toYO9UhifP/.kmxdeamz0VmWr7kQuW', '2010-01-01');
+INSERT INTO auth.users(email, username, role, encrypted_password, birthdate, is_verified, email_confirmed_at) values ('admin@gmail.com', 'batman', 'TESTER', '$2a$08$DtBpJRoDduzqR/ERz/JvFe2toYO9UhifP/.kmxdeamz0VmWr7kQuW', '1984-01-12', 'true', now());
 
 -- UPDATE PROFILE TABLE WITH USER DETAILS --
 UPDATE community.profiles SET 
@@ -125,4 +125,4 @@ VALUES (
 
 
 -- AUTHENTICATION FOR REGULAR USER --
-INSERT INTO auth.users(email, username, role, encrypted_password, birthdate) values ('user@gmail.com', 'dark knight', 'TESTER', '$2a$08$DtBpJRoDduzqR/ERz/JvFe2toYO9UhifP/.kmxdeamz0VmWr7kQuW', '2010-01-01');
+INSERT INTO auth.users(email, username, role, encrypted_password, birthdate, is_verified, email_confirmed_at) values ('user@gmail.com', 'dark knight', 'TESTER', '$2a$08$DtBpJRoDduzqR/ERz/JvFe2toYO9UhifP/.kmxdeamz0VmWr7kQuW', '1900-01-01', 'true', now());

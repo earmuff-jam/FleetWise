@@ -19,10 +19,13 @@ import { darkTheme, lightTheme } from '@utils/Theme';
 import AppToolbar from '@features/Layout/AppToolbar/AppToolbar';
 import { profileActions } from '@features/Profile/profileSlice';
 import MenuActionBar from '@features/Layout/MenuActionBar/MenuActionBar';
+import Banner from '@features/Layout/Banner';
+import { authActions } from '@features/LandingPage/authSlice';
 
 const Layout = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const isVerified = localStorage.getItem('isVerified');
   const smScreenSizeAndHigher = useMediaQuery(theme.breakpoints.up('sm'));
   const lgScreenSizeAndHigher = useMediaQuery(theme.breakpoints.up('lg'));
 
@@ -61,6 +64,10 @@ const Layout = () => {
             lgScreenSizeAndHigher={lgScreenSizeAndHigher}
           />
           <Container maxWidth="md">
+            <Banner
+              isVerified={isVerified}
+              revalidateEmail={() => dispatch(authActions.revalidateEmail({ email: profileDetails?.email_address }))}
+            />
             <Outlet />
           </Container>
         </Stack>

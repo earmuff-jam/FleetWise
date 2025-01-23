@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -64,16 +62,6 @@ func startSqlDb(user string, pwd string, host string, port string, database stri
 		return nil, err
 	}
 	return db, nil
-}
-
-// PreloadAllTestVariables ...
-//
-// load environment variables
-func PreloadAllTestVariables() {
-	err := godotenv.Load(filepath.Join("..", "..", ".env"))
-	if err != nil {
-		log.Printf("No env file detected. Using os system configuration.")
-	}
 }
 
 // RetriveTestUser ...

@@ -54,6 +54,17 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = '';
     },
+    revalidateEmail: (state) => {
+      state.error = '';
+    },
+    revalidateEmailSuccess: (state) => {
+      state.loading = false;
+      state.error = '';
+    },
+    revalidateEmailFailure: (state) => {
+      state.loading = false;
+      state.error = '';
+    },
     isValidUserEmail: (state) => {
       state.loading = true;
       state.error = '';

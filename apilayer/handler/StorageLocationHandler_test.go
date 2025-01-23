@@ -7,14 +7,13 @@ import (
 	"testing"
 
 	"github.com/mohit2530/communityCare/config"
-	"github.com/mohit2530/communityCare/db"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_GetAllStorageLocations(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/locations", nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllStorageLocations(w, req, config.CTO_USER)
 	res := w.Result()
 	defer res.Body.Close()

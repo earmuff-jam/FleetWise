@@ -26,7 +26,7 @@ func Test_GetAllInventories(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -51,7 +51,7 @@ func Test_GetAllInventories_WrongUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllInventories(w, req, config.CTO_USER)
 	res := w.Result()
 	defer res.Body.Close()
@@ -73,7 +73,7 @@ func Test_GetAllInventories_NoUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": ""})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllInventories(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -85,7 +85,7 @@ func Test_GetAllInventories_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllInventories(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -97,7 +97,7 @@ func Test_GetAllInventories_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAllInventories(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -114,7 +114,7 @@ func Test_GetInventoryByID(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -169,7 +169,7 @@ func Test_GetInventoryByID_NoUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": ""})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetInventoryByID(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -181,7 +181,7 @@ func Test_GetInventoryByID_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetInventoryByID(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -193,7 +193,7 @@ func Test_GetInventoryByID_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetInventoryByID(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -210,7 +210,7 @@ func Test_AddInventoryInBulk(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -262,7 +262,7 @@ func Test_AddInventoryInBulk_WrongUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddInventoryInBulk(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -274,7 +274,7 @@ func Test_AddInventoryInBulk_NoUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": ""})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddInventoryInBulk(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -290,7 +290,7 @@ func Test_AddNewInventory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -352,7 +352,7 @@ func Test_AddNewInventory_WrongUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddNewInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -364,7 +364,7 @@ func Test_AddNewInventory_NoUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": ""})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddNewInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -376,7 +376,7 @@ func Test_AddNewInventory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddNewInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -388,7 +388,7 @@ func Test_AddNewInventory_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	AddNewInventory(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -404,7 +404,7 @@ func Test_AddNewInventory_Return_Notes(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -471,7 +471,7 @@ func Test_UpdateSelectedInventory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -560,7 +560,7 @@ func Test_UpdateSelectedInventory_WrongUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateSelectedInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -572,7 +572,7 @@ func Test_UpdateSelectedInventory_NoUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": ""})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateSelectedInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -584,7 +584,7 @@ func Test_UpdateSelectedInventory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateSelectedInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -596,7 +596,7 @@ func Test_UpdateSelectedInventory_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateSelectedInventory(w, req, config.CEO_USER)
 	res := w.Result()
 
@@ -612,7 +612,7 @@ func Test_UpdateAssetColumn_Quantity(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -711,7 +711,7 @@ func Test_UpdateAssetColumn_Cost(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -810,7 +810,7 @@ func Test_UpdateAssetColumn_InvalidColumn(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -895,7 +895,7 @@ func Test_UpdateAssetColumn_WrongUserID(t *testing.T) {
 		"assetID": "0802c692-b8e2-4824-a870-e52f4a0cccf8"},
 	)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateAssetColumn(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -910,7 +910,7 @@ func Test_UpdateAssetColumn_NoUserID(t *testing.T) {
 		"assetID": ""},
 	)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	UpdateAssetColumn(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -926,7 +926,7 @@ func Test_RemoveSelectedInventory(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -995,7 +995,7 @@ func Test_RemoveSelectedInventory_WrongUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories/prune", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveSelectedInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -1007,7 +1007,7 @@ func Test_RemoveSelectedInventory_NoUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories/prune", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": ""})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveSelectedInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -1019,7 +1019,7 @@ func Test_RemoveSelectedInventory_IncorrectUserID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories/prune", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "request"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveSelectedInventory(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -1031,7 +1031,7 @@ func Test_RemoveSelectedInventory_InvalidDBUser(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/profile/0802c692-b8e2-4824-a870-e52f4a0cccf8/inventories/prune", nil)
 	req = mux.SetURLVars(req, map[string]string{"id": "0802c692-b8e2-4824-a870-e52f4a0cccf8"})
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	RemoveSelectedInventory(w, req, config.CEO_USER)
 	res := w.Result()
 

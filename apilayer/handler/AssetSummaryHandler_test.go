@@ -23,7 +23,7 @@ func Test_GetAssetsAndSummary(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -54,7 +54,7 @@ func Test_GetAssetsAndSummary(t *testing.T) {
 func Test_GetAssetsAndSummary_IncorrectCategoryID(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", "", 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAssetsAndSummary(w, req, config.CTO_USER)
 	res := w.Result()
 
@@ -71,7 +71,7 @@ func Test_GetAssetsAndSummary_InvalidDBUser(t *testing.T) {
 		EncryptedPassword: "1231231",
 	}
 
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	prevUser, err := db.RetrieveUser(config.CTO_USER, &draftUserCredentials)
 	if err != nil {
 		t.Errorf("expected error to be nil got %v", err)
@@ -79,7 +79,7 @@ func Test_GetAssetsAndSummary_InvalidDBUser(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v1/categories?id=%s&limit=%d", prevUser.ID.String(), 5), nil)
 	w := httptest.NewRecorder()
-	db.PreloadAllTestVariables()
+	config.PreloadAllTestVariables()
 	GetAssetsAndSummary(w, req, config.CEO_USER)
 	res := w.Result()
 
