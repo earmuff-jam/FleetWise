@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/earmuff-jam/fleetwise/db"
+	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/mohit2530/communityCare/db"
-	"github.com/mohit2530/communityCare/model"
 )
 
 // GetNotes ...

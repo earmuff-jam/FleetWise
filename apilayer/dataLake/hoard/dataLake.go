@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit"
+	"github.com/earmuff-jam/fleetwise/db"
+	"github.com/earmuff-jam/fleetwise/model"
 	_ "github.com/lib/pq"
-	"github.com/mohit2530/communityCare/db"
-	"github.com/mohit2530/communityCare/model"
 
 	"github.com/joho/godotenv"
 )

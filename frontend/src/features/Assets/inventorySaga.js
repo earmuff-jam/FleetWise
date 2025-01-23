@@ -131,7 +131,7 @@ export function* uploadImage(action) {
 
 export function* uploadAndRefreshDataSuccess(action) {
   /**
-   * Fixes https://github.com/earmuff-jam/pulse/issues/305.
+   * Fixes https://github.com/earmuff-jam/FleetWise/issues/305.
    * Refetch the data once the image is updated in the system. Re-use the same function for selected asset details.
    * If the user is viewing selected asset and refreshes the page, the user should see the new image as well.
    */

@@ -9,10 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/earmuff-jam/fleetwise/config"
+	"github.com/earmuff-jam/fleetwise/db"
+	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
-	"github.com/mohit2530/communityCare/config"
-	"github.com/mohit2530/communityCare/db"
-	"github.com/mohit2530/communityCare/model"
 	"github.com/stretchr/testify/assert"
 )
 

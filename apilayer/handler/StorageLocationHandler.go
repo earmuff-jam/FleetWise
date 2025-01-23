@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mohit2530/communityCare/db"
+	"github.com/earmuff-jam/fleetwise/db"
 )
 
 // GetAllStorageLocations ...

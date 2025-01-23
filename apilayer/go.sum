@@ -5,10 +5,6 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
-github.com/earmuff-jam/ciri-stormrider v1.0.3 h1:5IdwnCfk3dRkR3qp5TgiIfUHF6t8sr7ikw+2y2ZTBbs=
-github.com/earmuff-jam/ciri-stormrider v1.0.3/go.mod h1:5QcxIOiVP+tu9ZGoAHJa87gG9Zxawg+eeJm0to8S++0=
-github.com/earmuff-jam/ciri-stormrider v1.0.4 h1:5oFhq58JJcner9FLLKaxw2XIOpYUBgu3q/v94j+fuqI=
-github.com/earmuff-jam/ciri-stormrider v1.0.4/go.mod h1:5QcxIOiVP+tu9ZGoAHJa87gG9Zxawg+eeJm0to8S++0=
 github.com/earmuff-jam/ciri-stormrider v1.0.5 h1:lwsvbe5Y9E+Ne0echuyUofdpcp4qpc9Z1gELtO95PMo=
 github.com/earmuff-jam/ciri-stormrider v1.0.5/go.mod h1:5QcxIOiVP+tu9ZGoAHJa87gG9Zxawg+eeJm0to8S++0=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=

@@ -3,8 +3,8 @@ package db
 import (
 	"log"
 
+	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/lib/pq"
-	"github.com/mohit2530/communityCare/model"
 )
 
 // RetrieveAssetsAndSummary...
