@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/gorilla/mux"
-	"github.com/mohit2530/communityCare/db"
 )
 
 // GetRecentActivities ...

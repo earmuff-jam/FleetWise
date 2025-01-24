@@ -1,6 +1,6 @@
 package main
 
-import "github.com/mohit2530/communityCare/dataLake/hoard"
+import "github.com/earmuff-jam/fleetwise/dataLake/hoard"
 
 // Ingest Service
 //

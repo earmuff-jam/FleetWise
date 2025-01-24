@@ -7,7 +7,7 @@ const StyledAppBar = () => {
       <Stack direction="row" spacing={1} alignItems="center" padding="1.125rem">
         <BarChartRounded color="primary" fontSize="small" />
         <Typography variant="h4" sx={{ fontFamily: 'Nunito', color: 'primary.main' }}>
-          Asset Alert
+          Fleetwise
         </Typography>
       </Stack>
     </Paper>

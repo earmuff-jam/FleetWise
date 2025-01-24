@@ -1,14 +1,16 @@
-# ASSET ALERT
+# Fleetwise Application
+
 <!-- ![Create new account](setup/demo/gifs/v2/sign-up.gif) -->
+
 ![Asset alert logo](frontend/public/assetalert.png)
 
 ## Overview
 
-In today’s dynamic and fast-paced business environment, effective asset management is crucial for optimizing resources, reducing costs, and ensuring operational efficiency. AssetAlert is designed to address these needs by providing a robust solution to track your assets, manage them, and analyze them effectively.
+In today’s dynamic and fast-paced business environment, effective asset management is crucial for optimizing resources, reducing costs, and ensuring operational efficiency. Fleetwise is designed to address these needs by providing a robust solution to track your assets, manage them, and analyze them effectively.
 
 ### Purpose
 
-The primary purpose of AssetAlert is to streamline the management of physical assets across various locations and departments within an organization. By leveraging cutting-edge technology, this application aims to enhance asset visibility, improve accountability, and support strategic decision-making.
+The primary purpose of Fleetwise is to streamline the management of physical assets across various locations and departments within an organization. By leveraging cutting-edge technology, this application aims to enhance asset visibility, improve accountability, and support strategic decision-making.
 
 1. Enhanced Visibility: To provide a comprehensive view of asset distribution and utilization, allowing for better management and optimization of resources.
 

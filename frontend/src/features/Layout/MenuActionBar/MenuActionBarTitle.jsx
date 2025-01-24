@@ -13,7 +13,7 @@ export default function MenuActionBarTitle({ theme, handleDrawerClose }) {
         backgroundColor: 'accentColor.default',
       }}
     >
-      <Typography variant="h4">AssetAlert</Typography>
+      <Typography variant="h4">Fleetwise</Typography>
       <IconButton onClick={handleDrawerClose}>
         {theme.direction === 'rtl' ? <ChevronRightRounded /> : <ChevronLeftRounded />}
       </IconButton>

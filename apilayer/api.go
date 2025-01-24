@@ -1,4 +1,4 @@
-// # Documentation for the Asset alert api layer.
+// # Documentation for the Fleet wise api layer.
 //
 // Scehmes: https
 // BasePath: /
@@ -20,12 +20,12 @@ import (
 	"os/user"
 	"path/filepath"
 
+	"github.com/earmuff-jam/fleetwise/bucket"
+	"github.com/earmuff-jam/fleetwise/handler"
+	"github.com/earmuff-jam/fleetwise/service"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/mohit2530/communityCare/bucket"
-	"github.com/mohit2530/communityCare/handler"
-	"github.com/mohit2530/communityCare/service"
 )
 
 // MessageResponse ...

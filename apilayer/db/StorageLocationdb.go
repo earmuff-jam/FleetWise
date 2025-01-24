@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/mohit2530/communityCare/model"
 )
 
 // RetrieveAllStorageLocation ...

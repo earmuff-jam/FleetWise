@@ -1,4 +1,4 @@
-module github.com/mohit2530/communityCare
+module github.com/earmuff-jam/fleetwise
 
 go 1.22.4
 

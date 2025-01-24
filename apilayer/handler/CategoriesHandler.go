@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/earmuff-jam/fleetwise/db"
+	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/gorilla/mux"
-	"github.com/mohit2530/communityCare/db"
-	"github.com/mohit2530/communityCare/model"
 )
 
 // GetAllCategories ...

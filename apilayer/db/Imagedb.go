@@ -6,7 +6,7 @@ import (
 	"mime/multipart"
 	"os"
 
-	"github.com/mohit2530/communityCare/bucket"
+	"github.com/earmuff-jam/fleetwise/bucket"
 )
 
 // UploadImage ...

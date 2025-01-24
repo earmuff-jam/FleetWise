@@ -1,8 +1,8 @@
-# Privacy Policy for Asset Alert
+# Privacy Policy for FleetWise Application
 
-### Last Updated: August 27, 2024
+### Last Updated: January 22, 2025
 
-Thank you for using Asset Alert! We are committed to protecting your privacy and safeguarding your personal information. This Privacy Policy outlines how we collect, use, disclose, and manage your information when you use our services.
+Thank you for using FleetWise Application! We are committed to protecting your privacy and safeguarding your personal information. This Privacy Policy outlines how we collect, use, disclose, and manage your information when you use our services.
 
 1. Information We Collect:
 

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"log"
 
+	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
-	"github.com/mohit2530/communityCare/model"
 )
 
 // RetrieveStatusDetails ...

@@ -8,9 +8,9 @@ import (
 	"time"
 
 	stormRider "github.com/earmuff-jam/ciri-stormrider"
-	"github.com/mohit2530/communityCare/db"
-	"github.com/mohit2530/communityCare/model"
-	"github.com/mohit2530/communityCare/service"
+	"github.com/earmuff-jam/fleetwise/db"
+	"github.com/earmuff-jam/fleetwise/model"
+	"github.com/earmuff-jam/fleetwise/service"
 )
 
 const (
