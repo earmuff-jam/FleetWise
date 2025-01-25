@@ -2,10 +2,10 @@
 
 ## Pre Req:
 
-1. Docker.
-2. Golang/migrate lib.
-3. Yarn package manager.
-4  Make
+1. Docker
+2. Golang/migrate lib
+3. Yarn package manager
+4. Make
 5. Migrate Cli
 6. Psql Db
 
@@ -33,7 +33,97 @@
 
 ### Production Instance
 
-#### Notes
+#### Using docker build targets for multiple instances
+
+To support docker build for various deployment instances, we do not use the `docker-compose.deploy.yml` file so that we can deploy manually and as we please. To do this however, you must build the instances yourself and push to the docker registry. This step should only be done after a new rc has been cut or a new major version is deployed.
+
+1. Login to docker with proper username and password.
+2. Build the correct images. Ensure that you are in the correct release candidate and tags are valid.
+
+```bash
+# frontend
+docker build -t earmuffjam/fleetwise-frontend:1.0.0 -f frontend/prod.Dockerfile .
+
+# backend
+docker build -t earmuffjam/fleetwise-backend:1.0.0 -f server/Dockerfile .
+
+# api
+docker build -t earmuffjam/fleetwise-apilayer:1.0.0 -f apilayer/Dockerfile .
+```
+
+3. Push the docker images to the registry.
+
+```bash
+# frontend
+docker push earmuffjam/fleetwise-frontend:1.0.0
+
+# backend
+docker push earmuffjam/fleetwise-backend:1.0.0
+
+# api
+docker push earmuffjam/fleetwise-apilayer:1.0.0
+
+```
+
+4. After these changes have been pushed to the docker register, `ssh` into your production instance. If you have ssh config setup, you can use that or else you can just use the normal means of logging into the instance via `ssh`.
+
+5. Login to docker registry with `docker login`.
+
+6. Pull your latest images.
+
+```bash
+
+# frontend
+docker pull earmuffjam/fleetwise-frontend:1.0.0
+
+# backend
+docker pull earmuffjam/fleetwise-backend:1.0.0
+
+# api
+docker pull earmuffjam/fleetwise-apilayer:1.0.0
+
+```
+
+7. After a successful pull of the images from the registry, you should be ready to run the images into the production environment. These images are already built mini containers that just need to run in your production environment. If you have existing images remove them.
+
+```bash
+docker stop fleetwise-frontend fleetwise-backend fleetwise-apilayer
+docker rm fleetwise-frontend fleetwise-backend fleetwise-apilayer
+
+```
+
+8. Run the latest images.
+
+```bash
+
+# frontend
+docker run -d --name fleetwise-frontend -p 8081:80 earmuffjam/fleetwise-frontend:1.0.0
+
+# backend
+docker run -d --name fleetwise-backend -p 8089:5432 --link fleetwise-frontend earmuffjam/fleetwise-backend:1.0.0
+
+# apilayer
+docker run -d --name fleetwise-apilayer -p 8087:8087 --link fleetwise-backend earmuffjam/fleetwise-apilayer:1.0.0
+
+# minio storage
+docker run -d --name minio -p 9000:9000 -p 9001:9001 \
+  -e MINIO_ROOT_USER=${MINIO_ROOT_USER} \
+  -e MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD} \
+  earmuffjam/fleetwise-minio:latest
+
+```
+
+9. View the running logs with
+
+```bash
+
+docker logs fleetwise-frontend
+docker logs fleetwise-backend
+docker logs fleetwise-apilayer
+
+```
+
+#### Using docker compose for a single container instance
 
 1. Production instance must be executed in sequence. Since there should be ability to alter data, we have to run migration scripts as well. Please be aware of this.
 2. Only required env variables are copied over.
