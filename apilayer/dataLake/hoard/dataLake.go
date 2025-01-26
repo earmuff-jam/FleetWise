@@ -339,10 +339,10 @@ func populateFakeInventories(user string, limit int, creatorID string) {
 		if isReturnableStatus {
 			draftInventory.ReturnLocation = gofakeit.CarMaker()
 		}
-		draftInventory.MaxWeight = fmt.Sprintf("%d", gofakeit.Number(2, 5))
-		draftInventory.MinWeight = fmt.Sprintf("%d", gofakeit.Number(2, 2))
-		draftInventory.MaxHeight = fmt.Sprintf("%d", gofakeit.Number(2, 5))
-		draftInventory.MinHeight = fmt.Sprintf("%d", gofakeit.Number(2, 2))
+		draftInventory.MaxWeight = gofakeit.Number(2, 5)
+		draftInventory.MinWeight = gofakeit.Number(2, 2)
+		draftInventory.MaxHeight = gofakeit.Number(2, 5)
+		draftInventory.MinHeight = gofakeit.Number(2, 2)
 		draftInventory.CreatedAt = startDate
 		draftInventory.UpdatedAt = startDate
 		draftInventory.CreatedBy = creatorID

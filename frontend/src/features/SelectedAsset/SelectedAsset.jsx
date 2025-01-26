@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { enqueueSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
-
+import { useParams } from 'react-router-dom';
 import RowHeader from '@common/RowHeader';
 import SimpleModal from '@common/SimpleModal';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -22,7 +21,6 @@ dayjs.extend(relativeTime);
 export default function SelectedAsset() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const {
     loading: storageLocationsLoading,
@@ -34,6 +32,9 @@ export default function SelectedAsset() {
 
   const [editImgMode, setEditImgMode] = useState(false);
   const [openReturnNote, setOpenReturnNote] = useState(false);
+  const [formFieldChange, setFormFieldChange] = useState(false);
+
+  const [color, setColor] = useState('#f7f7f7');
   const [returnDateTime, setReturnDateTime] = useState(null);
   const [storageLocation, setStorageLocation] = useState({});
   const [formData, setFormData] = useState({ ...BLANK_INVENTORY_FORM });
@@ -55,7 +56,13 @@ export default function SelectedAsset() {
       value,
       errorMsg,
     };
+    setFormFieldChange(true);
     setFormData(updatedFormData);
+  };
+
+  const handleColorChange = (newValue) => {
+    setFormFieldChange(true);
+    setColor(newValue);
   };
 
   const handleCheckbox = (name, value) => {
@@ -63,6 +70,8 @@ export default function SelectedAsset() {
     if (name === 'is_returnable' && openReturnNote) {
       setOpenReturnNote(false);
     }
+
+    setFormFieldChange(true);
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: { ...prevFormData[name], value },
@@ -99,6 +108,9 @@ export default function SelectedAsset() {
       if (el.value) {
         acc[el.id] = el.value;
       }
+      if (['quantity', 'price', 'max_weight', 'min_weight', 'max_height', 'min_height'].includes(el.name)) {
+        acc[el.id] = Number(el.value);
+      }
       return acc;
     }, {});
 
@@ -107,9 +119,14 @@ export default function SelectedAsset() {
       ...formattedData,
       return_datetime: returnDateTime !== null ? returnDateTime.toISOString() : null,
       location: storageLocation.location,
+      color: color,
     };
+
+    setFormFieldChange(false);
     dispatch(inventoryActions.updateInventory(draftRequest));
-    navigate('/inventories/list');
+    enqueueSnackbar('Successfully updated selected asset.', {
+      variant: 'success',
+    });
   };
 
   const handleUpload = (id, imgFormData) => {
@@ -163,6 +180,10 @@ export default function SelectedAsset() {
         selectedAsset.return_notes.value = inventory.return_notes;
       }
 
+      if (inventory?.color) {
+        setColor(inventory.color);
+      }
+
       setStorageLocation({ location: inventory.location });
       setFormData(selectedAsset);
     }
@@ -179,6 +200,8 @@ export default function SelectedAsset() {
       />
       <SelectedAssetFormFields
         formFields={formData}
+        assetColor={color}
+        handleColorChange={handleColorChange}
         selectedImage={selectedImage}
         handleInputChange={handleInputChange}
         options={storageLocations}
@@ -197,6 +220,7 @@ export default function SelectedAsset() {
         handleCheckbox={handleCheckbox}
         handleInputChange={handleInputChange}
       />
+
       <Divider sx={{ marginTop: '1rem', marginBottom: '1rem' }}>
         <Typography variant="caption">Weight and Dimension</Typography>
       </Divider>
@@ -205,7 +229,7 @@ export default function SelectedAsset() {
         <Button
           startIcon={<CheckRounded fontSize="small" />}
           onClick={handleSubmit}
-          disabled={isFormDisabled()}
+          disabled={formFieldChange ? isFormDisabled() : true}
           variant="outlined"
         >
           Submit

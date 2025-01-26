@@ -9,6 +9,8 @@ import { SaveRounded } from '@mui/icons-material';
 import { inventoryActions } from '@features/Assets/inventorySlice';
 import ViewFileContent from '@features/Assets/AddAssetsInBulk/ViewFileContent';
 import AddAssetsInBulkActions from '@features/Assets/AddAssetsInBulk/AddAssetsInBulkActions';
+import { buildXcel } from '@common/utils';
+import { BULK_ASSETS_HEADERS } from '@features/Assets/constants';
 
 export default function AddAssetsInBulk({ handleClose }) {
   const dispatch = useDispatch();
@@ -16,21 +18,9 @@ export default function AddAssetsInBulk({ handleClose }) {
   const [fileDetails, setFileDetails] = useState({ name: '', lastModifiedDate: '', size: '' });
 
   const handleDownload = () => {
-    const templatedData = [
-      {
-        name: '',
-        description: '',
-        price: '',
-        quantity: '',
-        is_bookmarked: '',
-        location: '',
-      },
-    ];
-
-    const ws = XLSX.utils.json_to_sheet(templatedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'inventories');
-    XLSX.writeFile(wb, 'inventory-template.xlsx');
+    const headers = BULK_ASSETS_HEADERS.map((v) => v.label);
+    const templatedData = BULK_ASSETS_HEADERS.map((v) => v.value || '');
+    buildXcel(headers, templatedData, 'asset-template.xlsx', 'assets');
   };
 
   const handleFileChange = (event) => {

@@ -66,6 +66,7 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 		inv.status,
 		inv.barcode,
 		inv.sku,
+		inv.color,
 		inv.quantity,
 		inv.bought_at,
 		inv.location,
@@ -104,7 +105,8 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 	for rows.Next() {
 		var inventory model.Inventory
 
-		var returnLocation, maxWeight, minWeight, maxHeight, minHeight, associatedImageURL sql.NullString
+		var returnLocation, associatedImageURL, color sql.NullString
+		var maxWeight, minWeight, maxHeight, minHeight sql.NullInt64
 
 		if err := rows.Scan(
 			&inventory.ID,
@@ -114,6 +116,7 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 			&inventory.Status,
 			&inventory.Barcode,
 			&inventory.SKU,
+			&color,
 			&inventory.Quantity,
 			&inventory.BoughtAt,
 			&inventory.Location,
@@ -141,19 +144,23 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 		}
 
 		if maxWeight.Valid {
-			inventory.MaxWeight = maxWeight.String
+			inventory.MaxWeight = int(maxWeight.Int64)
 		}
 
 		if minWeight.Valid {
-			inventory.MinWeight = minWeight.String
+			inventory.MinWeight = int(minWeight.Int64)
 		}
 
 		if maxHeight.Valid {
-			inventory.MaxHeight = maxHeight.String
+			inventory.MaxHeight = int(maxHeight.Int64)
 		}
 
 		if minHeight.Valid {
-			inventory.MinHeight = minHeight.String
+			inventory.MinHeight = int(minHeight.Int64)
+		}
+
+		if color.Valid {
+			inventory.Color = color.String
 		}
 
 		if associatedImageURL.Valid {
@@ -309,6 +316,7 @@ func retrieveSelectedInv(tx *sql.Tx, userID string, invID string) (*model.Invent
     inv.status,
     inv.barcode,
     inv.sku,
+	inv.color,
     inv.quantity,
 	inv.bought_at,
     inv.location,
@@ -336,12 +344,8 @@ ORDER BY inv.updated_at DESC;
 	row := tx.QueryRow(sqlStr, userID, invID)
 
 	var inventory model.Inventory
-	var returnLocation sql.NullString
-	var returnNotes sql.NullString
-	var maxWeight sql.NullString
-	var minWeight sql.NullString
-	var maxHeight sql.NullString
-	var minHeight sql.NullString
+	var returnLocation, returnNotes, draftColor sql.NullString
+	var maxWeight, minWeight, maxHeight, minHeight sql.NullInt64
 
 	err := row.Scan(
 		&inventory.ID,
@@ -351,6 +355,7 @@ ORDER BY inv.updated_at DESC;
 		&inventory.Status,
 		&inventory.Barcode,
 		&inventory.SKU,
+		&draftColor,
 		&inventory.Quantity,
 		&inventory.BoughtAt,
 		&inventory.Location,
@@ -373,8 +378,10 @@ ORDER BY inv.updated_at DESC;
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			log.Printf("unable to retrieve selected inventory. error: %+v", err)
 			return nil, err
 		}
+		log.Printf("unable to retrieve selected inventory. error: %+v", err)
 		return nil, err
 	}
 
@@ -385,16 +392,20 @@ ORDER BY inv.updated_at DESC;
 		inventory.ReturnNotes = returnNotes.String
 	}
 	if maxWeight.Valid {
-		inventory.MaxWeight = maxWeight.String
+		inventory.MaxWeight = int(maxWeight.Int64)
 	}
 	if minWeight.Valid {
-		inventory.MinWeight = minWeight.String
+		inventory.MinWeight = int(minWeight.Int64)
 	}
 	if maxHeight.Valid {
-		inventory.MaxHeight = maxHeight.String
+		inventory.MaxHeight = int(maxHeight.Int64)
 	}
 	if minHeight.Valid {
-		inventory.MinHeight = minHeight.String
+		inventory.MinHeight = int(minHeight.Int64)
+	}
+
+	if draftColor.Valid {
+		inventory.Color = draftColor.String
 	}
 
 	return &inventory, nil
@@ -436,7 +447,6 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 				tx.Rollback()
 				return nil, err
 			}
-			v.StorageLocationID = emptyLocationID
 		}
 
 		parsedCreatedByUUID, err := uuid.Parse(userID)
@@ -452,17 +462,22 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 			price, 
 			status, 
 			barcode, 
-			sku, 
+			sku,
+			color,
 			quantity, 
 			bought_at, 
 			location, 
-			storage_location_id, 
+			storage_location_id,
+			min_height,
+			max_height,
+			min_weight,
+			max_weight,
 			created_by, 
 			created_at, 
 			updated_by, 
 			updated_at,
 			sharable_groups
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);`
 
 		_, err = tx.Exec(
 			sqlStr,
@@ -472,10 +487,15 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 			v.Status,
 			v.Barcode,
 			v.SKU,
+			v.Color,
 			v.Quantity,
 			v.BoughtAt,
 			v.Location,
 			parsedStorageLocationID,
+			v.MinHeight,
+			v.MaxHeight,
+			v.MinWeight,
+			v.MaxWeight,
 			parsedCreatedByUUID,
 			time.Now(),
 			parsedCreatedByUUID,
@@ -485,6 +505,7 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 
 		if err != nil {
 			tx.Rollback()
+			log.Printf("unable to add assets in bulk. error: %+v", err)
 			return nil, err
 		}
 
@@ -776,22 +797,23 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 		status = $5,
 		barcode = $6,
 		sku = $7,
-		quantity = $8,
-		bought_at = $9,
-		location = $10,
-		storage_location_id = $11,
-		is_returnable = $12,
-		return_location = $13,
-		return_datetime = $14,
-		return_notes = $15,
-		max_weight = $16,
-		min_weight = $17,
-		max_height = $18,
-		min_height = $19,
-		created_by = $20,
-		created_at = $21,
-		updated_by = $22,
-		updated_at = $23
+		color = $8,
+		quantity = $9,
+		bought_at = $10,
+		location = $11,
+		storage_location_id = $12,
+		is_returnable = $13,
+		return_location = $14,
+		return_datetime = $15,
+		return_notes = $16,
+		max_weight = $17,
+		min_weight = $18,
+		max_height = $19,
+		min_height = $20,
+		created_by = $21,
+		created_at = $22,
+		updated_by = $23,
+		updated_at = $24
 	WHERE inv.id = $1
 	RETURNING id;`
 
@@ -804,6 +826,7 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 		draftInventory.Status,
 		draftInventory.Barcode,
 		draftInventory.SKU,
+		draftInventory.Color,
 		draftInventory.Quantity,
 		draftInventory.BoughtAt,
 		draftInventory.Location,
@@ -848,6 +871,7 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 		inv.status,
 		inv.barcode,
 		inv.sku,
+		inv.color,
 		inv.quantity,
 		inv.bought_at,
 		inv.location,
@@ -877,7 +901,7 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 	row := tx.QueryRow(sqlGetUpdatedInventory, draftInventory.ID)
 
 	updatedInventory := model.Inventory{}
-	var returnNotes sql.NullString
+	var returnNotes, draftColor sql.NullString
 
 	err = row.Scan(
 		&updatedInventory.ID,
@@ -887,6 +911,7 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 		&updatedInventory.Status,
 		&updatedInventory.Barcode,
 		&updatedInventory.SKU,
+		&draftColor,
 		&updatedInventory.Quantity,
 		&updatedInventory.BoughtAt,
 		&updatedInventory.Location,
@@ -907,13 +932,19 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 		&updatedInventory.UpdaterName,
 	)
 
+	if draftColor.Valid {
+		updatedInventory.Color = draftColor.String
+	}
+
 	if err != nil {
 		tx.Rollback()
+		log.Printf("unable to update selected inventory. error: %+v", err)
 		return nil, err
 	}
 
 	// Commit the transaction
 	if err := tx.Commit(); err != nil {
+		log.Printf("unable to complete selected transaction. error: %+v", err)
 		return nil, err
 	}
 

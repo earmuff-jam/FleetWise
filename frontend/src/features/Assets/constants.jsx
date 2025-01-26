@@ -21,6 +21,25 @@ export const MODAL_STATE = {
 };
 
 /**
+ * Bulk Asset Headers for template download.
+ */
+export const BULK_ASSETS_HEADERS = [
+  { label: 'Name' },
+  { label: 'Description' },
+  { label: 'Price' },
+  { label: 'Quantity' },
+  { label: 'Storage Location' },
+  { label: 'Color' },
+  { label: 'SKU' },
+  { label: 'Barcode' },
+  { label: 'Purchase Location' },
+  { label: 'Minimum Height' },
+  { label: 'Maximum Height' },
+  { label: 'Minimum Weight' },
+  { label: 'Maximum Weight' },
+];
+
+/**
  * default inventories landing page items to encourage users to use
  * various features of the application
  */
@@ -49,21 +68,22 @@ export const DEFAULT_INVENTORIES_LANDING_PAGE_TEXT = [
 ];
 
 /**
- * combines the config for host details based on the eventObj parameter. returns a
- * list of tableRows derieved from the eventObj object. If modifier function is passed
+ * combines the configs based on the selectedRow parameter. Returns a
+ * list of tableRows derieved from the selectedRow object. If modifier function is passed
  * in, we build the table in accordance to it as well.
- * @param {Object} eventObj - the current selected event to build the table for
+ *
+ * @param {Object} selectedRow - the current selected row to build the table for
  * @returns {Array} tableRows - the combined row with modifiers applied if passed in.
  */
-export const BUILD_TABLE_CONSTANTS = (columnLabels) => (eventObj) => {
-  if (!eventObj) {
+export const BUILD_TABLE_CONSTANTS = (columnLabels) => (selectedRow) => {
+  if (!selectedRow) {
     return [];
   }
   const tableRows = columnLabels.map(({ id, colName, label, modifier }) => {
-    let value = eventObj[colName];
+    let value = selectedRow[colName];
     if (modifier) {
       if (colName === 'qr_code') {
-        value = modifier(eventObj['name']);
+        value = modifier(selectedRow['name']);
       } else {
         value = modifier(value, { colName, label });
       }
@@ -121,77 +141,83 @@ export const VIEW_INVENTORY_LIST_HEADERS = {
     label: 'SKU',
     modifier: (value) => `${value || '-'}`,
   },
-  quantity: {
+  color: {
     id: 7,
+    colName: 'color',
+    label: 'Asset Color',
+    modifier: (value) => `${value || '-'}`,
+  },
+  quantity: {
+    id: 8,
     colName: 'quantity',
     label: 'Qty',
     displayConcise: true,
     modifier: (value) => `${+value || '-'}`,
   },
   location: {
-    id: 8,
+    id: 9,
     colName: 'location',
     label: 'Location',
     displayConcise: true,
     modifier: (value) => `${value || '-'}`,
   },
   is_returnable: {
-    id: 9,
+    id: 10,
     colName: 'is_returnable',
     label: 'Returnable',
     modifier: (value) => (value ? <CheckRounded color="primary" /> : <CloseRounded color="warning" />),
   },
   return_location: {
-    id: 10,
+    id: 11,
     colName: 'return_location',
     label: 'Return Location',
     modifier: (value) => `${value || '-'}`,
   },
   max_weight: {
-    id: 11,
+    id: 12,
     colName: 'max_weight',
     label: 'Max Weight',
     modifier: (value) => `${value || '-'}`,
   },
   min_weight: {
-    id: 12,
+    id: 13,
     colName: 'min_weight',
     label: 'Min Weight',
     modifier: (value) => `${value || '-'}`,
   },
   max_height: {
-    id: 13,
+    id: 14,
     colName: 'max_height',
     label: 'Max Height',
     modifier: (value) => `${value || '-'}`,
   },
   min_height: {
-    id: 14,
+    id: 15,
     colName: 'min_height',
     label: 'Min Height',
     modifier: (value) => `${value || '-'}`,
   },
   bought_at: {
-    id: 18,
+    id: 16,
     colName: 'bought_at',
     label: 'Purchase Location',
     modifier: (value) => `${value || '-'}`,
   },
   qr_code: {
-    id: 14,
+    id: 17,
     colName: 'qr_code',
     label: 'QR Code',
     modifier: (value) => <QrCodeGen value={value} />,
   },
   updated_at: {
-    id: 15,
+    id: 18,
     colName: 'updated_at',
     label: 'Updated',
     displayConcise: true,
     modifier: (value) => `${dayjs(value).fromNow()}`,
   },
   updator_name: {
-    id: 17,
+    id: 19,
     colName: 'updator',
     label: 'Updated By',
     displayConcise: true,
