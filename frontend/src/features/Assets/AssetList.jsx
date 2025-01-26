@@ -14,7 +14,7 @@ export default function AssetList() {
   const { loading, inventories = [] } = useSelector((state) => state.inventory);
 
   const [options, setOptions] = useState([]);
-  const [rowSelected, setRowSelected] = useState([]); // this is for checkbox and associated events
+  const [rowSelected, setRowSelected] = useState([]); // this is for checkbox and associated actions
   const [gridMode, setGridMode] = useState(false);
 
   const [openDialog, setOpenDialog] = useState(false);

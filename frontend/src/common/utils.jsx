@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import * as XLSX from 'xlsx';
 import CryptoJS from 'crypto-js';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -201,3 +202,29 @@ export function formatFileSize(sizeInBytes) {
   const size = (sizeInBytes / Math.pow(1024, i)).toFixed(2); // Keeps 2 decimal places
   return `${size} ${units[i]}`;
 }
+
+/**
+ * Function that is used to build an xcel sheet. Returns the built excel
+ * sheet. Can be used to populate CSV data or build template data for
+ * adding bulk assets.
+ *
+ * @param {Array} headers - the array of headers for the title
+ * @param {Array} data - the data to populate the selected sheet with
+ * @param {string} fileName - the name of the file
+ * @param {string} sheetName - the name of the sheet
+ */
+export const buildXcel = (headers = [], data = [], fileName, sheetName) => {
+  const wb = XLSX.utils.book_new();
+
+  const colWidths = headers.map((header) => ({
+    wch: header.length + 2,
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(data, { origin: 'A2', skipHeader: true });
+
+  ws['!cols'] = colWidths;
+  XLSX.utils.sheet_add_aoa(ws, [headers], { origin: 'A1' });
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+  XLSX.writeFile(wb, fileName);
+};

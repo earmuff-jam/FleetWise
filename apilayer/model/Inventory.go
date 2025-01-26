@@ -16,6 +16,7 @@ type Inventory struct {
 	Status             string     `json:"status"`
 	Barcode            string     `json:"barcode"`
 	SKU                string     `json:"sku"`
+	Color              string     `json:"color,omitempty"`
 	Quantity           int        `json:"quantity"`
 	Location           string     `json:"location"`
 	StorageLocationID  string     `json:"storage_location_id"`
@@ -23,10 +24,10 @@ type Inventory struct {
 	ReturnLocation     string     `json:"return_location"`
 	ReturnDateTime     *time.Time `json:"return_datetime,omitempty"`
 	ReturnNotes        string     `json:"return_notes,omitempty"`
-	MaxWeight          string     `json:"max_weight"`
-	MinWeight          string     `json:"min_weight"`
-	MaxHeight          string     `json:"max_height"`
-	MinHeight          string     `json:"min_height"`
+	MaxWeight          int        `json:"max_weight,omitempty"`
+	MinWeight          int        `json:"min_weight,omitempty"`
+	MaxHeight          int        `json:"max_height,omitempty"`
+	MinHeight          int        `json:"min_height,omitempty"`
 	AssociatedImageURL string     `json:"associated_image_url"`
 	Image              []byte     `json:"image,omitempty"`
 	CreatedAt          time.Time  `json:"created_at"`
@@ -44,14 +45,19 @@ type Inventory struct {
 //
 // RawInventory is used to derieve the single row from bulk uploaded excel file
 type RawInventory struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Barcode     string  `json:"barcode"`
-	SKU         string  `json:"sku"`
-	Quantity    int64   `json:"quantity"`
-	Location    string  `json:"location"`
-	BoughtAt    string  `json:"bought_at"`
+	Name             string  `json:"name"`
+	Description      string  `json:"description"`
+	Price            float64 `json:"price"`
+	Quantity         int64   `json:"quantity"`
+	StorageLocation  string  `json:"Storage Location"`
+	Color            string  `json:"color"`
+	SKU              string  `json:"sku"`
+	Barcode          string  `json:"barcode"`
+	PurchaseLocation string  `json:"Purchase Location"`
+	MaximumWeight    int     `json:"Maximum Weight"`
+	MinimumWeight    int     `json:"Minimum Weight"`
+	MaximumHeight    int     `json:"Maximum Height"`
+	MinimumHeight    int     `json:"Minimum Height"`
 }
 
 // InventoryListRequest ...

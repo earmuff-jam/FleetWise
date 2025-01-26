@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
 
 export default function VerticalMenu({
   disableDelete,
@@ -15,9 +15,9 @@ export default function VerticalMenu({
   const handleClose = () => setAnchorEl(null);
 
   const options = [
-    { id: 1, label: 'Add Item', action: handleAddInventory, disabled: false },
-    { id: 2, label: 'Add Bulk', action: handleBulkInventory, disabled: false },
-    { id: 3, label: 'Delete Selected', action: handleRemoveInventory, disabled: disableDelete },
+    { id: 1, label: 'Add New', action: handleAddInventory, disabled: false },
+    { id: 2, label: 'Bulk Add', action: handleBulkInventory, disabled: false },
+    { id: 3, label: 'Delete Chosen', action: handleRemoveInventory, disabled: disableDelete },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function VerticalMenu({
               handleClose();
             }}
           >
-            {option.label}
+            <Typography variant="caption">{option.label}</Typography>
           </MenuItem>
         ))}
       </Menu>

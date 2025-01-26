@@ -3,12 +3,15 @@ import { Autocomplete, CardMedia, Stack, TextField, createFilterOptions } from '
 
 import { inventoryActions } from '@features/Assets/inventorySlice';
 import TextFieldWithLabel from '@common/TextFieldWithLabel/TextFieldWithLabel';
+import ColorPicker from '@common/ColorPicker';
 
 const filter = createFilterOptions();
 
 export default function SelectedAssetFormFields({
   formFields,
   selectedImage,
+  assetColor,
+  handleColorChange,
   handleInputChange,
   options,
   storageLocation,
@@ -116,6 +119,7 @@ export default function SelectedAssetFormFields({
           helperText={formFields.quantity.errorMsg}
           variant={formFields.quantity.variant}
         />
+        <ColorPicker value={assetColor} handleChange={handleColorChange} label={'Associate color'} />
         <TextFieldWithLabel
           id={formFields.bought_at.name}
           name={formFields.bought_at.name}
