@@ -288,6 +288,10 @@ export const BLANK_INVENTORY_FORM = {
         validate: (value) => isNaN(value) || parseInt(value) <= 0,
         message: 'A positive number is required',
       },
+      {
+        validate: (value) => parseInt(value) > Number.MAX_SAFE_INTEGER,
+        message: 'Value cannot exceed limit',
+      },
     ],
   },
   barcode: {
@@ -342,6 +346,10 @@ export const BLANK_INVENTORY_FORM = {
       {
         validate: (value) => isNaN(value) || parseInt(value) <= 0,
         message: 'A positive number is required',
+      },
+      {
+        validate: (value) => parseInt(value) > Number.MAX_SAFE_INTEGER,
+        message: 'Value cannot exceed limit',
       },
     ],
   },
@@ -414,6 +422,10 @@ export const BLANK_INVENTORY_FORM = {
         validate: (value) => isNaN(value) || parseInt(value) <= 0,
         message: 'A positive number is required',
       },
+      {
+        validate: (value) => parseInt(value) > Number.MAX_SAFE_INTEGER,
+        message: 'Value cannot exceed limit',
+      },
     ],
   },
   min_weight: {
@@ -430,6 +442,10 @@ export const BLANK_INVENTORY_FORM = {
       {
         validate: (value) => isNaN(value) || parseInt(value) <= 0,
         message: 'A positive number is required',
+      },
+      {
+        validate: (value) => parseInt(value) > Number.MAX_SAFE_INTEGER,
+        message: 'Value cannot exceed limit',
       },
     ],
   },
@@ -448,6 +464,10 @@ export const BLANK_INVENTORY_FORM = {
         validate: (value) => isNaN(value) || parseInt(value) <= 0,
         message: 'A positive number is required',
       },
+      {
+        validate: (value) => parseInt(value) > Number.MAX_SAFE_INTEGER,
+        message: 'Value cannot exceed limit',
+      },
     ],
   },
   min_height: {
@@ -464,6 +484,10 @@ export const BLANK_INVENTORY_FORM = {
       {
         validate: (value) => isNaN(value) || parseInt(value) <= 0,
         message: 'A positive number is required',
+      },
+      {
+        validate: (value) => parseInt(value) > Number.MAX_SAFE_INTEGER,
+        message: 'Value cannot exceed limit',
       },
     ],
   },
