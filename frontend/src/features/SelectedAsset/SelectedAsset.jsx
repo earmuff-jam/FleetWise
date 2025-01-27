@@ -105,11 +105,10 @@ export default function SelectedAsset() {
     }
 
     const formattedData = Object.values(formData).reduce((acc, el) => {
-      if (el.value) {
-        acc[el.id] = el.value;
-      }
-      if (['quantity', 'price', 'max_weight', 'min_weight', 'max_height', 'min_height'].includes(el.name)) {
+      if (el.type === 'number') {
         acc[el.id] = Number(el.value);
+      } else if (el.value) {
+        acc[el.id] = el.value;
       }
       return acc;
     }, {});
