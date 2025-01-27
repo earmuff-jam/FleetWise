@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	"github.com/earmuff-jam/fleetwise/bucket"
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/handler"
 	"github.com/earmuff-jam/fleetwise/service"
 	"github.com/gorilla/handlers"
@@ -52,7 +53,7 @@ func main() {
 		}
 	}
 
-	//	load storage support
+	config.InitLogger()
 	bucket.InitializeStorageAndBucket()
 
 	router := mux.NewRouter()
@@ -141,10 +142,10 @@ func main() {
 
 	http.Handle("/", cors(router))
 
-	log.Println("Api is up and running ...")
+	config.Log("Api is up and running ...", nil)
 	err := http.ListenAndServe(":8087", nil)
 	if err != nil {
-		log.Printf("failed to start the server. error: %+v", err)
+		config.Log("failed to start the server", err)
 		return
 	}
 }
@@ -158,7 +159,7 @@ func (u CustomRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	cookie, err := r.Cookie("token")
 	if err != nil {
-		log.Printf(" missing license key")
+		config.Log("missing license key", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -166,7 +167,7 @@ func (u CustomRequestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	currentUser := validateCurrentUser()
 	err = service.ValidateCredentials(currentUser, cookie.Value)
 	if err != nil {
-		log.Printf("failed to validate token. error: %+v", err)
+		config.Log("failed to validate token", err)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -180,7 +181,7 @@ func validateCurrentUser() string {
 	currentUser := os.Getenv("CLIENT_USER")
 	if len(currentUser) == 0 {
 		user, _ := user.Current()
-		log.Printf("unable to retrieve user from env. Using user - %s", user.Username)
+		config.Log("unable to retrieve user from env. Using user - %s", nil, user.Username)
 		currentUser = user.Username
 	}
 	return currentUser

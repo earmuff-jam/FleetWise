@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/gorilla/mux"
 )
@@ -37,7 +37,7 @@ func UploadImage(rw http.ResponseWriter, r *http.Request, user string) {
 	ID := vars["id"]
 
 	if len(ID) <= 0 {
-		log.Printf("Unable to upload image with empty id")
+		config.Log("Unable to upload image with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -45,7 +45,7 @@ func UploadImage(rw http.ResponseWriter, r *http.Request, user string) {
 
 	file, header, err := r.FormFile("imageSrc")
 	if err != nil {
-		log.Printf("Unable to retrieve file. Error: %+v", err)
+		config.Log("Unable to retrieve file", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -54,7 +54,7 @@ func UploadImage(rw http.ResponseWriter, r *http.Request, user string) {
 
 	err = db.UploadImage(file, header, ID)
 	if err != nil {
-		log.Printf("Unable to upload image. error: %+v", err)
+		config.Log("Unable to upload image", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -86,7 +86,7 @@ func FetchImage(rw http.ResponseWriter, r *http.Request, user string) {
 	ID := vars["id"]
 
 	if len(ID) <= 0 {
-		log.Printf("Unable to retrieve image without a valid ID")
+		config.Log("Unable to retrieve image without a valid ID", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -95,14 +95,14 @@ func FetchImage(rw http.ResponseWriter, r *http.Request, user string) {
 	content, contentType, fileName, err := db.FetchImage(ID)
 	if err != nil {
 		if err.Error() == "NoSuchKey" {
-			log.Printf("cannot find the selected document. error: %+v", err)
+			config.Log("cannot find the selected document", err)
 			// Write response headers and content only
 			rw.Header().Set("Content-Type", contentType)
 			rw.WriteHeader(http.StatusOK)
 			rw.Write([]byte("NoSuchKey"))
 			return
 		}
-		log.Printf("Failed to retrieve image. error: %+v", err)
+		config.Log("Failed to retrieve image", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}

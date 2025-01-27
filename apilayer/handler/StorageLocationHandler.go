@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 )
 
@@ -22,7 +22,7 @@ func GetAllStorageLocations(rw http.ResponseWriter, r *http.Request, user string
 
 	resp, err := db.RetrieveAllStorageLocation(user)
 	if err != nil {
-		log.Printf("Unable to retrieve storage locations. error: +%v", err)
+		config.Log("Unable to retrieve storage locations", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return

@@ -3,7 +3,6 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -32,25 +31,25 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserRespon
 
 	draftTime := os.Getenv("TOKEN_VALIDITY_TIME")
 	if len(draftTime) <= 0 {
-		log.Print("unable to find token validity time. defaulting to default values")
+		config.Log("unable to find token validity time. defaulting to default values", nil)
 		draftTime = config.DefaultTokenValidityTime
 	}
 
 	secretToken := os.Getenv("TOKEN_SECRET_KEY")
 	if len(secretToken) <= 0 {
-		log.Print("unable to retrieve secret token key. defaulting to default values")
+		config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 		secretToken = ""
 	}
 
 	draftUser, err := db.RetrieveUser(user, draftUser)
 	if err != nil {
-		log.Printf("unable to retrieve user details. error: %+v", err)
+		config.Log("unable to retrieve user details", err)
 		return nil, err
 	}
 
 	formattedTime, err := strconv.ParseInt(draftTime, 10, 64)
 	if err != nil {
-		log.Printf("unable to parse provided time. erorr: %+v", err)
+		config.Log("unable to parse provided time", err)
 		return nil, err
 	}
 
@@ -64,7 +63,7 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserRespon
 	userCredsWithToken, err := stormRider.CreateJWT(&draftCredentials, secretToken)
 
 	if err != nil {
-		log.Printf("unable to create JWT token. error: %+v", err)
+		config.Log("unable to create JWT token", err)
 		return nil, err
 	}
 	draftUser.PreBuiltToken = userCredsWithToken.Cookie
@@ -72,7 +71,7 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserRespon
 
 	err = updateJwtToken(user, draftUser)
 	if err != nil {
-		log.Printf("unable to upsert token. error: %+v", err)
+		config.Log("unable to upsert token", err)
 		return nil, err
 	}
 
@@ -91,34 +90,34 @@ func FetchUser(user string, draftUser *model.UserCredentials) (*model.UserRespon
 func updateJwtToken(user string, draftUser *model.UserCredentials) error {
 	db, err := db.SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup db. error: %+v", err)
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to setup transaction for db. error: %+v", err)
+		config.Log("unable to setup transaction for db", err)
 		return err
 	}
 
 	err = upsertLicenseKey(draftUser.ID.String(), draftUser.LicenceKey, tx)
 	if err != nil {
-		log.Printf("unable to add license key. error: %+v", err)
+		config.Log("unable to add license key", err)
 		tx.Rollback()
 		return err
 	}
 
 	err = upsertOauthToken(draftUser, tx)
 	if err != nil {
-		log.Printf("unable to add auth token. error: %+v", err)
+		config.Log("unable to add auth token", err)
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Printf("unable to commit selected transaction. error: %+v", err)
+		config.Log("unable to commit selected transaction", err)
 		return err
 	}
 
@@ -134,7 +133,7 @@ func upsertLicenseKey(userID string, licenseKey string, tx *sql.Tx) error {
 	sqlStr := "UPDATE auth.users SET instance_id = $1 WHERE id = $2;"
 	_, err := tx.Exec(sqlStr, licenseKey, userID)
 	if err != nil {
-		log.Printf("unable to add license key to signed in user. error: +%v", err)
+		config.Log("unable to add license key to signed in user", err)
 		tx.Rollback()
 		return err
 	}
@@ -168,7 +167,7 @@ func upsertOauthToken(draftUser *model.UserCredentials, tx *sql.Tx) error {
 	).Scan(&maskedID)
 
 	if err != nil {
-		log.Printf("unable to add token. Error: %v", err)
+		config.Log("unable to add token", err)
 		tx.Rollback()
 		return err
 	}
@@ -188,7 +187,7 @@ func RegisterUser(userName string, draftUser *model.UserCredentials) (*model.Use
 
 	resp, err := db.SaveUser(userName, draftUser)
 	if err != nil {
-		log.Printf("unable to save user. error: %+v", err)
+		config.Log("unable to save user", err)
 		return nil, err
 	}
 
@@ -210,13 +209,13 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 
 	formattedTime, err := strconv.ParseInt(config.DefaultTokenValidityTime, 10, 64)
 	if err != nil {
-		log.Printf("unable to parse provided time. erorr: %+v", err)
+		config.Log("unable to parse provided time", err)
 		return
 	}
 
 	secretToken := os.Getenv("TOKEN_SECRET_KEY")
 	if len(secretToken) <= 0 {
-		log.Print("unable to retrieve secret token key. defaulting to default values")
+		config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 		secretToken = ""
 	}
 
@@ -228,25 +227,25 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 	}
 	credentials, err := stormRider.CreateJWT(&draftCredentials, secretToken)
 	if err != nil {
-		log.Printf("unable to create email token for verification services. error: %+v", err)
+		config.Log("unable to create email token for verification services", err)
 		return
 	}
 
 	isEmailServiceEnabled := os.Getenv("_SENDGRID_EMAIL_SERVICE")
 	if isEmailServiceEnabled != "true" {
-		log.Printf("email service feature flags are disabled. Email Service is inoperative.")
+		config.Log("email service feature flags are disabled. Email Service is inoperative.", nil)
 		return
 	}
 
 	sendGridEmailUser := os.Getenv("SEND_GRID_USER")
 	if len(sendGridEmailUser) <= 0 {
-		log.Printf("email service username is not configured. Unable to send email.")
+		config.Log("email service username is not configured. Unable to send email.", nil)
 		return
 	}
 
 	sendGridUserEmailAddress := os.Getenv("SEND_GRID_USER_EMAIL_ADDRESS")
 	if len(sendGridUserEmailAddress) <= 0 {
-		log.Printf("email service username is not configured. Unable to send email.")
+		config.Log("email service username is not configured. Unable to send email.", nil)
 		return
 	}
 
@@ -255,7 +254,7 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 
 	WebApplicationEndpoint := os.Getenv("REACT_APP_LOCALHOST_URL")
 	if len(WebApplicationEndpoint) <= 0 {
-		log.Printf("unable to determine the web application endpoint. error: %+v", err)
+		config.Log("unable to determine the web application endpoint", err)
 		return
 	}
 
@@ -272,11 +271,11 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 
 	_, err = client.Send(message)
 	if err != nil {
-		log.Printf("unable to send email verification. error: %+v", err)
+		config.Log("unable to send email verification", err)
 		return
 	}
 
-	log.Printf("Email notification sent to %s on %+v", emailAddress, time.Now())
+	config.Log("Email notification sent to %s on %+v", nil, emailAddress, time.Now())
 }
 
 // ValidateCredentials ...
@@ -286,14 +285,14 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 func ValidateCredentials(user string, ID string) error {
 	db, err := db.SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup db. error: %+v", err)
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to setup transaction for selected db. error: %+v", err)
+		config.Log("unable to setup transaction for selected db", err)
 		return err
 	}
 
@@ -301,14 +300,14 @@ func ValidateCredentials(user string, ID string) error {
 	var expirationTime time.Time
 	err = tx.QueryRow(`SELECT token, expiration_time FROM auth.oauth WHERE id=$1 LIMIT 1;`, ID).Scan(&tokenFromDb, &expirationTime)
 	if err != nil {
-		log.Printf("unable to retrive validated token. error: +%v", err)
+		config.Log("unable to retrive validated token", err)
 		tx.Rollback()
 		return err
 	}
 
 	err = utils.ValidateJwtToken(tokenFromDb)
 	if err != nil {
-		log.Printf("unable to validate jwt token. error: %+v", err)
+		config.Log("unable to validate jwt token", err)
 		tx.Rollback()
 		return err
 	}
@@ -320,13 +319,13 @@ func ValidateCredentials(user string, ID string) error {
 
 		formattedTime, err := strconv.ParseInt(config.DefaultTokenValidityTime, 10, 64)
 		if err != nil {
-			log.Printf("unable to parse provided time. erorr: %+v", err)
+			config.Log("unable to parse provided time", err)
 			return err
 		}
 
 		secretToken := os.Getenv("TOKEN_SECRET_KEY")
 		if len(secretToken) <= 0 {
-			log.Print("unable to retrieve secret token key. defaulting to default values")
+			config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 			secretToken = ""
 		}
 
@@ -338,20 +337,20 @@ func ValidateCredentials(user string, ID string) error {
 
 		updatedToken, err := stormRider.RefreshToken(draftCredentials, secretToken)
 		if err != nil {
-			log.Printf("unable to refresh token. error :%+v", err)
+			config.Log("unable to refresh token", err)
 			tx.Rollback()
 			return err
 		}
 
 		parsedUserID, err := uuid.Parse(ID)
 		if err != nil {
-			log.Printf("unable to determine user id. error :%+v", err)
+			config.Log("unable to determine user id", err)
 			return err
 		}
 
 		tokenValidityMinutes, err := strconv.Atoi(config.DefaultTokenValidityTime)
 		if err != nil {
-			log.Printf("Invalid token validity time: %v", err)
+			config.Log("Invalid token validity time: %v", err)
 			return err
 		}
 
@@ -362,14 +361,14 @@ func ValidateCredentials(user string, ID string) error {
 		}
 		err = upsertOauthToken(&draftUser, tx)
 		if err != nil {
-			log.Printf("unable to revalidate the user. error %+v", err)
+			config.Log("unable to revalidate the user", err)
 			return err
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Printf("unable to commit transaction. error: %+v", err)
+		config.Log("unable to commit transaction", err)
 		tx.Rollback()
 		return err
 	}

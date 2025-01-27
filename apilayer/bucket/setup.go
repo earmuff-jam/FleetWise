@@ -1,9 +1,9 @@
 package bucket
 
 import (
-	"log"
 	"os"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/minio/minio-go"
 )
 
@@ -13,7 +13,7 @@ import (
 func InitializeStorageAndBucket() {
 	client, err := initializeStorage()
 	if err != nil {
-		log.Printf("unable to initialize minio client storage")
+		config.Log("unable to initialize minio client storage", err)
 		return
 	}
 	initializeBucket(client)
@@ -24,20 +24,21 @@ func InitializeStorageAndBucket() {
 // Initializes MinIO bucket storage
 func initializeStorage() (*minio.Client, error) {
 
-	log.Printf("setting up bucket storage for user %s", os.Getenv("MINIO_ROOT_USER"))
-	endpoint := os.Getenv("MINIO_APP_LOCALHOST_URL")
 	accessKeyID := os.Getenv("MINIO_ROOT_USER")
+	endpoint := os.Getenv("MINIO_APP_LOCALHOST_URL")
 	secretAccessKey := os.Getenv("MINIO_ROOT_PASSWORD")
+
+	config.Log("setting up bucket storage for user %s", nil, accessKeyID)
 	useSSL := false // true for HTTPS
 
 	// Initialize minio client object.
 	minioClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, useSSL)
 	if err != nil {
-		log.Printf("Failed to initialize MinIO client: %+v", err)
+		config.Log("Failed to initialize MinIO client", err)
 		return nil, err
 	}
 
-	log.Printf("Connected to MinIO bucket storage")
+	config.Log("Connected to MinIO bucket storage", nil)
 	return minioClient, nil
 }
 
@@ -54,9 +55,9 @@ func initializeBucket(minioClient *minio.Client) {
 		// Check if the bucket already exists
 		exists, errBucketExists := minioClient.BucketExists(bucketName)
 		if errBucketExists == nil && exists {
-			log.Printf("Bucket already exists:%s", bucketName)
+			config.Log("Selected bucket %s already exists.", nil, bucketName)
 		} else {
-			log.Printf("Failed to create bucket. error: %+v", err)
+			config.Log("Failed to create bucket", err)
 		}
 	}
 }

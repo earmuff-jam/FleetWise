@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -15,6 +15,7 @@ import (
 func RetrieveAllCategories(user string, userID string, limit int) ([]model.Category, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -44,8 +45,10 @@ func RetrieveAllCategories(user string, userID string, limit int) ([]model.Categ
 	ORDER BY c.updated_at DESC
 	LIMIT $2;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID, limit)
 	if err != nil {
+		config.Log("unable to query db", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -73,7 +76,7 @@ func RetrieveAllCategories(user string, userID string, limit int) ([]model.Categ
 		content, _, _, err := FetchImage(categoryID.String)
 		if err != nil {
 			if err.Error() == "NoSuchKey" {
-				log.Printf("cannot find the selected document. error: %+v", err)
+				config.Log("cannot find the selected document", err)
 			}
 		}
 
@@ -85,6 +88,7 @@ func RetrieveAllCategories(user string, userID string, limit int) ([]model.Categ
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to select data from db", err)
 		return nil, err
 	}
 
@@ -95,6 +99,7 @@ func RetrieveAllCategories(user string, userID string, limit int) ([]model.Categ
 func RetrieveAllCategoryItems(user string, userID string, categoryID string, limit int) ([]model.CategoryItemResponse, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -122,8 +127,10 @@ func RetrieveAllCategoryItems(user string, userID string, categoryID string, lim
 	WHERE $1::UUID = ANY(ci.sharable_groups) AND ci.category_id = $2
 	ORDER BY ci.updated_at DESC FETCH FIRST $3 ROWS ONLY;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID, categoryID, limit)
 	if err != nil {
+		config.Log("unable to query selected db", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -134,6 +141,7 @@ func RetrieveAllCategoryItems(user string, userID string, categoryID string, lim
 	for rows.Next() {
 		var ec model.CategoryItemResponse
 		if err := rows.Scan(&ec.ID, &ec.CategoryID, &ec.ItemID, &ec.Name, &ec.Description, &ec.Price, &ec.Quantity, &ec.Location, &ec.CreatedBy, &ec.Creator, &ec.CreatedAt, &ec.UpdatedBy, &ec.Updator, &ec.UpdatedAt, &sharableGroups); err != nil {
+			config.Log("unable to scan selected row", err)
 			return nil, err
 		}
 		ec.SharableGroups = sharableGroups
@@ -141,6 +149,7 @@ func RetrieveAllCategoryItems(user string, userID string, categoryID string, lim
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to parse selected row", err)
 		return nil, err
 	}
 
@@ -151,7 +160,7 @@ func RetrieveAllCategoryItems(user string, userID string, categoryID string, lim
 func RetrieveCategory(user string, userID string, categoryID string) (model.Category, error) {
 	category, err := retrieveCategoryByID(user, userID, categoryID)
 	if err != nil {
-		log.Printf("unable to retrieve selected category. Error: %+v", err)
+		config.Log("unable to retrieve selected category", err)
 		return model.Category{}, err
 	}
 	return category, nil
@@ -161,7 +170,7 @@ func RetrieveCategory(user string, userID string, categoryID string) (model.Cate
 func CreateCategory(user string, draftCategory *model.Category) (*model.Category, error) {
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("Failed to connect to the database: %+v", err)
+		config.Log("Failed to connect to the database", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -169,7 +178,7 @@ func CreateCategory(user string, draftCategory *model.Category) (*model.Category
 	// retrieve selected status
 	selectedStatusDetails, err := RetrieveStatusDetails(user, draftCategory.Status)
 	if err != nil {
-		log.Printf("error retrieving status details: %+v", err)
+		config.Log("error retrieving status details", err)
 		return nil, err
 	}
 	if selectedStatusDetails == nil {
@@ -178,7 +187,7 @@ func CreateCategory(user string, draftCategory *model.Category) (*model.Category
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("Error starting transaction: %+v", err)
+		config.Log("Error starting transaction", err)
 		return nil, err
 	}
 
@@ -187,6 +196,7 @@ func CreateCategory(user string, draftCategory *model.Category) (*model.Category
 	) VALUES($1, $2, $3, $4, POINT($5, $6), $7, $8, $9, $10, $11)
 	RETURNING id;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(
 		sqlStr,
 		draftCategory.Name,
@@ -208,18 +218,18 @@ func CreateCategory(user string, draftCategory *model.Category) (*model.Category
 	)
 	if err != nil {
 		tx.Rollback()
-		log.Printf("Error scanning result: %+v", err)
+		config.Log("Error scanning result", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("Error committing transaction: %+v", err)
+		config.Log("Error committing transaction", err)
 		return nil, err
 	}
 
 	selectedCategory, err := retrieveCategoryByID(user, draftCategory.CreatedBy, selectedCategoryID)
 	if err != nil {
-		log.Printf("unable to retrieve selected category. Error: %+v", err)
+		config.Log("unable to retrieve selected category", err)
 		return nil, err
 	}
 
@@ -233,15 +243,18 @@ func CreateCategory(user string, draftCategory *model.Category) (*model.Category
 func UpdateCategory(user string, draftCategory *model.Category) (*model.Category, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	selectedStatusDetails, err := RetrieveStatusDetails(user, draftCategory.Status)
 	if err != nil {
+		config.Log("unable to retrieve selected status details", err)
 		return nil, err
 	}
 	if selectedStatusDetails == nil {
+		config.Log("unable to find selected status", nil)
 		return nil, errors.New("unable to find selected status")
 	}
 
@@ -260,16 +273,19 @@ func UpdateCategory(user string, draftCategory *model.Category) (*model.Category
 
 	tx, err := db.Begin()
 	if err != nil {
+		config.Log("unable to perform operations on trasaction.", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	parsedUpdatorID, err := uuid.Parse(draftCategory.UpdatedBy)
 	if err != nil {
+		config.Log("unable to parse selected value", err)
 		tx.Rollback()
 		return nil, err
 	}
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(sqlStr,
 		draftCategory.ID,
 		draftCategory.Name,
@@ -289,19 +305,20 @@ func UpdateCategory(user string, draftCategory *model.Category) (*model.Category
 	)
 
 	if err != nil {
+		config.Log("unable to retrieve selected category", err)
 		tx.Rollback()
-		log.Printf("unable to retrieve selected category. Error: %+v", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit selected transaction", err)
 		return nil, err
 	}
 
 	selectedCategory, err := retrieveCategoryByID(user, draftCategory.UpdatedBy, selectedCategoryID)
 
 	if err != nil {
-		log.Printf("unable to retrieve selected category. Error: %+v", err)
+		config.Log("unable to retrieve selected category", err)
 		return nil, err
 	}
 
@@ -323,9 +340,11 @@ func RemoveCategory(user string, categoryID string) error {
 	defer db.Close()
 
 	sqlStr := `DELETE FROM community.category WHERE id=$1;`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = db.Exec(sqlStr, categoryID)
 	if err != nil {
-		log.Printf("unable to delete selected category. error: %+v", err)
+		config.Log("unable to delete selected category", err)
 		return err
 	}
 	return nil
@@ -335,6 +354,7 @@ func RemoveCategory(user string, categoryID string) error {
 func retrieveCategoryByID(user string, userID string, categoryID string) (model.Category, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return model.Category{}, err
 	}
 	defer db.Close()
@@ -363,6 +383,7 @@ func retrieveCategoryByID(user string, userID string, categoryID string) (model.
 	WHERE c.id = $2 AND $1::UUID = ANY(c.sharable_groups)
 	ORDER BY c.updated_at DESC;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := db.QueryRow(sqlStr, userID, categoryID)
 	selectedCategory := model.Category{}
 
@@ -395,6 +416,7 @@ func retrieveCategoryByID(user string, userID string, categoryID string) (model.
 	}
 
 	if err != nil {
+		config.Log("unable to fetch selected category", err)
 		return model.Category{}, err
 	}
 
@@ -405,6 +427,7 @@ func retrieveCategoryByID(user string, userID string, categoryID string) (model.
 func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) ([]model.CategoryItemResponse, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -412,9 +435,11 @@ func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) (
 	sqlStr := `INSERT INTO community.category_item(category_id, item_id, created_by, created_at, updated_by, updated_at, sharable_groups)
 		VALUES ($1, $2, $3, $4, $5, $6, $7);`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
+
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("error starting transaction: %+v", err)
+		config.Log("error starting transaction", err)
 		return nil, err
 	}
 
@@ -431,14 +456,14 @@ func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) (
 			pq.Array(draftCategory.Collaborators),
 		)
 		if err != nil {
+			config.Log("Error executing query", err)
 			tx.Rollback()
-			log.Printf("Error executing query: %+v", err)
 			return nil, err
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("error committing transaction: %+v", err)
+		config.Log("error committing transaction", err)
 		return nil, err
 	}
 
@@ -465,8 +490,10 @@ func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) (
 	WHERE $1::UUID = ANY(ci.sharable_groups) AND ci.category_id = $2
 	ORDER BY ci.updated_at DESC;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, draftCategory.UserID, draftCategory.ID)
 	if err != nil {
+		config.Log("unable to query details", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -477,6 +504,7 @@ func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) (
 	for rows.Next() {
 		var ec model.CategoryItemResponse
 		if err := rows.Scan(&ec.ID, &ec.CategoryID, &ec.ItemID, &ec.Name, &ec.Description, &ec.Price, &ec.Quantity, &ec.Location, &ec.CreatedBy, &ec.Creator, &ec.CreatedAt, &ec.UpdatedBy, &ec.Updator, &ec.UpdatedAt, &sharableGroups); err != nil {
+			config.Log("unable to scan category items", err)
 			return nil, err
 		}
 		ec.SharableGroups = sharableGroups
@@ -484,6 +512,7 @@ func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) (
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to perform selected operation", err)
 		return nil, err
 	}
 
@@ -494,6 +523,7 @@ func AddAssetToCategory(user string, draftCategory *model.CategoryItemRequest) (
 func RemoveAssetAssociationFromCategory(user string, draftCategory *model.CategoryItemRequest) error {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
@@ -503,19 +533,20 @@ func RemoveAssetAssociationFromCategory(user string, draftCategory *model.Catego
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("Error starting transaction: %+v", err)
+		config.Log("unable to setup and start transaction", err)
 		return err
 	}
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = tx.Exec(sqlStr, draftCategory.ID, pq.Array(draftCategory.AssetIDs))
 	if err != nil {
+		config.Log("unable to execute selected query", err)
 		tx.Rollback()
-		log.Printf("Error executing delete query: %+v", err)
 		return err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("Error committing transaction: %+v", err)
+		config.Log("unable to commit transaction", err)
 		return err
 	}
 
@@ -527,13 +558,14 @@ func UpdateCategoryImage(user string, userID string, categoryID string, imageURL
 
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return false, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return false, err
 	}
 	sqlStr := `UPDATE community.category c
@@ -545,14 +577,15 @@ func UpdateCategoryImage(user string, userID string, categoryID string, imageURL
 		RETURNING c.id;`
 
 	var updatedCategoryID string
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(sqlStr, imageURL, userID, categoryID, time.Now()).Scan(&updatedCategoryID)
 	if err != nil {
-		log.Printf("unable to update category id. error: %+v", err)
+		config.Log("unable to update category id", err)
 		return false, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to commit. error: %+v", err)
+		config.Log("unable to commit", err)
 		return false, err
 	}
 

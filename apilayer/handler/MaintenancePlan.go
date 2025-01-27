@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/gorilla/mux"
@@ -44,7 +44,7 @@ func GetAllMaintenancePlans(rw http.ResponseWriter, r *http.Request, user string
 	limit := r.URL.Query().Get("limit")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve maintenance plans with empty id")
+		config.Log("Unable to retrieve maintenance plans with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -55,7 +55,7 @@ func GetAllMaintenancePlans(rw http.ResponseWriter, r *http.Request, user string
 	}
 	resp, err := db.RetrieveAllMaintenancePlans(user, userID, limitInt)
 	if err != nil {
-		log.Printf("Unable to retrieve maintenance plans. error: %v", err)
+		config.Log("Unable to retrieve maintenance plans", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -93,14 +93,14 @@ func GetMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string) {
 	maintenanceID := r.URL.Query().Get("mID")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve selected maintenance plan with empty user id")
+		config.Log("Unable to retrieve selected maintenance plan with empty user id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if maintenanceID == "" {
-		log.Printf("Unable to retrieve selected maintenance plan with empty id")
+		config.Log("Unable to retrieve selected maintenance plan with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -108,7 +108,7 @@ func GetMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveMaintenancePlan(user, userID, maintenanceID)
 	if err != nil {
-		log.Printf("unable to create new maintenance plan. error: +%v", err)
+		config.Log("unable to create new maintenance plan", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -154,14 +154,14 @@ func GetAllMaintenancePlanItems(rw http.ResponseWriter, r *http.Request, user st
 	maintenancePlanID := r.URL.Query().Get("mID")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve associated item for selected maintenance item with empty user id")
+		config.Log("Unable to retrieve associated item for selected maintenance item with empty user id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if maintenancePlanID == "" {
-		log.Printf("Unable to retrieve associated items with empty id")
+		config.Log("Unable to retrieve associated items with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -174,7 +174,7 @@ func GetAllMaintenancePlanItems(rw http.ResponseWriter, r *http.Request, user st
 
 	resp, err := db.RetrieveAllMaintenancePlanItems(user, userID, maintenancePlanID, limitInt)
 	if err != nil {
-		log.Printf("Unable to retrieve associated items. error: %v", err)
+		config.Log("Unable to retrieve associated items", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -207,14 +207,14 @@ func AddItemsInMaintenancePlan(rw http.ResponseWriter, r *http.Request, user str
 	err := json.NewDecoder(r.Body).Decode(draftMaintenancePlan)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	resp, err := db.AddAssetToMaintenancePlan(user, draftMaintenancePlan)
 	if err != nil {
-		log.Printf("Unable to add assets to existing maintenance plan. error: +%v", err)
+		config.Log("Unable to add assets to existing maintenance plan", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -247,14 +247,14 @@ func RemoveAssociationFromMaintenancePlan(rw http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(draftMaintenancePlanItemRequest)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	err = db.RemoveAssetAssociationFromMaintenancePlan(user, draftMaintenancePlanItemRequest)
 	if err != nil {
-		log.Printf("Unable to remove assets from selected maintenance plan. error: +%v", err)
+		config.Log("Unable to remove assets from selected maintenance plan", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -286,14 +286,14 @@ func CreateMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string)
 	err := json.NewDecoder(r.Body).Decode(draftMaintenancePlan)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	resp, err := db.CreateMaintenancePlan(user, draftMaintenancePlan)
 	if err != nil {
-		log.Printf("unable to create new maintenance plan. error: +%v", err)
+		config.Log("unable to create new maintenance plan", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -331,7 +331,7 @@ func UpdateMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string)
 	maintenancePlanID := vars["id"]
 
 	if len(maintenancePlanID) <= 0 {
-		log.Printf("Unable to update maintenance plan with empty id")
+		config.Log("Unable to update maintenance plan with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -341,14 +341,14 @@ func UpdateMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string)
 	err := json.NewDecoder(r.Body).Decode(draftMaintenancePlan)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	resp, err := db.UpdateMaintenancePlan(user, draftMaintenancePlan)
 	if err != nil {
-		log.Printf("Unable to update new maintenance plan. error: +%v", err)
+		config.Log("Unable to update new maintenance plan", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -381,7 +381,7 @@ func RemoveMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string)
 	maintenancePlanID := vars["id"]
 
 	if len(maintenancePlanID) <= 0 {
-		log.Printf("Unable to delete maintenance plan with empty id")
+		config.Log("Unable to delete maintenance plan with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -389,7 +389,7 @@ func RemoveMaintenancePlan(rw http.ResponseWriter, r *http.Request, user string)
 
 	err := db.RemoveMaintenancePlan(user, maintenancePlanID)
 	if err != nil {
-		log.Printf("Unable to remove maintenance plan. error: +%v", err)
+		config.Log("Unable to remove maintenance plan", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return

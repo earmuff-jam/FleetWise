@@ -6,6 +6,8 @@
 sleep 2
 echo "loading environment variables"
 
+DEBUG="DEBUG"
+
 # feature flags for application level services
 _SENDGRID_EMAIL_SERVICE="false"
 
@@ -81,5 +83,7 @@ SEND_GRID_USER_EMAIL_ADDRESS=$SEND_GRID_USER_EMAIL_ADDRESS
 
 REACT_APP_LOCALHOST_URL=$REACT_APP_LOCALHOST_URL
 REACT_APP_LOCALHOST_URL_SOCKET_BASE_URL=$REACT_APP_LOCALHOST_URL_SOCKET_BASE_URL
+
+DEBUG=$DEBUG
 EOF
 echo "finished compiling required variables."

@@ -2,12 +2,13 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
+	"errors"
 	"net/http"
 	"os"
 	"time"
 
 	stormRider "github.com/earmuff-jam/ciri-stormrider"
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/earmuff-jam/fleetwise/service"
@@ -59,20 +60,20 @@ func Signup(rw http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(draftUser)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	if len(draftUser.Email) <= 0 || len(draftUser.EncryptedPassword) <= 0 {
-		log.Printf("unable to decode user")
+		config.Log("unable to decode user", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode("error")
 		return
 	}
 
 	if len(draftUser.Username) <= 3 {
-		log.Printf("user name is required and must be at least 4 characters in length")
+		config.Log("user name is required and must be at least 4 characters in length", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode("error")
 		return
@@ -84,7 +85,7 @@ func Signup(rw http.ResponseWriter, r *http.Request) {
 
 	t, err := time.Parse("2006-01-02", draftUser.Birthday)
 	if err != nil {
-		log.Printf("Error parsing birthdate. Error: %+v", err)
+		config.Log("Error parsing birthdate", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -93,7 +94,7 @@ func Signup(rw http.ResponseWriter, r *http.Request) {
 	// Check if the user is at least 13 years old
 	age := time.Now().Year() - +t.Year()
 	if age <= 13 {
-		log.Println("unable to sign up user. verification failed.")
+		config.Log("unable to sign up user. verification failed", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode("error")
 		return
@@ -101,14 +102,14 @@ func Signup(rw http.ResponseWriter, r *http.Request) {
 
 	backendClientUsr := os.Getenv("CLIENT_USER")
 	if len(backendClientUsr) == 0 {
-		log.Printf("unable to retrieve user from env.")
+		config.Log("unable to retrieve user from env", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode("error")
 	}
 
 	resp, err := service.RegisterUser(backendClientUsr, draftUser)
 	if err != nil {
-		log.Printf("Unable to create new user. error: +%v", err)
+		config.Log("Unable to create new user", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -147,13 +148,13 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(draftUser)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	if len(draftUser.Email) <= 0 || len(draftUser.EncryptedPassword) <= 0 {
-		log.Printf("Unable to decode user. error: +%v", err)
+		config.Log("Unable to decode user", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -163,7 +164,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 
 	user := os.Getenv("CLIENT_USER")
 	if len(user) == 0 {
-		log.Printf("unable to retrieve user from env. Unable to sign in.")
+		config.Log("unable to retrieve user from env. Unable to sign in.", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode("unable to retrieve user from env")
 		return
@@ -171,7 +172,7 @@ func Signin(rw http.ResponseWriter, r *http.Request) {
 
 	resp, err := service.FetchUser(user, draftUser)
 	if err != nil {
-		log.Printf("Unable to sign user in. error: +%v", err)
+		config.Log("Unable to sign user in", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -205,7 +206,7 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(draftUserEmail)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("unable to validate user email address. error: +%v", err)
+		config.Log("unable to validate user email address", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -213,7 +214,7 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 
 	user := os.Getenv("CLIENT_USER")
 	if len(user) == 0 {
-		log.Printf("unable to retrieve user from env. Unable to sign in.")
+		config.Log("unable to retrieve user from env. Unable to sign in.", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode("unable to retrieve user from env")
 		return
@@ -221,7 +222,7 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 
 	resp, err := db.IsValidUserEmail(user, draftUserEmail.EmailAddress)
 	if err != nil {
-		log.Printf("unable to verify user email address. error: %+v", err)
+		config.Log("unable to verify user email address", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -247,7 +248,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	user := os.Getenv("CLIENT_USER")
 	if len(user) == 0 {
-		log.Printf("unable to retrieve client user. error: %+v", ErrorFetchingCurrentUser)
+		config.Log("unable to retrieve client user", errors.New(ErrorFetchingCurrentUser))
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(ErrorFetchingCurrentUser)
 		return
@@ -255,13 +256,13 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	secretToken := os.Getenv("TOKEN_SECRET_KEY")
 	if len(secretToken) <= 0 {
-		log.Print("unable to retrieve secret token key. defaulting to default values")
+		config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 		secretToken = ""
 	}
 
 	tokenString := r.URL.Query().Get("token")
 	if tokenString == "" {
-		log.Printf("unable to validate request params. error: +%v", ErrorTokenValidation)
+		config.Log("unable to validate request params", errors.New(ErrorTokenValidation))
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(ErrorTokenValidation)
 		return
@@ -270,7 +271,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 	isValid, err := stormRider.ValidateJWT(tokenString, secretToken)
 
 	if err != nil || !isValid {
-		log.Printf("unable to validate token. error: %+v", err)
+		config.Log("unable to validate token", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(ErrorTokenValidation)
 		return
@@ -278,7 +279,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	resp, err := stormRider.ParseJwtToken(tokenString, secretToken)
 	if err != nil {
-		log.Printf("unable to validate token. error: %+v", err)
+		config.Log("unable to validate token", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(ErrorTokenValidation)
 		return
@@ -286,7 +287,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	draftUserID := resp.Claims.Subject
 	if len(draftUserID) <= 0 {
-		log.Printf("unable to validate token. error: %+v", err)
+		config.Log("unable to validate token", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(ErrorTokenSubjectValidation)
 		return
@@ -294,7 +295,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	err = db.VerifyUser(user, draftUserID)
 	if err != nil {
-		log.Printf("unable to complete verification of the user. error: %+v", err)
+		config.Log("unable to complete verification of the user", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -324,28 +325,28 @@ func ResetEmailToken(rw http.ResponseWriter, r *http.Request, user string) {
 	err := json.NewDecoder(r.Body).Decode(draftUser)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("unable to validate user details. error: +%v", err)
+		config.Log("unable to validate user details", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 
 	if len(draftUser.EmailAddress) <= 0 {
-		log.Printf("unable to validate user email address. error: +%v", err)
+		config.Log("unable to validate user email address", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 
 	if len(draftUser.ID) <= 0 {
-		log.Printf("unable to validate user id. error: +%v", err)
+		config.Log("unable to validate user id", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 
 	if draftUser.IsVerified {
-		log.Printf("duplicate request detected. error: %+v", ErrorUserIsAlreadyVerified)
+		config.Log("duplicate request detected", errors.New(ErrorUserIsAlreadyVerified))
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(ErrorUserIsAlreadyVerified)
 		return

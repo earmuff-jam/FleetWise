@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/gorilla/mux"
@@ -43,7 +43,7 @@ func GetAllInventories(rw http.ResponseWriter, r *http.Request, user string) {
 	sinceDateTime := r.URL.Query().Get("since")
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve inventories with empty id")
+		config.Log("Unable to retrieve assets with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -51,7 +51,7 @@ func GetAllInventories(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveAllInventoriesForUser(user, userID, sinceDateTime)
 	if err != nil {
-		log.Printf("Unable to retrieve all existing inventories. error: +%v", err)
+		config.Log("Unable to retrieve all existing assets", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -90,13 +90,13 @@ func GetInventoryByID(rw http.ResponseWriter, r *http.Request, user string) {
 	invID := vars["invID"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve inventories with empty profile id")
+		config.Log("Unable to retrieve inventories with empty profile id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 	if len(invID) <= 0 {
-		log.Printf("Unable to retrieve inventories with empty id")
+		config.Log("Unable to retrieve inventories with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -104,7 +104,7 @@ func GetInventoryByID(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveSelectedInv(user, userID, invID)
 	if err != nil {
-		log.Printf("Unable to retrieve inventory with selected id. error: +%v", err)
+		config.Log("Unable to retrieve inventory with selected id", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -149,13 +149,13 @@ func UpdateAssetColumn(rw http.ResponseWriter, r *http.Request, user string) {
 	assetID := vars["asssetID"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve assets with empty profile id")
+		config.Log("Unable to retrieve assets with empty profile id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 	if len(assetID) <= 0 {
-		log.Printf("Unable to retrieve assets with empty id")
+		config.Log("Unable to retrieve assets with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -163,7 +163,7 @@ func UpdateAssetColumn(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var updateAssetCol model.UpdateAssetColumn
 	if err := json.NewDecoder(r.Body).Decode(&updateAssetCol); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("unable to decode selected data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -176,14 +176,14 @@ func UpdateAssetColumn(rw http.ResponseWriter, r *http.Request, user string) {
 	}
 
 	if !isValidColumnName {
-		log.Printf("unable to update column name.")
+		config.Log("unable to update column name", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.UpdateAsset(user, userID, updateAssetCol)
 	if err != nil {
-		log.Printf("Unable to update asset. error: +%v", err)
+		config.Log("Unable to update asset", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -222,7 +222,7 @@ func AddInventoryInBulk(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to add new item with empty id")
+		config.Log("Unable to add new item with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -230,7 +230,7 @@ func AddInventoryInBulk(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var inventoryMap map[string]model.RawInventory
 	if err := json.NewDecoder(r.Body).Decode(&inventoryMap); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("unable to decode data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -271,7 +271,7 @@ func AddInventoryInBulk(rw http.ResponseWriter, r *http.Request, user string) {
 	// Assuming db.AddInventoryInBulk returns an error
 	resp, err := db.AddInventoryInBulk(user, userID, inventoryListRequest)
 	if err != nil {
-		log.Printf("unable to add new item during bulk insert. error: %+v", err)
+		config.Log("unable to add new item during bulk insert", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -308,7 +308,7 @@ func AddNewInventory(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to add new item with empty id")
+		config.Log("Unable to add new item with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -316,14 +316,14 @@ func AddNewInventory(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var inventory model.Inventory
 	if err := json.NewDecoder(r.Body).Decode(&inventory); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("unable to decode selected data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.AddInventory(user, userID, inventory)
 	if err != nil {
-		log.Printf("Unable to add new item. error: +%v", err)
+		config.Log("Unable to add new item", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -360,7 +360,7 @@ func UpdateSelectedInventory(rw http.ResponseWriter, r *http.Request, user strin
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to update selected inventory without id")
+		config.Log("Unable to update selected inventory without id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -368,14 +368,14 @@ func UpdateSelectedInventory(rw http.ResponseWriter, r *http.Request, user strin
 
 	var inventory model.Inventory
 	if err := json.NewDecoder(r.Body).Decode(&inventory); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.UpdateInventory(user, userID, inventory)
 	if err != nil {
-		log.Printf("Unable to update selected inventory. error: +%v", err)
+		config.Log("Unable to update selected inventory", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -412,7 +412,7 @@ func RemoveSelectedInventory(rw http.ResponseWriter, r *http.Request, user strin
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to remove selected inventory without id")
+		config.Log("Unable to remove selected inventory without id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -420,7 +420,7 @@ func RemoveSelectedInventory(rw http.ResponseWriter, r *http.Request, user strin
 
 	var pruneInventoriesIDMap map[string]string
 	if err := json.NewDecoder(r.Body).Decode(&pruneInventoriesIDMap); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -432,7 +432,7 @@ func RemoveSelectedInventory(rw http.ResponseWriter, r *http.Request, user strin
 
 	resp, err := db.DeleteInventory(user, userID, pruneInventoriesIDs)
 	if err != nil {
-		log.Printf("Unable to remove selected inventory. error: +%v", err)
+		config.Log("Unable to remove selected inventory", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
