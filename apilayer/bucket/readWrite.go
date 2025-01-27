@@ -3,9 +3,9 @@ package bucket
 import (
 	"errors"
 	"io"
-	"log"
 	"os"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/minio/minio-go"
 )
 
@@ -16,17 +16,17 @@ func UploadDocumentInBucket(objectName string, filePath string, contentType stri
 
 	client, err := initializeStorage()
 	if err != nil {
-		log.Printf("unable to initialize minio client storage")
+		config.Log("unable to initialize minio client storage", err)
 		return err
 	}
 	bucketName := os.Getenv("MINIO_APP_BUCKET_NAME")
 
 	_, err = client.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
-		log.Printf("unable to add object to the selected bucket. erorr: %+v", err)
+		config.Log("unable to add object to the selected bucket", err)
 		return err
 	}
-	log.Printf("upload successful")
+	config.Log("upload successful", nil)
 	return nil
 }
 
@@ -36,7 +36,7 @@ func UploadDocumentInBucket(objectName string, filePath string, contentType stri
 func RetrieveDocumentFromBucket(documentID string) ([]byte, string, string, error) {
 	client, err := initializeStorage()
 	if err != nil {
-		log.Printf("unable to initialize minio client storage")
+		config.Log("unable to initialize minio client storage", err)
 		return nil, "", "", err
 	}
 	bucketName := os.Getenv("MINIO_APP_BUCKET_NAME")
@@ -45,10 +45,10 @@ func RetrieveDocumentFromBucket(documentID string) ([]byte, string, string, erro
 	object, err := client.GetObject(bucketName, documentID, minio.GetObjectOptions{})
 	if err != nil {
 		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
-			log.Printf("Object not found: %s", documentID)
+			config.Log("Object not found: %s", err, documentID)
 			return nil, "", "", nil // Gracefully return empty data if object doesn't exist
 		}
-		log.Printf("Error retrieving object from the bucket: %+v", err)
+		config.Log("unable to retrieve object from the bucket", err)
 		return nil, "", "", err
 	}
 	defer object.Close()
@@ -57,17 +57,17 @@ func RetrieveDocumentFromBucket(documentID string) ([]byte, string, string, erro
 	objectStat, err := object.Stat()
 	if err != nil {
 		if minio.ToErrorResponse(err).Code == "NoSuchKey" {
-			log.Printf("Object metadata not found: %s", documentID)
+			config.Log("Object metadata not found: %s", err, documentID)
 			return nil, "", "", errors.New("NoSuchKey") // Catch the error code and return the error code
 		}
-		log.Printf("Error retrieving object metadata: %+v", err)
+		config.Log("unable to retrieve object metadata", err)
 		return nil, "", "", err
 	}
 
 	// Read the content
 	content, err := io.ReadAll(object)
 	if err != nil {
-		log.Printf("Error reading object content: %+v", err)
+		config.Log("Error reading object content", err)
 		return nil, "", "", err
 	}
 
