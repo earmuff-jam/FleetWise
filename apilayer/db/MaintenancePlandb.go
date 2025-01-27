@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -15,6 +15,7 @@ import (
 func RetrieveAllMaintenancePlans(user string, userID string, limit int) (*[]model.MaintenancePlan, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -45,6 +46,7 @@ func RetrieveAllMaintenancePlans(user string, userID string, limit int) (*[]mode
 	ORDER BY mp.updated_at DESC
 	LIMIT $2;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID, limit)
 	if err != nil {
 		return nil, err
@@ -61,6 +63,7 @@ func RetrieveAllMaintenancePlans(user string, userID string, limit int) (*[]mode
 		var ec model.MaintenancePlan
 		if err := rows.Scan(&maintenancePlanID, &ec.Name, &ec.Description, &ec.Status, &ec.StatusName, &ec.StatusDescription,
 			&ec.Color, &ec.PlanType, &lon, &lat, &ec.CreatedAt, &ec.CreatedBy, &ec.Creator, &ec.UpdatedAt, &ec.UpdatedBy, &ec.Updator, &sharableGroups); err != nil {
+			config.Log("unable to scan selected maintenance plan", err)
 			return nil, err
 		}
 
@@ -74,7 +77,7 @@ func RetrieveAllMaintenancePlans(user string, userID string, limit int) (*[]mode
 		content, _, _, err := FetchImage(maintenancePlanID.String)
 		if err != nil {
 			if err.Error() == "NoSuchKey" {
-				log.Printf("cannot find the selected document. error: %+v", err)
+				config.Log("cannot find the selected document", err)
 			}
 		}
 
@@ -85,6 +88,7 @@ func RetrieveAllMaintenancePlans(user string, userID string, limit int) (*[]mode
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to validate all rows", err)
 		return nil, err
 	}
 
@@ -95,6 +99,7 @@ func RetrieveAllMaintenancePlans(user string, userID string, limit int) (*[]mode
 func RetrieveMaintenancePlan(user string, userID string, maintenanceID string) (model.MaintenancePlan, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return model.MaintenancePlan{}, err
 	}
 	defer db.Close()
@@ -122,6 +127,7 @@ func RetrieveMaintenancePlan(user string, userID string, maintenanceID string) (
 	LEFT JOIN community.profiles up on up.id = mp.updated_by
 	WHERE $1::UUID = ANY(mp.sharable_groups) AND mp.id = $2;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := db.QueryRow(sqlStr, userID, maintenanceID)
 	selectedMaintenancePlan := model.MaintenancePlan{}
 
@@ -154,6 +160,7 @@ func RetrieveMaintenancePlan(user string, userID string, maintenanceID string) (
 	}
 
 	if err != nil {
+		config.Log("unable to find the selected maintenance plan", err)
 		return model.MaintenancePlan{}, err
 	}
 
@@ -164,6 +171,7 @@ func RetrieveMaintenancePlan(user string, userID string, maintenanceID string) (
 func RetrieveAllMaintenancePlanItems(user string, userID string, maintenancePlanID string, limit int) ([]model.MaintenanceItemResponse, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -191,9 +199,10 @@ func RetrieveAllMaintenancePlanItems(user string, userID string, maintenancePlan
 	WHERE $1::UUID = ANY(mi.sharable_groups) AND mi.maintenance_plan_id = $2
 	ORDER BY mi.updated_at DESC FETCH FIRST $3 ROWS ONLY;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID, maintenancePlanID, limit)
 	if err != nil {
-		log.Printf("unable to retrieve maintenance items. error: %+v", err)
+		config.Log("unable to retrieve maintenance items", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -204,7 +213,7 @@ func RetrieveAllMaintenancePlanItems(user string, userID string, maintenancePlan
 	for rows.Next() {
 		var ec model.MaintenanceItemResponse
 		if err := rows.Scan(&ec.ID, &ec.MaintenancePlanID, &ec.ItemID, &ec.Name, &ec.Description, &ec.Price, &ec.Quantity, &ec.Location, &ec.CreatedBy, &ec.Creator, &ec.CreatedAt, &ec.UpdatedBy, &ec.Updator, &ec.UpdatedAt, &sharableGroups); err != nil {
-			log.Printf("unable to retrieve maintenance items. error: %+v", err)
+			config.Log("unable to retrieve maintenance items", err)
 			return nil, err
 		}
 		ec.SharableGroups = sharableGroups
@@ -212,7 +221,7 @@ func RetrieveAllMaintenancePlanItems(user string, userID string, maintenancePlan
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Printf("unable to retrieve maintenance items. error: %+v", err)
+		config.Log("unable to retrieve maintenance items", err)
 		return nil, err
 	}
 
@@ -223,7 +232,7 @@ func RetrieveAllMaintenancePlanItems(user string, userID string, maintenancePlan
 func CreateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenancePlan) (*model.MaintenancePlan, error) {
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("failed to connect to the database: %v", err)
+		config.Log("failed to connect to the database", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -231,16 +240,17 @@ func CreateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 	// Retrieve selected status
 	selectedStatusDetails, err := RetrieveStatusDetails(user, draftMaintenancePlan.Status)
 	if err != nil {
-		log.Printf("error retrieving status details: %+v", err)
+		config.Log("error retrieving status details", err)
 		return nil, err
 	}
 	if selectedStatusDetails == nil {
+		config.Log("unable to find selected status", errors.New("unable to find selected status"))
 		return nil, errors.New("unable to find selected status")
 	}
 
 	parsedCreatorID, err := uuid.Parse(draftMaintenancePlan.CreatedBy)
 	if err != nil {
-		log.Printf("Error parsing creator id. Error: %+v", err)
+		config.Log("Error parsing creator id", err)
 		return nil, err
 	}
 
@@ -250,7 +260,7 @@ func CreateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("error starting transaction: %v", err)
+		config.Log("error starting transaction", err)
 		return nil, err
 	}
 	defer func() {
@@ -259,6 +269,7 @@ func CreateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 		}
 	}()
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(
 		sqlStr,
 		draftMaintenancePlan.Name,
@@ -291,13 +302,13 @@ func CreateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 		pq.Array(&draftMaintenancePlan.SharableGroups),
 	)
 	if err != nil {
+		config.Log("unable to scan result", err)
 		tx.Rollback()
-		log.Printf("Error scanning result: %v", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("Error committing transaction: %v", err)
+		config.Log("unable to commit transaction", err)
 		return nil, err
 	}
 
@@ -311,6 +322,7 @@ func CreateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 func UpdateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenancePlan) (*model.MaintenancePlan, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -318,9 +330,11 @@ func UpdateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 	// retrieve selected status
 	selectedStatusDetails, err := RetrieveStatusDetails(user, draftMaintenancePlan.Status)
 	if err != nil {
+		config.Log("unable to view selected status details", err)
 		return nil, err
 	}
 	if selectedStatusDetails == nil {
+		config.Log("unable to find selected status", errors.New("unable to find selected status"))
 		return nil, errors.New("unable to find selected status")
 	}
 
@@ -342,17 +356,20 @@ func UpdateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 	tx, err := db.Begin()
 	if err != nil {
 		tx.Rollback()
+		config.Log("unable to begin transaction", err)
 		return nil, err
 	}
 
 	parsedUpdatorID, err := uuid.Parse(draftMaintenancePlan.UpdatedBy)
 	if err != nil {
 		tx.Rollback()
+		config.Log("unable to parse selected user id", err)
 		return nil, err
 	}
 
 	var updatedMaintenancePlan model.MaintenancePlan
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(sqlStr,
 		draftMaintenancePlan.ID,
 		draftMaintenancePlan.Name,
@@ -385,9 +402,11 @@ func UpdateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 
 	if err != nil {
 		tx.Rollback()
+		config.Log("unable to scan and parse selected maintenance details", err)
 		return nil, err
 	}
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit selected transaction", err)
 		return nil, err
 	}
 
@@ -404,14 +423,17 @@ func UpdateMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceP
 func RemoveMaintenancePlan(user string, planID string) error {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
 
-	sqlStr := `DELETE FROM community.maintenance_plan WHERE id=$1`
+	sqlStr := `DELETE FROM community.maintenance_plan WHERE id=$1;`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = db.Exec(sqlStr, planID)
 	if err != nil {
-		log.Printf("unable to delete selected maintenance_plan. error: %+v", err)
+		config.Log("unable to delete selected maintenance_plan", err)
 		return err
 	}
 	return nil
@@ -421,6 +443,7 @@ func RemoveMaintenancePlan(user string, planID string) error {
 func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.MaintenanceItemRequest) ([]model.MaintenanceItemResponse, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -430,10 +453,11 @@ func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.M
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("error starting transaction: %+v", err)
+		config.Log("error starting transaction", err)
 		return nil, err
 	}
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	currentTime := time.Now()
 	for _, assetID := range draftMaintenanceItemRequest.AssetIDs {
 		_, err := tx.Exec(
@@ -448,13 +472,13 @@ func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.M
 		)
 		if err != nil {
 			tx.Rollback()
-			log.Printf("Error executing query: %+v", err)
+			config.Log("Error executing query", err)
 			return nil, err
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("error committing transaction: %+v", err)
+		config.Log("error committing transaction", err)
 		return nil, err
 	}
 
@@ -481,9 +505,10 @@ func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.M
 	WHERE $1::UUID = ANY(mi.sharable_groups) AND mi.maintenance_plan_id = $2
 	ORDER BY mi.updated_at DESC;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, draftMaintenanceItemRequest.UserID, draftMaintenanceItemRequest.ID)
 	if err != nil {
-		log.Printf("unable to retrieve maintenance items. error: %+v", err)
+		config.Log("unable to retrieve maintenance items", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -494,7 +519,7 @@ func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.M
 	for rows.Next() {
 		var ec model.MaintenanceItemResponse
 		if err := rows.Scan(&ec.ID, &ec.MaintenancePlanID, &ec.ItemID, &ec.Name, &ec.Description, &ec.Price, &ec.Quantity, &ec.Location, &ec.CreatedBy, &ec.Creator, &ec.CreatedAt, &ec.UpdatedBy, &ec.Updator, &ec.UpdatedAt, &sharableGroups); err != nil {
-			log.Printf("unable to retrieve maintenance items. error: %+v", err)
+			config.Log("unable to retrieve maintenance items", err)
 			return nil, err
 		}
 		ec.SharableGroups = sharableGroups
@@ -502,7 +527,7 @@ func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.M
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Printf("unable to retrieve maintenance items. error: %+v", err)
+		config.Log("unable to retrieve maintenance items", err)
 		return nil, err
 	}
 
@@ -513,6 +538,7 @@ func AddAssetToMaintenancePlan(user string, draftMaintenanceItemRequest *model.M
 func RemoveAssetAssociationFromMaintenancePlan(user string, draftMaintenancePlan *model.MaintenanceItemRequest) error {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
@@ -522,19 +548,20 @@ func RemoveAssetAssociationFromMaintenancePlan(user string, draftMaintenancePlan
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("Error starting transaction: %+v", err)
+		config.Log("Error starting transaction", err)
 		return err
 	}
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = tx.Exec(sqlStr, draftMaintenancePlan.ID, pq.Array(draftMaintenancePlan.AssetIDs))
 	if err != nil {
 		tx.Rollback()
-		log.Printf("Error executing delete query: %+v", err)
+		config.Log("Error executing delete query", err)
 		return err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("Error committing transaction: %+v", err)
+		config.Log("Error committing transaction", err)
 		return err
 	}
 
@@ -546,32 +573,35 @@ func UpdateMaintenancePlanImage(user string, userID string, maintenanceID string
 
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return false, err
 	}
 	defer db.Close()
 
+	sqlStr := `UPDATE community.maintenance_plan mp
+	SET associated_image_url = $1,
+		updated_at = $4,
+		updated_by = $2
+		WHERE $2::UUID = ANY(mp.sharable_groups) 
+		AND mp.id = $3
+	RETURNING mp.id;`
+
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return false, err
 	}
-	sqlStr := `UPDATE community.maintenance_plan mp
-		SET associated_image_url = $1,
-			updated_at = $4,
-			updated_by = $2
-			WHERE $2::UUID = ANY(mp.sharable_groups) 
-			AND mp.id = $3
-		RETURNING mp.id;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	var updatedMaintenancePlanID string
 	err = tx.QueryRow(sqlStr, imageURL, userID, maintenanceID, time.Now()).Scan(&updatedMaintenancePlanID)
 	if err != nil {
-		log.Printf("unable to update maintenance plan id. error: %+v", err)
+		config.Log("unable to update maintenance plan id", err)
 		return false, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to commit. error: %+v", err)
+		config.Log("unable to commit", err)
 		return false, err
 	}
 

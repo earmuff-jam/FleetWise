@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 )
@@ -15,7 +15,7 @@ func RetrieveReports(user string, userID uuid.UUID, sinceDateTime string, includ
 
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup db. error: %+v", err)
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -46,9 +46,11 @@ func RetrieveReports(user string, userID uuid.UUID, sinceDateTime string, includ
 
 	parsedSqlStr := fmt.Sprintf(draftSqlStr, additionalWhereClause)
 	var reports []model.Report
+
+	config.Log("SqlStr: %s", nil, parsedSqlStr)
 	rows, err := db.Query(parsedSqlStr, userID, sinceDateTime)
 	if err != nil {
-		log.Printf("unable to retrieve report details. error: %+v", err)
+		config.Log("unable to retrieve report details", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -59,7 +61,7 @@ func RetrieveReports(user string, userID uuid.UUID, sinceDateTime string, includ
 		var totalCategoryItemsCostDraft sql.NullFloat64
 
 		if err := rows.Scan(&totalValuationDraft, &totalCategoryItemsCostDraft); err != nil {
-			log.Printf("unable to scan reports. error: %+v", err)
+			config.Log("unable to scan reports", err)
 			return nil, err
 		}
 		if totalValuationDraft.Valid {
@@ -75,7 +77,7 @@ func RetrieveReports(user string, userID uuid.UUID, sinceDateTime string, includ
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Printf("unable to retrieve report. error: %+v", err)
+		config.Log("unable to retrieve report", err)
 		return nil, err
 	}
 	return reports, nil

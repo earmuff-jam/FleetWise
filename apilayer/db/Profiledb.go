@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -15,6 +15,7 @@ import (
 func FetchAllUserProfiles(user string) ([]model.Profile, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -38,8 +39,10 @@ func FetchAllUserProfiles(user string) ([]model.Profile, error) {
 
 	var profiles []model.Profile
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr)
 	if err != nil {
+		config.Log("unable to retrieve selected details", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -50,6 +53,7 @@ func FetchAllUserProfiles(user string) ([]model.Profile, error) {
 		var userName, fullName, avatarUrl, emailAddress, phoneNumber, aboutMe, role sql.NullString
 
 		if err := rows.Scan(&draftProfile.ID, &userName, &fullName, &avatarUrl, &emailAddress, &phoneNumber, &aboutMe, &draftProfile.OnlineStatus, &draftProfile.Appearance, &draftProfile.GridView, &role, &updated_at); err != nil {
+			config.Log("unable to scan selected details", err)
 			return nil, err
 		}
 		draftProfile.Username = userName.String
@@ -65,10 +69,7 @@ func FetchAllUserProfiles(user string) ([]model.Profile, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	if err := rows.Err(); err != nil {
+		config.Log("unable to validate selected rows", err)
 		return nil, err
 	}
 
@@ -79,6 +80,7 @@ func FetchAllUserProfiles(user string) ([]model.Profile, error) {
 func FetchUserProfile(user string, userID string) (*model.Profile, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -116,6 +118,7 @@ func FetchUserProfile(user string, userID string) (*model.Profile, error) {
 	var role sql.NullString
 	var updated_at sql.NullTime
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID)
 	if err != nil {
 		return nil, err
@@ -124,6 +127,7 @@ func FetchUserProfile(user string, userID string) (*model.Profile, error) {
 
 	for rows.Next() {
 		if err := rows.Scan(&profileID, &userName, &fullName, &avatarUrl, &emailAddress, &phoneNumber, &aboutMe, &draftProfile.OnlineStatus, &draftProfile.Appearance, &draftProfile.GridView, &role, &updated_at); err != nil {
+			config.Log("unable to scan selected details", err)
 			return nil, err
 		}
 		draftProfile.ID, _ = uuid.Parse(profileID.String)
@@ -136,6 +140,7 @@ func FetchUserProfile(user string, userID string) (*model.Profile, error) {
 		draftProfile.UpdatedAt = updated_at.Time
 	}
 	if err := rows.Err(); err != nil {
+		config.Log("unable to scan selected details", err)
 		return nil, err
 	}
 
@@ -147,6 +152,7 @@ func FetchUserProfile(user string, userID string) (*model.Profile, error) {
 func FetchUserStats(user string, userID string) (model.ProfileStats, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return model.ProfileStats{}, err
 	}
 	defer db.Close()
@@ -165,7 +171,9 @@ func FetchUserStats(user string, userID string) (model.ProfileStats, error) {
 					WHERE i.created_by = $1
 			) AS total_assets;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := db.QueryRow(sqlStr, userID)
+
 	profileStats := model.ProfileStats{}
 
 	err = row.Scan(
@@ -174,6 +182,7 @@ func FetchUserStats(user string, userID string) (model.ProfileStats, error) {
 		&profileStats.TotalMaintenancePlans,
 	)
 	if err != nil {
+		config.Log("unable to scan selected details", err)
 		return model.ProfileStats{}, err
 	}
 
@@ -184,6 +193,7 @@ func FetchUserStats(user string, userID string) (model.ProfileStats, error) {
 func FetchNotifications(user string, userID string) ([]model.MaintenanceAlertNotifications, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -201,8 +211,10 @@ func FetchNotifications(user string, userID string) ([]model.MaintenanceAlertNot
 	WHERE ma.is_read IS NOT TRUE
 	AND $1::UUID = ANY(ma.sharable_groups);`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID)
 	if err != nil {
+		config.Log("unable to query selected details", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -224,6 +236,7 @@ func FetchNotifications(user string, userID string) ([]model.MaintenanceAlertNot
 			&sharableGroups,
 		)
 		if err != nil {
+			config.Log("unable to scan selected details", err)
 			return nil, err
 		}
 
@@ -232,6 +245,7 @@ func FetchNotifications(user string, userID string) ([]model.MaintenanceAlertNot
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to validate selected rows", err)
 		return nil, err
 	}
 
@@ -242,12 +256,14 @@ func FetchNotifications(user string, userID string) ([]model.MaintenanceAlertNot
 func UpdateSelectedNotification(user string, userID string, draftSelectedMaintenanceAlert model.MaintenanceAlertNotificationRequest) error {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
+		config.Log("unable to start transaction", err)
 		return err
 	}
 
@@ -260,6 +276,7 @@ func UpdateSelectedNotification(user string, userID string, draftSelectedMainten
 		maintenance_plan_id = $4
 	AND $3::UUID = ANY(sharable_groups);`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = tx.Exec(sqlStr,
 		draftSelectedMaintenanceAlert.IsRead,
 		time.Now(),
@@ -267,12 +284,14 @@ func UpdateSelectedNotification(user string, userID string, draftSelectedMainten
 		draftSelectedMaintenanceAlert.ID,
 	)
 	if err != nil {
-		_ = tx.Rollback()
+		tx.Rollback()
+		config.Log("unable to scan selected values", err)
 		return fmt.Errorf("failed to update query: %w", err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		config.Log("unable to commit selected transaction", err)
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
@@ -283,12 +302,14 @@ func UpdateSelectedNotification(user string, userID string, draftSelectedMainten
 func UpdateUserProfile(user string, userID string, draftProfile model.Profile) (*model.Profile, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
+		config.Log("unable to start transaction", err)
 		return nil, err
 	}
 
@@ -308,6 +329,7 @@ func UpdateUserProfile(user string, userID string, draftProfile model.Profile) (
 	var updatedProfile model.Profile
 	var avatarUrl sql.NullString // Assuming avatar_url is a string column, not bytea
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(sqlStr,
 		userID,
 		draftProfile.Username,
@@ -337,6 +359,7 @@ func UpdateUserProfile(user string, userID string, draftProfile model.Profile) (
 
 	if err != nil {
 		tx.Rollback()
+		config.Log("unable to scan selected documents", err)
 		return nil, err
 	}
 
@@ -347,6 +370,7 @@ func UpdateUserProfile(user string, userID string, draftProfile model.Profile) (
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit the transaction", err)
 		return nil, err
 	}
 
@@ -358,13 +382,14 @@ func UpdateUserProfile(user string, userID string, draftProfile model.Profile) (
 func FetchFavouriteItems(user string, userID string, limit int) ([]model.FavouriteItem, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	rows, err := getFavouriteItems(db, userID, limit)
 	if err != nil {
-		log.Printf("unable to retrieve favourite items. error: %+v", err)
+		config.Log("unable to retrieve favourite items", err)
 		return nil, err
 	}
 
@@ -388,8 +413,10 @@ func getFavouriteItems(db *sql.DB, userID string, limit int) ([]model.FavouriteI
 		LEFT JOIN community.statuses ms ON ms.id = mp.status WHERE fi.created_by = $1 
 	FETCH FIRST $2 rows only;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID, limit)
 	if err != nil {
+		config.Log("unable to query selected data", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -405,6 +432,7 @@ func getFavouriteItems(db *sql.DB, userID string, limit int) ([]model.FavouriteI
 		var maintenancePlanName sql.NullString
 		var maintenancePlanStatus sql.NullString
 		if err := rows.Scan(&draftFavItem.ID, &categoryID, &categoryName, &categoryStatus, &maintenancePlanID, &maintenancePlanName, &maintenancePlanStatus); err != nil {
+			config.Log("unable to scan selected details", err)
 			return nil, err
 		}
 		draftFavItem.CategoryID = categoryID.String
@@ -417,6 +445,7 @@ func getFavouriteItems(db *sql.DB, userID string, limit int) ([]model.FavouriteI
 		favouriteItems = append(favouriteItems, draftFavItem)
 	}
 	if err := rows.Err(); err != nil {
+		config.Log("unable to validate all rows", err)
 		return nil, err
 	}
 	return favouriteItems, nil
@@ -426,12 +455,14 @@ func getFavouriteItems(db *sql.DB, userID string, limit int) ([]model.FavouriteI
 func SaveFavouriteItem(user string, userID string, draftFavItem model.FavouriteItem) ([]model.FavouriteItem, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	parsedCreatorID, err := uuid.Parse(draftFavItem.CreatedBy)
 	if err != nil {
+		config.Log("unable to parse creator ID", err)
 		return nil, err
 	}
 
@@ -454,9 +485,11 @@ func SaveFavouriteItem(user string, userID string, draftFavItem model.FavouriteI
 
 	tx, err := db.Begin()
 	if err != nil {
+		config.Log("unable to start transaction", err)
 		return nil, err
 	}
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(
 		sqlStr,
 		categoryID,
@@ -468,16 +501,18 @@ func SaveFavouriteItem(user string, userID string, draftFavItem model.FavouriteI
 
 	if err != nil {
 		tx.Rollback()
+		config.Log("unable to scan selected details", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit selected transaction", err)
 		return nil, err
 	}
 
 	rows, err := getFavouriteItems(db, userID, 1000)
 	if err != nil {
-		log.Printf("unable to retrieve favourite items. error: %+v", err)
+		config.Log("unable to retrieve favourite items", err)
 		return nil, err
 	}
 
@@ -488,19 +523,23 @@ func SaveFavouriteItem(user string, userID string, draftFavItem model.FavouriteI
 func RemoveFavItem(user string, userID string, itemID string) (string, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return "", err
 	}
 	defer db.Close()
 
 	parsedCreatorID, err := uuid.Parse(userID)
 	if err != nil {
+		config.Log("unable to parse selected creator id", err)
 		return "", err
 	}
 
 	sqlStr := `DELETE FROM community.favourite_items fi WHERE fi.id = $1 AND $2::UUID = ANY(fi.sharable_groups);`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = db.Exec(sqlStr, itemID, parsedCreatorID)
 	if err != nil {
-		log.Printf("unable to delete note ID. error: %+v", itemID)
+		config.Log("unable to delete selected note. %s", nil, itemID)
 		return "", err
 	}
 

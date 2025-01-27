@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -15,6 +15,7 @@ import (
 func RetrieveNotes(user string, userID uuid.UUID) ([]model.Note, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -43,8 +44,10 @@ func RetrieveNotes(user string, userID uuid.UUID) ([]model.Note, error) {
 	WHERE $1::UUID = ANY(n.sharable_groups)
 	ORDER BY n.updated_at DESC;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID)
 	if err != nil {
+		config.Log("unable to retrieve selected details", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -60,6 +63,7 @@ func RetrieveNotes(user string, userID uuid.UUID) ([]model.Note, error) {
 		var completionDate sql.NullTime
 
 		if err := rows.Scan(&note.ID, &note.Title, &note.Description, &statusID, &statusName, &statusDescription, &note.Color, &completionDate, &lon, &lat, &note.CreatedAt, &note.CreatedBy, &note.Creator, &note.UpdatedAt, &note.UpdatedBy, &note.Updator); err != nil {
+			config.Log("unable to scan selected values", err)
 			return nil, err
 		}
 
@@ -92,6 +96,7 @@ func RetrieveNotes(user string, userID uuid.UUID) ([]model.Note, error) {
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to scan selected data", err)
 		return nil, err
 	}
 
@@ -102,25 +107,29 @@ func RetrieveNotes(user string, userID uuid.UUID) ([]model.Note, error) {
 func AddNewNote(user string, userID string, draftNote model.Note) (*model.Note, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	selectedStatusDetails, err := RetrieveStatusDetails(user, draftNote.Status)
 	if err != nil {
+		config.Log("unable to retrieve selected status details", err)
 		return nil, err
 	}
 	if selectedStatusDetails == nil {
+		config.Log("selected status details empty", errors.New("unable to find selected status"))
 		return nil, errors.New("unable to find selected status")
 	}
 
-	addSqlStr := `
+	sqlStr := `
 		INSERT INTO community.notes (title, description, status, color, completionDate, location, created_by, updated_by, sharable_groups) 
 		VALUES ($1, $2, $3, $4, $5, POINT($6, $7), $8, $9, $10) 
 		RETURNING id;`
 
 	parsedCreatorID, err := uuid.Parse(draftNote.UpdatedBy)
 	if err != nil {
+		config.Log("unable to parse creator id", err)
 		return nil, err
 	}
 
@@ -136,8 +145,9 @@ func AddNewNote(user string, userID string, draftNote model.Note) (*model.Note, 
 		return nil, err
 	}
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(
-		addSqlStr,
+		sqlStr,
 		draftNote.Title,
 		draftNote.Description,
 		selectedStatusDetails.ID,
@@ -152,22 +162,26 @@ func AddNewNote(user string, userID string, draftNote model.Note) (*model.Note, 
 
 	if err != nil {
 		tx.Rollback()
+		config.Log("unable to scan selected values", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit selected transaction", err)
 		return nil, err
 	}
 
-	retrieveUserDetailsSqlStr := `SELECT id, username, full_name from community.profiles p where p.id = $1;`
-	row := db.QueryRow(retrieveUserDetailsSqlStr, userID)
+	sqlStr = `SELECT id, username, full_name from community.profiles p where p.id = $1;`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
+	row := db.QueryRow(sqlStr, userID)
 
 	var creatorID string
 	var creatorUsername sql.NullString
 	var creatorFullName sql.NullString
 	err = row.Scan(&creatorID, &creatorUsername, &creatorFullName)
 	if err != nil {
-		log.Printf("creator not found. error :%+v", err)
+		config.Log("creator not found", err)
 		return nil, err
 	}
 
@@ -190,6 +204,7 @@ func AddNewNote(user string, userID string, draftNote model.Note) (*model.Note, 
 func UpdateNote(user string, userID string, draftNote model.Note) (*model.Note, error) {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -197,13 +212,15 @@ func UpdateNote(user string, userID string, draftNote model.Note) (*model.Note, 
 	// retrieve selected status
 	selectedStatusDetails, err := RetrieveStatusDetails(user, draftNote.Status)
 	if err != nil {
+		config.Log("unable to retrieve selected status details", err)
 		return nil, err
 	}
 	if selectedStatusDetails == nil {
+		config.Log("selected status details is empty", errors.New("unable to find selected status"))
 		return nil, errors.New("unable to find selected status")
 	}
 
-	updateSqlStr := `UPDATE community.notes 
+	sqlStr := `UPDATE community.notes 
 	SET
 	title = $2,
 	description = $3,
@@ -217,19 +234,22 @@ func UpdateNote(user string, userID string, draftNote model.Note) (*model.Note, 
 
 	tx, err := db.Begin()
 	if err != nil {
+		config.Log("unable to begin transaction", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	parsedCreatorID, err := uuid.Parse(draftNote.UpdatedBy)
 	if err != nil {
+		config.Log("unable to parse user id", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	var updatedNote model.Note
+	config.Log("SqlStr: %s", nil, sqlStr)
 
-	row := tx.QueryRow(updateSqlStr,
+	row := tx.QueryRow(sqlStr,
 		draftNote.ID,
 		draftNote.Title,
 		draftNote.Description,
@@ -253,10 +273,12 @@ func UpdateNote(user string, userID string, draftNote model.Note) (*model.Note, 
 	)
 
 	if err != nil {
+		config.Log("unable to scan selected details", err)
 		tx.Rollback()
 		return nil, err
 	}
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit selected transaction", err)
 		return nil, err
 	}
 
@@ -273,14 +295,17 @@ func UpdateNote(user string, userID string, draftNote model.Note) (*model.Note, 
 func RemoveNote(user string, draftNoteID string) error {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
 
 	sqlStr := `DELETE FROM community.notes WHERE id=$1;`
+	config.Log("SqlStr: %s", nil, sqlStr)
+
 	_, err = db.Exec(sqlStr, draftNoteID)
 	if err != nil {
-		log.Printf("unable to delete note ID %+v", draftNoteID)
+		config.Log("unable to delete selected note", err)
 		return err
 	}
 	return nil

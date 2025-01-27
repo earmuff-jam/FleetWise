@@ -1,9 +1,9 @@
 package db
 
 import (
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -16,7 +16,7 @@ import (
 func SaveUser(user string, draftUser *model.UserCredentials) (*model.UserCredentials, error) {
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup database. error: %+v", err)
+		config.Log("unable to setup database", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -24,13 +24,13 @@ func SaveUser(user string, draftUser *model.UserCredentials) (*model.UserCredent
 	// generate the hashed password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(draftUser.EncryptedPassword), 8)
 	if err != nil {
-		log.Printf("unable to decode password. error: %+v", err)
+		config.Log("unable to decode password", err)
 		return nil, err
 	}
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to setup transaction. error: %+v", err)
+		config.Log("unable to setup transaction", err)
 		return nil, err
 	}
 
@@ -40,6 +40,8 @@ func SaveUser(user string, draftUser *model.UserCredentials) (*model.UserCredent
 	`
 
 	var draftUserID string
+
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(
 		sqlStr,
 		draftUser.Email,
@@ -51,18 +53,18 @@ func SaveUser(user string, draftUser *model.UserCredentials) (*model.UserCredent
 
 	if err != nil {
 		tx.Rollback()
-		log.Printf("unable to query selected row. error: %+v", err)
+		config.Log("unable to query selected row", err)
 		return nil, err
 	}
 
 	draftUser.ID, err = uuid.Parse(draftUserID)
 	if err != nil {
 		tx.Rollback()
-		log.Printf("invalid id for user detected. error: %+v", err)
+		config.Log("invalid id for user detected", err)
 		return nil, err
 	}
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to commit to database. error: %+v", err)
+		config.Log("unable to commit to database", err)
 		return nil, err
 	}
 	return draftUser, nil
@@ -76,7 +78,7 @@ func SaveUser(user string, draftUser *model.UserCredentials) (*model.UserCredent
 func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCredentials, error) {
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup database. error: %+v", err)
+		config.Log("unable to setup database", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -84,17 +86,18 @@ func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 	// retrive the encrypted pwd. EMAIL must be UNIQUE field.
 	sqlStr := `SELECT id, role, encrypted_password, is_verified FROM auth.users WHERE email=$1;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	result := db.QueryRow(sqlStr, draftUser.Email)
 
 	storedCredentials := &model.UserCredentials{}
 	err = result.Scan(&storedCredentials.ID, &storedCredentials.Role, &storedCredentials.EncryptedPassword, &storedCredentials.IsVerified)
 	if err != nil {
-		log.Printf("unable to retrieve user details. error: +%v", err)
+		config.Log("unable to retrieve user details", err)
 		return nil, err
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(storedCredentials.EncryptedPassword), []byte(draftUser.EncryptedPassword)); err != nil {
-		log.Printf("unable to match password. error: %+v", err)
+		config.Log("unable to match password", err)
 		return nil, err
 	}
 
@@ -118,11 +121,12 @@ func IsValidUserEmail(user string, draftUserEmail string) (bool, error) {
 	// retrive the encrypted pwd. EMAIL must be UNIQUE field.
 	sqlStr := `SELECT EXISTS(SELECT 1 FROM auth.users u WHERE u.email=$1);`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	result := db.QueryRow(sqlStr, draftUserEmail)
 	exists := false
 	err = result.Scan(&exists)
 	if err != nil {
-		log.Printf("unable to validate user email address. error: +%v", err)
+		config.Log("unable to validate user email address", err)
 		return false, err
 	}
 	return !exists, nil // return false if found
@@ -134,7 +138,7 @@ func IsValidUserEmail(user string, draftUserEmail string) (bool, error) {
 func VerifyUser(user string, draftUserID string) error {
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup db. error: %+v", err)
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
@@ -143,13 +147,14 @@ func VerifyUser(user string, draftUserID string) error {
 	SET is_verified = $1, email_confirmed_at = $2
 	WHERE id = $3;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = db.Exec(sqlStr, true, time.Now(), draftUserID)
 	if err != nil {
-		log.Printf("failed to update user verification. error: %+v", err)
+		config.Log("failed to update user verification", err)
 		return err
 	}
 
-	log.Printf("user %s successfully verified", draftUserID)
+	config.Log("user %s successfully verified", nil, draftUserID)
 	return nil
 }
 
@@ -159,25 +164,28 @@ func VerifyUser(user string, draftUserID string) error {
 func RemoveUser(user string, id uuid.UUID) error {
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return err
 	}
 	defer db.Close()
 
 	sqlStr := `DELETE FROM auth.users WHERE id = $1;`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
 	result, err := db.Exec(sqlStr, id)
 	if err != nil {
-		log.Printf("Error deleting user with ID %s: %v", id.String(), err)
+		config.Log("Error deleting user with ID %s", err, id.String())
 		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Printf("Error getting rows affected after deleting user: %v", err)
+		config.Log("unable to retrieve selected rows", err)
 		return err
 	}
 
 	if rowsAffected == 0 {
-		log.Printf("No user found with ID %s", id.String())
+		config.Log("unable to find the selected user details", nil)
 		return nil
 	}
 

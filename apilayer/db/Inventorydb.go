@@ -2,13 +2,18 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"log"
 	"time"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+)
+
+const (
+	InvalidColumnName = "invalid column name"
 )
 
 // RetrieveAllInventoriesForUser ...
@@ -16,13 +21,14 @@ func RetrieveAllInventoriesForUser(user string, userID string, sinceDateTime str
 
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start transaction with selected db pool. error: %+v", err)
+		config.Log("unable to start transaction with selected db pool", err)
 		return nil, err
 	}
 
@@ -33,7 +39,7 @@ func RetrieveAllInventoriesForUser(user string, userID string, sinceDateTime str
 	if sinceDateTime != "" {
 		parsedTime, err := time.Parse(time.RFC3339, sinceDateTime)
 		if err != nil {
-			log.Printf("error parsing sinceDateTime. error: %+v", err)
+			config.Log("error parsing sinceDateTime", err)
 			return nil, err
 		}
 		additionalWhereClause += " AND inv.updated_at >= $2"
@@ -42,15 +48,17 @@ func RetrieveAllInventoriesForUser(user string, userID string, sinceDateTime str
 
 	data, err := retrieveAllInventoryDetailsForUser(tx, additionalWhereClause, params...)
 	if err != nil {
-		log.Printf("unable to retrieve all inventory details for user. error: %+v", err)
+		config.Log("unable to retrieve all inventory details for user", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit transaction", err)
 		return nil, err
 	}
 
 	if len(data) == 0 {
+		config.Log("no assets found for selected user", nil)
 		return make([]model.Inventory, 0), nil
 	}
 
@@ -94,6 +102,7 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 	orderBySqlStr := "ORDER BY inv.updated_at DESC;"
 
 	sqlStr := baseSqlStr + " " + whereSqlStr + additionalWhereClause + " " + orderBySqlStr
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := tx.Query(sqlStr, params...)
 	if err != nil {
 		return nil, err
@@ -136,6 +145,7 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 			&inventory.UpdatedAt,
 			pq.Array(&inventory.SharableGroups),
 		); err != nil {
+			config.Log("unable to parse all asset values", err)
 			return nil, err
 		}
 
@@ -170,7 +180,7 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 		content, _, _, err := FetchImage(inventory.ID)
 		if err != nil {
 			if err.Error() == "NoSuchKey" {
-				log.Printf("cannot find the selected document. error: %+v", err)
+				config.Log("cannot find the selected document", err)
 			}
 		}
 		inventory.Image = content
@@ -178,6 +188,7 @@ func retrieveAllInventoryDetailsForUser(tx *sql.Tx, additionalWhereClause string
 	}
 
 	if err := rows.Err(); err != nil {
+		config.Log("unable to process all rows", err)
 		return nil, err
 	}
 	return data, nil
@@ -188,23 +199,25 @@ func RetrieveSelectedInv(user string, userID string, invID string) (*model.Inven
 
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return nil, err
 	}
 
 	data, err := retrieveSelectedInv(tx, userID, invID)
 	if err != nil {
-		log.Printf("unable to retrieve all inventories details for user. error: %+v", err)
+		config.Log("unable to retrieve all inventories details for user", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit transaction", err)
 		return nil, err
 	}
 
@@ -216,20 +229,22 @@ func UpdateAsset(user string, userID string, draftUpdateAssetCols model.UpdateAs
 
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return nil, err
 	}
 
 	columnName := draftUpdateAssetCols.ColumnName
 	if !isValidColumnName(columnName) {
 		tx.Rollback()
-		return nil, fmt.Errorf("invalid column name: %s", columnName)
+		config.Log("unable to validate column name", errors.New(InvalidColumnName))
+		return nil, errors.New(InvalidColumnName)
 	}
 
 	sqlStr := fmt.Sprintf(`UPDATE 
@@ -242,19 +257,21 @@ func UpdateAsset(user string, userID string, draftUpdateAssetCols model.UpdateAs
 		RETURNING inv.id;`, columnName)
 
 	var updatedInvID string
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(sqlStr, draftUpdateAssetCols.InputColumn, userID, draftUpdateAssetCols.AssetID, time.Now()).Scan(&updatedInvID)
 	if err != nil {
-		log.Printf("unable to update asset id. error: %+v", err)
+		config.Log("unable to update asset id", err)
 		return nil, err
 	}
 
 	data, err := retrieveSelectedInv(tx, userID, updatedInvID)
 	if err != nil {
-		log.Printf("unable to retrieve asset details. error: %+v", err)
+		config.Log("unable to retrieve asset details", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit transaction", err)
 		return nil, err
 	}
 
@@ -266,13 +283,14 @@ func UpdateAssetImage(user string, userID string, assetID string, assetImageURL 
 
 	db, err := SetupDB(user)
 	if err != nil {
+		config.Log("unable to setup db", err)
 		return false, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return false, err
 	}
 
@@ -285,19 +303,23 @@ func UpdateAssetImage(user string, userID string, assetID string, assetImageURL 
 		RETURNING inv.id;`
 
 	var updatedInvID string
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(sqlStr, assetImageURL, userID, assetID, time.Now()).Scan(&updatedInvID)
 	if err != nil {
-		log.Printf("unable to update asset id. error: %+v", err)
+		config.Log("unable to update asset id", err)
 		return false, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to commit. error: %+v", err)
+		config.Log("unable to commit", err)
 		return false, err
 	}
 	return true, nil
 }
 
+// isValidColumnName ...
+//
+// isValidColumnName function is used to determine if the function is valid or not
 func isValidColumnName(columnName string) bool {
 	validColumns := map[string]bool{
 		"price":    true,
@@ -341,6 +363,8 @@ LEFT JOIN community.profiles up ON inv.updated_by = up.id
 WHERE $1::UUID = ANY(inv.sharable_groups) AND inv.id = $2
 ORDER BY inv.updated_at DESC;
 	`
+
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(sqlStr, userID, invID)
 
 	var inventory model.Inventory
@@ -378,10 +402,10 @@ ORDER BY inv.updated_at DESC;
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Printf("unable to retrieve selected inventory. error: %+v", err)
+			config.Log("unable to retrieve selected inventory", err)
 			return nil, err
 		}
-		log.Printf("unable to retrieve selected inventory. error: %+v", err)
+		config.Log("unable to retrieve selected inventory", err)
 		return nil, err
 	}
 
@@ -416,14 +440,14 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable setup database connection. error: %+v", err)
+		config.Log("unable setup database connection", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return nil, err
 	}
 
@@ -437,13 +461,13 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 			emptyLocationID := ""
 			err := addNewStorageLocation(user, v.Location, userID, &emptyLocationID)
 			if err != nil {
-				log.Printf("unable to retrieve selected location id. error: %+v", err)
+				config.Log("unable to retrieve selected location id", err)
 				tx.Rollback()
 				return nil, err
 			}
 			parsedStorageLocationID, err = uuid.Parse(emptyLocationID)
 			if err != nil {
-				log.Printf("unable to parse the found location id. error: %+v", err)
+				config.Log("unable to parse the found location id", err)
 				tx.Rollback()
 				return nil, err
 			}
@@ -451,7 +475,7 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 
 		parsedCreatedByUUID, err := uuid.Parse(userID)
 		if err != nil {
-			log.Printf("unable to parse the creator id. error: %+v", err)
+			config.Log("unable to parse the creator id", err)
 			tx.Rollback()
 			return nil, err
 		}
@@ -479,6 +503,7 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 			sharable_groups
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20);`
 
+		config.Log("SqlStr: %s", nil, sqlStr)
 		_, err = tx.Exec(
 			sqlStr,
 			v.Name,
@@ -504,21 +529,21 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 		)
 
 		if err != nil {
+			config.Log("unable to add assets in bulk", err)
 			tx.Rollback()
-			log.Printf("unable to add assets in bulk. error: %+v", err)
 			return nil, err
 		}
 
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to process trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to process trasanction with selected db pool", err)
 		return nil, err
 	}
 
 	tx, err = db.Begin()
 	if err != nil {
-		log.Printf("unable to start trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to start trasanction with selected db pool", err)
 		return nil, err
 	}
 
@@ -526,12 +551,12 @@ func AddInventoryInBulk(user string, userID string, draftInventoryList model.Inv
 	params = append(params, userID)
 	resp, err := retrieveAllInventoryDetailsForUser(tx, "", params...)
 	if err != nil {
-		log.Printf("unable to retrieve all inventories for selected user. error: %+v", err)
+		config.Log("unable to retrieve all inventories for selected user", err)
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to process trasanction with selected db pool. error: %+v", err)
+		config.Log("unable to process trasanction with selected db pool", err)
 		return nil, err
 	}
 
@@ -544,14 +569,14 @@ func AddInventory(user string, userID string, draftInventory model.Inventory) (*
 
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to start the db. error: %+v", err)
+		config.Log("unable to start the db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start tx. error: %+v", err)
+		config.Log("unable to start tx", err)
 		return nil, err
 	}
 
@@ -561,11 +586,13 @@ func AddInventory(user string, userID string, draftInventory model.Inventory) (*
 		emptyLocationID := ""
 		err := addNewStorageLocation(user, draftInventory.Location, draftInventory.CreatedBy, &emptyLocationID)
 		if err != nil {
+			config.Log("unable to add new storage location", err)
 			tx.Rollback()
 			return nil, err
 		}
 		parsedStorageLocationID, err = uuid.Parse(emptyLocationID)
 		if err != nil {
+			config.Log("unable to log storage location", err)
 			tx.Rollback()
 			return nil, err
 		}
@@ -576,13 +603,13 @@ func AddInventory(user string, userID string, draftInventory model.Inventory) (*
 	sqlStr := `SELECT location FROM community.storage_locations sl WHERE sl.id=$1;`
 	err = tx.QueryRow(sqlStr, parsedStorageLocationID).Scan(&draftInventory.Location)
 	if err != nil {
-		log.Printf("unable to retrieve selected location from storage location id. error: %+v", err)
+		config.Log("unable to retrieve selected location from storage location id", err)
 		tx.Rollback()
 		return nil, err
 	}
 	parsedCreatedByUUID, err := uuid.Parse(draftInventory.CreatedBy)
 	if err != nil {
-		log.Printf("unable to parse creator userID. error: %+v", err)
+		config.Log("unable to parse creator userID", err)
 		tx.Rollback()
 		return nil, err
 	}
@@ -621,6 +648,7 @@ func AddInventory(user string, userID string, draftInventory model.Inventory) (*
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
 RETURNING id;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(
 		sqlStr,
 		draftInventory.Name,
@@ -649,16 +677,17 @@ RETURNING id;`
 	).Scan(&draftInventory.ID)
 
 	if err != nil {
-		log.Printf("unable to add selected inventory. error: %+v", err)
+		config.Log("unable to add selected inventory", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit to transaction", err)
 		return nil, err
 	}
 
-	sqlGetUpdatedInventory := `
+	sqlStr = `
 	SELECT
 		inv.id,
 		inv.name,
@@ -693,7 +722,8 @@ RETURNING id;`
 	WHERE inv.id = $1;
 `
 
-	row := db.QueryRow(sqlGetUpdatedInventory, draftInventory.ID)
+	config.Log("SqlStr: %s", nil, sqlStr)
+	row := db.QueryRow(sqlStr, draftInventory.ID)
 
 	updatedInventory := model.Inventory{}
 	var returnNotes sql.NullString
@@ -726,6 +756,7 @@ RETURNING id;`
 		&updatedInventory.UpdaterName,
 	)
 	if err != nil {
+		config.Log("unable to scan for selected asset", err)
 		return nil, err
 	}
 
@@ -741,14 +772,14 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to start the db. error: %+v", err)
+		config.Log("unable to start the db", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("unable to start tx. error: %+v", err)
+		config.Log("unable to start tx", err)
 		return nil, err
 	}
 
@@ -758,11 +789,13 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 		emptyLocationID := ""
 		err := addNewStorageLocation(user, draftInventory.Location, draftInventory.CreatedBy, &emptyLocationID)
 		if err != nil {
+			config.Log("unable to add new storage location", err)
 			tx.Rollback()
 			return nil, err
 		}
 		parsedStorageLocationID, err = uuid.Parse(emptyLocationID)
 		if err != nil {
+			config.Log("unable to parse storage location id", err)
 			tx.Rollback()
 			return nil, err
 		}
@@ -771,16 +804,17 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 
 	// if UUID is present, retrieve selected storage location
 	sqlStr := `SELECT location FROM community.storage_locations sl WHERE sl.id=$1;`
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(sqlStr, parsedStorageLocationID).Scan(&draftInventory.Location)
 
 	if err != nil {
-		log.Printf("unable to retrieve selected location from storage location id. error: %+v", err)
+		config.Log("unable to retrieve selected location from storage location id", err)
 		tx.Rollback()
 		return nil, err
 	}
 	parsedCreatedByUUID, err := uuid.Parse(draftInventory.CreatedBy)
 	if err != nil {
-		log.Printf("unable to parse creator userID. error: %+v", err)
+		config.Log("unable to parse creator userID", err)
 		tx.Rollback()
 		return nil, err
 	}
@@ -817,6 +851,7 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 	WHERE inv.id = $1
 	RETURNING id;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	err = tx.QueryRow(
 		sqlStr,
 		draftInventory.ID,
@@ -846,18 +881,20 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 	).Scan(&draftInventory.ID)
 
 	if err != nil {
-		log.Printf("unable to update selected inventory. error: %+v", err)
+		config.Log("unable to update selected inventory", err)
 		tx.Rollback()
 		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
+		config.Log("unable to commit to transaction", err)
 		return nil, err
 	}
 
 	// new tx to bring fresh values
 	tx, err = db.Begin()
 	if err != nil {
+		config.Log("unable to start trasanction", err)
 		return nil, err
 	}
 	defer tx.Rollback()
@@ -898,6 +935,7 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 	WHERE inv.id = $1;
 `
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	row := tx.QueryRow(sqlGetUpdatedInventory, draftInventory.ID)
 
 	updatedInventory := model.Inventory{}
@@ -938,13 +976,13 @@ func UpdateInventory(user string, userID string, draftInventory model.Inventory)
 
 	if err != nil {
 		tx.Rollback()
-		log.Printf("unable to update selected inventory. error: %+v", err)
+		config.Log("unable to update selected inventory", err)
 		return nil, err
 	}
 
 	// Commit the transaction
 	if err := tx.Commit(); err != nil {
-		log.Printf("unable to complete selected transaction. error: %+v", err)
+		config.Log("unable to complete selected transaction", err)
 		return nil, err
 	}
 
@@ -965,10 +1003,11 @@ func DeleteInventory(user string, userID string, pruneInventoriesIDs []string) (
 	}
 	defer db.Close()
 
-	sqlStr := `DELETE FROM community.inventory WHERE id = ANY($1)`
+	sqlStr := `DELETE FROM community.inventory WHERE id = ANY($1);`
+	config.Log("SqlStr: %s", nil, sqlStr)
 	_, err = db.Exec(sqlStr, pq.Array(pruneInventoriesIDs))
 	if err != nil {
-		log.Printf("unable to delete selected inventories: %v", pruneInventoriesIDs)
+		config.Log("unable to delete selected inventories", err)
 		return nil, err
 	}
 	return pruneInventoriesIDs, nil
