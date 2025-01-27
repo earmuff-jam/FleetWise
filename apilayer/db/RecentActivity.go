@@ -33,7 +33,7 @@ func RetrieveRecentActivities(user string, userID string, limit int, untilDate s
 	FROM community.recent_activities ra
 	LEFT JOIN community.profiles cp on ra.created_by = cp.id
 	LEFT JOIN community.profiles up on ra.updated_by = up.id
-	WHERE $1::UUID = ANY(ra.sharable_groups);`
+	WHERE $1::UUID = ANY(ra.sharable_groups)`
 
 	var endDate time.Time
 
