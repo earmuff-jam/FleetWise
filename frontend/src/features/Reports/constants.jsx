@@ -15,6 +15,9 @@ export const ASSETS_IN_REPORTS_HEADER = [
     header: 'Description',
     accessorKey: 'description',
     size: 200,
+    Cell: ({ cell }) => {
+      return <>{cell.getValue().length > 0 ? cell.getValue() : '-'}</>;
+    },
   },
   {
     name: 'price',
@@ -33,6 +36,9 @@ export const ASSETS_IN_REPORTS_HEADER = [
     header: 'Storage Location',
     accessorKey: 'location',
     size: 150,
+    Cell: ({ cell }) => {
+      return <>{cell.getValue().length > 0 ? cell.getValue() : '-'}</>;
+    },
   },
   {
     name: 'updator',
