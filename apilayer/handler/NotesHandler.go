@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/google/uuid"
@@ -32,7 +32,7 @@ func GetNotes(rw http.ResponseWriter, r *http.Request, user string) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok || len(id) <= 0 {
-		log.Printf("Unable to retrieve details without an id. ")
+		config.Log("Unable to retrieve details without an id. ", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -40,7 +40,7 @@ func GetNotes(rw http.ResponseWriter, r *http.Request, user string) {
 
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
-		log.Printf("Unable to retrieve details with provided id")
+		config.Log("Unable to retrieve details with provided id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -48,7 +48,7 @@ func GetNotes(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveNotes(user, parsedUUID)
 	if err != nil {
-		log.Printf("Unable to retrieve notes. error: +%v", err)
+		config.Log("Unable to retrieve notes", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -85,7 +85,7 @@ func AddNewNote(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to update notes with empty id")
+		config.Log("Unable to update notes with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -93,14 +93,14 @@ func AddNewNote(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var note model.Note
 	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.AddNewNote(user, userID, note)
 	if err != nil {
-		log.Printf("Unable to add new note. error: +%v", err)
+		config.Log("Unable to add new note", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -137,7 +137,7 @@ func UpdateNote(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to update notes with empty id")
+		config.Log("Unable to update notes with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -145,14 +145,14 @@ func UpdateNote(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var note model.Note
 	if err := json.NewDecoder(r.Body).Decode(&note); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.UpdateNote(user, userID, note)
 	if err != nil {
-		log.Printf("Unable to update notes. error: +%v", err)
+		config.Log("Unable to update notes", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -185,14 +185,14 @@ func RemoveNote(rw http.ResponseWriter, r *http.Request, user string) {
 	noteID := vars["noteID"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to update notes with empty userID")
+		config.Log("Unable to update notes with empty userID", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if len(noteID) <= 0 {
-		log.Printf("Unable to update notes with empty noteID")
+		config.Log("Unable to update notes with empty noteID", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -203,7 +203,7 @@ func RemoveNote(rw http.ResponseWriter, r *http.Request, user string) {
 
 	err := db.RemoveNote(user, note.ID)
 	if err != nil {
-		log.Printf("Unable to remove notes. error: +%v", err)
+		config.Log("Unable to remove notes", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -1,8 +1,7 @@
 package db
 
 import (
-	"log"
-
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/lib/pq"
 )
@@ -11,7 +10,7 @@ import (
 func RetrieveAssetsAndSummary(user string, userID string) (model.AssetsAndSummaryResponse, error) {
 	db, err := SetupDB(user)
 	if err != nil {
-		log.Printf("unable to setup db. error: %+v", err)
+		config.Log("unable to setup db", err)
 		return model.AssetsAndSummaryResponse{AssetSummaryList: []model.AssetSummary{}, AssetList: []model.Inventory{}}, err
 	}
 	defer db.Close()
@@ -73,9 +72,10 @@ func RetrieveAssetsAndSummary(user string, userID string) (model.AssetsAndSummar
 		WHERE $1::UUID = ANY(sharable_groups)
 		ORDER BY type, updated_at DESC;`
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err := db.Query(sqlStr, userID)
 	if err != nil {
-		log.Printf("unable to retrieve asset summary details. error: %+v", err)
+		config.Log("unable to retrieve asset summary details", err)
 		return model.AssetsAndSummaryResponse{AssetSummaryList: []model.AssetSummary{}, AssetList: []model.Inventory{}}, err
 	}
 	defer rows.Close()
@@ -89,7 +89,7 @@ func RetrieveAssetsAndSummary(user string, userID string) (model.AssetsAndSummar
 		var items pq.StringArray
 		var sharableGroups pq.StringArray
 		if err := rows.Scan(&as.ID, &as.Name, &as.Type, &returnDateTime, &as.Price, &items, &as.CreatedAt, &as.UpdatedAt, &sharableGroups); err != nil {
-			log.Printf("unable to retrieve asset summary details. error: %+v", err)
+			config.Log("unable to retrieve asset summary details", err)
 			return model.AssetsAndSummaryResponse{AssetSummaryList: []model.AssetSummary{}, AssetList: []model.Inventory{}}, err
 		}
 
@@ -104,7 +104,7 @@ func RetrieveAssetsAndSummary(user string, userID string) (model.AssetsAndSummar
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Printf("unable to retrieve asset summary details. error: %+v", err)
+		config.Log("unable to retrieve asset summary details", err)
 		return model.AssetsAndSummaryResponse{AssetSummaryList: []model.AssetSummary{}, AssetList: []model.Inventory{}}, err
 	}
 
@@ -120,16 +120,17 @@ func RetrieveAssetsAndSummary(user string, userID string) (model.AssetsAndSummar
 
 	var inventories []model.Inventory
 
+	config.Log("SqlStr: %s", nil, sqlStr)
 	rows, err = db.Query(sqlStr, userID)
 	if err != nil {
-		log.Printf("unable to retrieve asset details in summary. error: %+v", err)
+		config.Log("unable to retrieve asset details in summary", err)
 		return model.AssetsAndSummaryResponse{AssetSummaryList: []model.AssetSummary{}, AssetList: []model.Inventory{}}, err
 	}
 
 	for rows.Next() {
 		var i model.Inventory
 		if err := rows.Scan(&i.Name, &i.Description, &i.Price, &i.Quantity, &i.BoughtAt); err != nil {
-			log.Printf("unable to retrieve asset details in summary. error: %+v", err)
+			config.Log("unable to retrieve asset details in summary", err)
 			return model.AssetsAndSummaryResponse{AssetSummaryList: []model.AssetSummary{}, AssetList: []model.Inventory{}}, err
 		}
 		inventories = append(inventories, i)

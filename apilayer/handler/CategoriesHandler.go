@@ -3,10 +3,10 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/gorilla/mux"
@@ -42,7 +42,7 @@ func GetAllCategories(rw http.ResponseWriter, r *http.Request, user string) {
 	limit := r.URL.Query().Get("limit")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve categories with empty id")
+		config.Log("Unable to retrieve categories with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -53,7 +53,7 @@ func GetAllCategories(rw http.ResponseWriter, r *http.Request, user string) {
 	}
 	resp, err := db.RetrieveAllCategories(user, userID, limitInt)
 	if err != nil {
-		log.Printf("Unable to retrieve categories. error: %v", err)
+		config.Log("Unable to retrieve categories", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -92,14 +92,14 @@ func GetCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	categoryID := r.URL.Query().Get("catID")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve associated item for selected category with empty user id")
+		config.Log("Unable to retrieve associated item for selected category with empty user id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if categoryID == "" {
-		log.Printf("Unable to retrieve associated items with empty id")
+		config.Log("Unable to retrieve associated items with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -109,13 +109,13 @@ func GetCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	if err != nil {
 		// if there are no rows, we still want to return blank category
 		if err == sql.ErrNoRows {
-			log.Printf("unable to retrieve selected category. error: %+v", err)
+			config.Log("unable to retrieve selected category", err)
 			rw.Header().Add("Content-Type", "application/json")
 			rw.WriteHeader(http.StatusOK)
 			json.NewEncoder(rw).Encode(resp)
 			return
 		} else {
-			log.Printf("Unable to retrieve categories. error: %+v", err)
+			config.Log("Unable to retrieve categories", err)
 			rw.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(rw).Encode(err)
 			return
@@ -163,14 +163,14 @@ func GetAllCategoryItems(rw http.ResponseWriter, r *http.Request, user string) {
 	categoryID := r.URL.Query().Get("catID")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve associated item for selected category with empty user id")
+		config.Log("Unable to retrieve associated item for selected category with empty user id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if categoryID == "" {
-		log.Printf("Unable to retrieve associated items with empty id")
+		config.Log("Unable to retrieve associated items with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -183,7 +183,7 @@ func GetAllCategoryItems(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveAllCategoryItems(user, userID, categoryID, limitInt)
 	if err != nil {
-		log.Printf("Unable to retrieve associated items. error: %v", err)
+		config.Log("Unable to retrieve associated items", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -216,14 +216,14 @@ func CreateCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	err := json.NewDecoder(r.Body).Decode(draftCategory)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	resp, err := db.CreateCategory(user, draftCategory)
 	if err != nil {
-		log.Printf("Unable to create new category. error: +%v", err)
+		config.Log("Unable to create new category", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -256,14 +256,14 @@ func AddItemsInCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	err := json.NewDecoder(r.Body).Decode(draftCategory)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	resp, err := db.AddAssetToCategory(user, draftCategory)
 	if err != nil {
-		log.Printf("Unable to add assets to existing category. error: +%v", err)
+		config.Log("Unable to add assets to existing category", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -296,14 +296,14 @@ func RemoveAssociationFromCategory(rw http.ResponseWriter, r *http.Request, user
 	err := json.NewDecoder(r.Body).Decode(draftCategoryItemRequest)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	err = db.RemoveAssetAssociationFromCategory(user, draftCategoryItemRequest)
 	if err != nil {
-		log.Printf("Unable to remove assets from selected category. error: +%v", err)
+		config.Log("Unable to remove assets from selected category", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -340,7 +340,7 @@ func UpdateCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	categoryID := vars["id"]
 
 	if len(categoryID) <= 0 {
-		log.Printf("Unable to update category with empty id")
+		config.Log("Unable to update category with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -350,14 +350,14 @@ func UpdateCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	err := json.NewDecoder(r.Body).Decode(draftCategory)
 	r.Body.Close()
 	if err != nil {
-		log.Printf("Unable to decode request parameters. error: +%v", err)
+		config.Log("Unable to decode request parameters", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
 	}
 	resp, err := db.UpdateCategory(user, draftCategory)
 	if err != nil {
-		log.Printf("Unable to update new category. error: +%v", err)
+		config.Log("Unable to update new category", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -390,7 +390,7 @@ func RemoveCategory(rw http.ResponseWriter, r *http.Request, user string) {
 	categoryID := vars["id"]
 
 	if len(categoryID) <= 0 {
-		log.Printf("Unable to delete category with empty id")
+		config.Log("Unable to delete category with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -398,7 +398,7 @@ func RemoveCategory(rw http.ResponseWriter, r *http.Request, user string) {
 
 	err := db.RemoveCategory(user, categoryID)
 	if err != nil {
-		log.Printf("Unable to remove category. error: +%v", err)
+		config.Log("Unable to remove category", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return

@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -44,7 +44,7 @@ func GetReports(rw http.ResponseWriter, r *http.Request, user string) {
 	includeOverdueAssets := r.URL.Query().Get("includeOverdue")
 
 	if !ok || len(id) <= 0 {
-		log.Printf("Unable to retrieve details without an id. ")
+		config.Log("Unable to retrieve details without an id.", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -52,14 +52,14 @@ func GetReports(rw http.ResponseWriter, r *http.Request, user string) {
 
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
-		log.Printf("Unable to retrieve details with provided id")
+		config.Log("Unable to retrieve details with provided id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if sinceDateTime == "" {
-		log.Printf("unable to retrieve details without a start date time.")
+		config.Log("unable to retrieve details without a start date time.", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -71,7 +71,7 @@ func GetReports(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveReports(user, parsedUUID, sinceDateTime, includeOverdueAssets)
 	if err != nil {
-		log.Printf("Unable to retrieve report details. error: +%v", err)
+		config.Log("Unable to retrieve report details", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return

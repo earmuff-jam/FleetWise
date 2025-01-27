@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/earmuff-jam/fleetwise/model"
 	"github.com/gorilla/mux"
@@ -25,7 +25,7 @@ func GetAllUserProfiles(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.FetchAllUserProfiles(user)
 	if err != nil {
-		log.Printf("Unable to retrieve all profile details. error: +%v", err)
+		config.Log("Unable to retrieve all profile details", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -59,7 +59,7 @@ func GetProfile(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve profile with empty id")
+		config.Log("Unable to retrieve profile with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -67,7 +67,7 @@ func GetProfile(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.FetchUserProfile(user, userID)
 	if err != nil {
-		log.Printf("Unable to retrieve profile details. error: +%v", err)
+		config.Log("Unable to retrieve profile details", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -101,7 +101,7 @@ func GetProfileStats(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve profile with empty id")
+		config.Log("Unable to retrieve profile with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -109,7 +109,7 @@ func GetProfileStats(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.FetchUserStats(user, userID)
 	if err != nil {
-		log.Printf("Unable to retrieve profile details. error: +%v", err)
+		config.Log("Unable to retrieve profile details", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -144,7 +144,7 @@ func GetNotifications(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve profile with empty id")
+		config.Log("Unable to retrieve profile with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -152,7 +152,7 @@ func GetNotifications(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.FetchNotifications(user, userID)
 	if err != nil {
-		log.Printf("Unable to retrieve profile notifications. error: +%v", err)
+		config.Log("Unable to retrieve profile notifications", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -190,7 +190,7 @@ func UpdateSelectedMaintenanceNotification(rw http.ResponseWriter, r *http.Reque
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to update profile with empty id")
+		config.Log("Unable to update profile with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -198,14 +198,14 @@ func UpdateSelectedMaintenanceNotification(rw http.ResponseWriter, r *http.Reque
 
 	var updateMaintenanceAlertNotification model.MaintenanceAlertNotificationRequest
 	if err := json.NewDecoder(r.Body).Decode(&updateMaintenanceAlertNotification); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err := db.UpdateSelectedNotification(user, userID, updateMaintenanceAlertNotification)
 	if err != nil {
-		log.Printf("Unable to update selected notification. error: +%v", err)
+		config.Log("Unable to update selected notification", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -250,7 +250,7 @@ func GetFavouriteItems(rw http.ResponseWriter, r *http.Request, user string) {
 	}
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve favourite items with empty id")
+		config.Log("Unable to retrieve favourite items with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -258,7 +258,7 @@ func GetFavouriteItems(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.FetchFavouriteItems(user, userID, limitInt)
 	if err != nil {
-		log.Printf("Unable to retrieve favourite items. error: +%v", err)
+		config.Log("Unable to retrieve favourite items", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -297,7 +297,7 @@ func SaveFavItem(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to save favourite item with empty id")
+		config.Log("Unable to save favourite item with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -305,14 +305,14 @@ func SaveFavItem(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var favItem model.FavouriteItem
 	if err := json.NewDecoder(r.Body).Decode(&favItem); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.SaveFavouriteItem(user, userID, favItem)
 	if err != nil {
-		log.Printf("Unable to save favourite item. error: +%v", err)
+		config.Log("Unable to save favourite item", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -352,14 +352,14 @@ func RemoveFavItem(rw http.ResponseWriter, r *http.Request, user string) {
 	itemID := r.URL.Query().Get("itemID")
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to delete favourite item with empty user id")
+		config.Log("Unable to delete favourite item with empty user id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 
 	if len(itemID) <= 0 {
-		log.Printf("Unable to delete favourite item with empty id")
+		config.Log("Unable to delete favourite item with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -367,7 +367,7 @@ func RemoveFavItem(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RemoveFavItem(user, userID, itemID)
 	if err != nil {
-		log.Printf("Unable to remove favourite item. error: +%v", err)
+		config.Log("Unable to remove favourite item", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -401,7 +401,7 @@ func GetUsername(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to retrieve username with empty id")
+		config.Log("Unable to retrieve username with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -409,7 +409,7 @@ func GetUsername(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.FetchUserProfile(user, userID)
 	if err != nil {
-		log.Printf("Unable to retrieve user profile. error: +%v", err)
+		config.Log("Unable to retrieve user profile", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return
@@ -451,7 +451,7 @@ func UpdateProfile(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := vars["id"]
 
 	if len(userID) <= 0 {
-		log.Printf("Unable to update profile with empty id")
+		config.Log("Unable to update profile with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -459,14 +459,14 @@ func UpdateProfile(rw http.ResponseWriter, r *http.Request, user string) {
 
 	var updatedProfile model.Profile
 	if err := json.NewDecoder(r.Body).Decode(&updatedProfile); err != nil {
-		log.Printf("Error decoding data. error: %+v", err)
+		config.Log("Error decoding data", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	resp, err := db.UpdateUserProfile(user, userID, updatedProfile)
 	if err != nil {
-		log.Printf("Unable to update profile details. error: +%v", err)
+		config.Log("Unable to update profile details", err)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}

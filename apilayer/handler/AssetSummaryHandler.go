@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 )
 
@@ -33,14 +33,14 @@ func GetAssetsAndSummary(rw http.ResponseWriter, r *http.Request, user string) {
 	userID := r.URL.Query().Get("id")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve asset summary with empty id")
+		config.Log("Unable to retrieve asset summary with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
 	}
 	resp, err := db.RetrieveAssetsAndSummary(user, userID)
 	if err != nil {
-		log.Printf("Unable to retrieve asset summary. error: %v", err)
+		config.Log("Unable to retrieve asset summary", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return

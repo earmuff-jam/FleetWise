@@ -2,10 +2,10 @@ package utils
 
 import (
 	"errors"
-	"log"
 	"os"
 
 	stormRider "github.com/earmuff-jam/ciri-stormrider"
+	"github.com/earmuff-jam/fleetwise/config"
 )
 
 // ValidateJwtToken ...
@@ -15,19 +15,19 @@ func ValidateJwtToken(token string) error {
 
 	secretToken := os.Getenv("TOKEN_SECRET_KEY")
 	if len(secretToken) <= 0 {
-		log.Print("unable to retrieve secret token key. defaulting to default values")
+		config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 		secretToken = ""
 	}
 
 	isValid, err := stormRider.ValidateJWT(token, secretToken)
 	if err != nil {
-		log.Printf("invalid token detected. error :%+v", err)
+		config.Log("invalid token detected", err)
 		return err
 	}
 
 	// check token validity
 	if !isValid {
-		log.Printf("token in invalid. error: %+v", err)
+		config.Log("token in invalid", err)
 		return errors.New("token is invalid")
 	}
 

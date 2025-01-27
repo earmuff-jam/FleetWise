@@ -2,10 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
 	"github.com/gorilla/mux"
 )
@@ -48,7 +48,7 @@ func GetRecentActivities(rw http.ResponseWriter, r *http.Request, user string) {
 	untilDate := r.URL.Query().Get("until")
 
 	if userID == "" {
-		log.Printf("Unable to retrieve recent activities with empty id")
+		config.Log("Unable to retrieve recent activities with empty id", nil)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -56,7 +56,7 @@ func GetRecentActivities(rw http.ResponseWriter, r *http.Request, user string) {
 
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
-		log.Printf("Unable to retrieve recent activities without limit. error :%+v", err)
+		config.Log("Unable to retrieve recent activities without limit", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(nil)
 		return
@@ -64,7 +64,7 @@ func GetRecentActivities(rw http.ResponseWriter, r *http.Request, user string) {
 
 	resp, err := db.RetrieveRecentActivities(user, userID, limitInt, untilDate)
 	if err != nil {
-		log.Printf("Unable to retrieve recent activities. error: +%v", err)
+		config.Log("Unable to retrieve recent activities", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(err)
 		return

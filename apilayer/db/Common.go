@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/earmuff-jam/fleetwise/config"
 	_ "github.com/lib/pq"
 )
 
@@ -34,7 +34,7 @@ func SetupDB(user string) (*sql.DB, error) {
 	appEnv := os.Getenv("ENVIRONMENT")
 	pool, err := startSqlDb(user, pwd, host, port, database, appEnv) // appEnv is to just toggle for production
 	if err != nil {
-		fmt.Printf("unable to start the database server. error: +%v", err)
+		config.Log("unable to start the database server", err)
 		return nil, err
 	}
 	return pool, nil
@@ -51,34 +51,15 @@ func startSqlDb(user string, pwd string, host string, port string, database stri
 
 	var db, err = sql.Open("postgres", psqlStr)
 	if err != nil {
-		log.Fatalf("failed to open postgres db. error: +%v", err)
+		config.Log("failed to open postgres db", err)
 		return nil, err
 	}
 
 	// if the user is unable to ping the db, we don't want to submit the request
 	err = db.Ping()
 	if err != nil {
-		fmt.Printf("unable to ping. error: +%v", err)
+		config.Log("unable to ping", err)
 		return nil, err
 	}
 	return db, nil
-}
-
-// RetriveTestUser ...
-//
-// retrieve the test user that can be used to test
-func RetriveTestUser(user string, eventID string) error {
-	db, err := SetupDB(user)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	sqlStr := `SELECT id FROM community.profiles FETCH FIRST ROW ONLY;`
-	_, err = db.Exec(sqlStr, eventID)
-	if err != nil {
-		log.Printf("unable to delete event ID %+v", eventID)
-		return err
-	}
-	return nil
 }
