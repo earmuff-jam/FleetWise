@@ -15,12 +15,11 @@ export default function Overview() {
   const dispatch = useDispatch();
   const { assetSummary = [], loading } = useSelector((state) => state.summary);
 
-  const assetsUnderCategories = assetSummary?.AssetSummaryList?.filter(
-    (v) => v.type.toUpperCase() === 'C' && v.items[0] != ''
-  );
-  const assetsUnderMaintenancePlans = assetSummary?.AssetSummaryList?.filter(
-    (v) => v.type.toUpperCase() === 'M' && v.items[0] != ''
-  );
+  const fetchAssignedAssets = (assets = [], filterParam) => {
+    // assets within filterParam must be present
+    assets?.filter((asset) => asset.type.toUpperCase() === filterParam && asset.items[0] != '');
+  };
+
   const assetsPastDue = assetSummary?.AssetList?.reduce((acc, el) => {
     if (dayjs(el.returntime).isBefore(dayjs())) {
       acc.push(el.name);
@@ -41,8 +40,8 @@ export default function Overview() {
       <RowHeader title="Overview" caption="View a summarized report about your assets." />
       <Stack spacing={2}>
         <OverviewHeader
-          assetsUnderCategories={assetsUnderCategories}
-          assetsUnderMaintenancePlans={assetsUnderMaintenancePlans}
+          assetsUnderCategories={fetchAssignedAssets(assetSummary?.AssetSummaryList, 'C')}
+          assetsUnderMaintenancePlans={fetchAssignedAssets(assetSummary?.AssetSummaryList, 'M')}
           assetsPastDue={assetsPastDue}
         />
         <OverviewContent
