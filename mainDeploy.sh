@@ -21,6 +21,12 @@ loadEnv() {
     ./setup/prod/_loadProdEnvVariables.sh
 }
 
+loadCronJobs() {
+    echo "loadCronJobs flag provided. setting up cron jobs for existing psql functions"
+    chmod +x setup/prod/_loadCron.sh
+    ./setup/prod/_loadCron.sh
+}
+
 loadProdEnv() {
 
     echo "loadProdEnv flag provided. building all containers in production mode."
@@ -33,6 +39,9 @@ loadProdEnv() {
 
     sleep +2
     loadMigration
+
+    sleep +2
+    loadCronJobs
 
     sleep +2
     loadSeedData

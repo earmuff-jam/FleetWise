@@ -14,6 +14,7 @@ help() {
     echo "   -T --loadUnitTest         Loads the psql container with test data for api tests"
     echo "   -m --loadMigration        Loads the migration in sequence. Does not erase data but requires container to be up"
     echo "   -t --loadData             Loads the test data for application"
+    echo "   -c --loadCronJobs         Loads the cron jobs set for scheduling"
     echo "   -u --uninstall            Uninstall the application erasing all data"
     echo
     exit 1
@@ -31,6 +32,12 @@ loadDb() {
     docker-compose -f docker-compose-db.yml up --build -d
 }
 
+loadCronJobs() {
+    echo "loadCronJobs flag provided. setting up cron jobs for existing psql functions"
+    chmod +x setup/dev/_loadCron.sh
+    ./setup/dev/_loadCron.sh
+}
+
 loadDevEnv() {
     echo "load dev env flag provided. starting psql container. please wait..."
     loadEnv
@@ -40,6 +47,9 @@ loadDevEnv() {
 
     sleep +2
     loadMigration
+
+    sleep +2
+    loadCronJobs
 
     sleep +2
     loadSeedData
@@ -113,6 +123,7 @@ while [[ "$#" -gt 0 ]]; do
         -T|--loadUnitTest) loadUnitTest; shift ;;
         -m|--loadMigration) loadMigration; shift ;;
         -t|--loadData) loadData; shift ;;
+        -c|--loadCronJobs) loadCronJobs; shift ;;
         -u|--uninstall) uninstall; shift ;;
         *) help; echo "Unknown parameter passed: $1" ;;
     esac

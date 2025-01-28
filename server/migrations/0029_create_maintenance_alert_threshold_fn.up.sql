@@ -4,8 +4,6 @@
 -- frame of 7 days, then we want to populate the maintenance alert table.
 
 -- Note:- updated_by is not forced to use the UUID because the system can make this change automatically --
-
-
 SET search_path TO community, public;
 
 --
@@ -35,20 +33,3 @@ BEGIN
         updated_at = NOW();
 END;
 $$ LANGUAGE plpgsql;
-
-
--- Cron Scheduler to run the function populate_maintenance_alerts every day --
--- SELECT cron.schedule('0 0 * * *', $$CALL community.populate_maintenance_alerts();$$);
-
--- Ensure pg_cron is only used in the correct database
-DO $$ 
-DECLARE db_name TEXT;
-BEGIN
-    SELECT current_database() INTO db_name;
-    IF db_name = (SELECT setting FROM pg_settings WHERE name = 'cron.database_name') THEN
-        -- Schedule the job only if we are in the correct pg_cron database
-        PERFORM cron.schedule('daily_maintenance_alerts', '0 0 * * *', 'SELECT community.populate_maintenance_alerts();');
-    ELSE
-        RAISE NOTICE 'Skipping cron job creation: not in pg_cron database';
-    END IF;
-END $$;
