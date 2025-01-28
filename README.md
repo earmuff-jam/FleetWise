@@ -4,8 +4,7 @@
 
 [![License][license-image]][license]
 
-<img src="https://github.com/earmuff-jam/fleetwise/tree/main/frontend/public/fleetwise.png"
- alt="Fleetwise Asset Tracker" title="Fleetwise asset tracker" align="right" width="400px" height="400px" />
+<img  src="https://raw.githubusercontent.com/earmuff-jam/fleetwise/main/frontend/public/fleetwise.png" alt="Fleetwise Asset Tracker" title="Fleetwise asset tracker" align="right" width="400px" height="400px" />
 
 ## Overview
 
