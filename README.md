@@ -1,8 +1,11 @@
 # Fleetwise Application
 
-<!-- ![Create new account](setup/demo/gifs/v2/sign-up.gif) -->
+![Build Status](https://github.com/earmuff-jam/fleetwise/actions/workflows/mashed-main.yml/badge.svg)
 
-![Asset alert logo](frontend/public/assetalert.png)
+[![License][license-image]][license]
+
+<img src="https://github.com/earmuff-jam/fleetwise/tree/main/frontend/public/fleetwise.png"
+ alt="Fleetwise Asset Tracker" title="Fleetwise asset tracker" align="right" width="400px" height="400px" />
 
 ## Overview
 
@@ -32,6 +35,22 @@ Scalability: The application is designed to scale with organizational growth, ac
 
 User-Friendly Interface: With an intuitive and user-friendly interface, the application ensures ease of use for all stakeholders, from asset managers to field staff.
 
+## Copyright and License
+
+Copyright @ 2023.
+
+Licensed under the **[MIT LICENSE][license]**
+you may not use this software except in compliance with the License.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
 ## Contact
 
 If you have any questions or need support, feel free to reach out to us at earmuffjam@gmail.com
+
+[license-image]: http://img.shields.io/badge/license-Apache--2-blue.svg?style=flat
+[license]: https://www.mit.edu/~amini/LICENSE.md
