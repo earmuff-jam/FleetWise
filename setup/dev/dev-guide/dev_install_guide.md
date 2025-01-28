@@ -1,4 +1,3 @@
-
 # Installing required softwares
 
 1. Make
@@ -49,6 +48,7 @@ Required for versioning of db scripts
 `Note`: Applications built with releases can be checked out to download relative binaries. You have to download the source code, build it and move it to the appropriate location. You can also use other toolchains to do such.
 
 ### Releases
+
 https://github.com/golang-migrate/migrate/releases
 
 ### Installation Steps
@@ -75,7 +75,6 @@ sudo apt-get install -y migrate
 
 How to use the migrate application package. https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md
 
-
 ## Postgresql
 
 Install postgresql as it is the database system
@@ -90,8 +89,10 @@ sudo apt-get install postgresql postgresql-contrib
 
 2. If you are setting up the psql for the first time, the role `postgres` might not exist. The role you setup your computer would be inherited. To overwrite this, you can use `sudo -i -u postgres` and `psql` into your instance. Please note that `you would have to do this every time`. Instead you can opt to `create a role` for your user. This step is not documented since its not required to start the application.
 
+3. `pg_cron` is a cron scheduler that is used within the application for some automated tasks. The docker file already contains steps on how the cron scheduler is added to the psql container.
 
 ## Yarn Package manager
+
 Yarn package manager is used to build and deploy the frontend of the application.
 
 1. Install yarn
@@ -106,19 +107,18 @@ sudo apt install yarn
 
 ### Troubleshooting:
 
-1. For a first time run, you need to install `vite`. Navigate to the folder with `cd /frontend` and run command `yarn`. You can also use the command `make runClient`. 
+1. For a first time run, you need to install `vite`. Navigate to the folder with `cd /frontend` and run command `yarn`. You can also use the command `make runClient`.
 
 ## Docker
-Installing docker steps is located in docker_guide.md
 
+Installing docker steps is located in docker_guide.md
 
 # How to build application
 
-1. Run script in `main.sh` for dev mode. To deploy run script in `mainDeploy.sh`. 
+1. Run script in `main.sh` for dev mode. To deploy run script in `mainDeploy.sh`.
 2. For `dev mode` after `main.sh` commands, open a new terminal and run `make startserver`. Your backend should start up.
 3. For `dev mode` after step 2, for first time install, run `make runClient` or navigate to `frontend` directory and run `yarn` depending on what you have setup.
 4. For `dev mode` if not first time, run `make startclient` from root. UI should start up.
-
 
 # How to debug the api layer ( using VS Code )
 
