@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { useDispatch } from 'react-redux';
-import { Stack, TextField, InputAdornment } from '@mui/material';
+import { Stack, TextField, InputAdornment, Typography } from '@mui/material';
 import { authActions } from '@features/LandingPage/authSlice';
 import SignupHelperText from '@features/LandingPage/Authentication/Signup/SignupHelperText';
 
@@ -25,11 +25,13 @@ export default function SignupFormFields({ formFields, setFormFields, isValidUse
   };
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={1}>
+      <Typography variant="subtitle2" color="text.secondary">
+        {formFields['username'].label} {formFields['username'].required && '*'}
+      </Typography>
       <TextField
         id={formFields['username'].name}
         name={formFields['username'].name}
-        label={formFields['username'].label}
         value={formFields['username'].value}
         size={formFields['username'].size}
         type={formFields['username'].type}
@@ -50,10 +52,13 @@ export default function SignupFormFields({ formFields, setFormFields, isValidUse
           startAdornment: <InputAdornment position="start">{formFields['username'].icon}</InputAdornment>,
         }}
       />
+
+      <Typography variant="subtitle2" color="text.secondary">
+        {formFields['email'].label} {formFields['email'].required && '*'}
+      </Typography>
       <TextField
         id={formFields['email'].name}
         name={formFields['email'].name}
-        label={formFields['email'].label}
         value={formFields['email'].value}
         size={formFields['email'].size}
         type={formFields['email'].type}
@@ -77,10 +82,13 @@ export default function SignupFormFields({ formFields, setFormFields, isValidUse
           startAdornment: <InputAdornment position="start">{formFields['email'].icon}</InputAdornment>,
         }}
       />
+
+      <Typography variant="subtitle2" color="text.secondary">
+        {formFields['password'].label} {formFields['password'].required && '*'}
+      </Typography>
       <TextField
         id={formFields['password'].name}
         name={formFields['password'].name}
-        label={formFields['password'].label}
         value={formFields['password'].value}
         size={formFields['password'].size}
         type={formFields['password'].type}
@@ -101,10 +109,13 @@ export default function SignupFormFields({ formFields, setFormFields, isValidUse
           startAdornment: <InputAdornment position="start">{formFields['password'].icon}</InputAdornment>,
         }}
       />
+
+      <Typography variant="subtitle2" color="text.secondary">
+        {formFields['birthday'].label} {formFields['birthday'].required && '*'}
+      </Typography>
       <TextField
         id={formFields['birthday'].name}
         name={formFields['birthday'].name}
-        label={formFields['birthday'].label}
         value={formFields['birthday'].value}
         type={formFields['birthday'].type}
         size={formFields['birthday'].size}

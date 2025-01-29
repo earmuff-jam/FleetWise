@@ -5,28 +5,19 @@ import { Container, Stack } from '@mui/material';
 import SimpleModal from '@common/SimpleModal';
 import FloatingBarChart from '@common/Chart/FloatingBarChart';
 import Login from '@features/LandingPage/Authentication/Login/Login';
-
-import { COLORS, SAMPLE_DATA } from '@features/LandingPage/constants';
 import HeroContent from '@features/LandingPage/HeroContent/HeroContent';
+
 import Signup from '@features/LandingPage/Authentication/Signup/Signup';
 import StyledAppBar from '@features/LandingPage/StyledAppBar/StyledAppBar';
+import { COLORS, MODAL_STATE, SAMPLE_DATA } from '@features/LandingPage/constants';
 
 export default function LandingPage() {
-  const [formType, setFormType] = useState('');
-  const [displayModal, setDisplayModal] = useState(false);
+  const [modalState, setModalState] = useState(MODAL_STATE.NONE);
 
-  const openDisplayModal = () => setDisplayModal(true);
-  const closeDisplayModal = () => setDisplayModal(false);
-
-  const openSignupModal = () => {
-    openDisplayModal();
-    setFormType('signup');
-  };
-
-  const openLoginModal = () => {
-    openDisplayModal();
-    setFormType('signin');
-  };
+  const handleCloseModal = () => setModalState(MODAL_STATE.NONE);
+  const openSignupModal = () => setModalState(MODAL_STATE.SIGN_UP);
+  const openLoginModal = () => setModalState(MODAL_STATE.SIGN_IN);
+  const handleForgotPasswordModal = () => setModalState(MODAL_STATE.FORGOT_PASSWORD);
 
   const formattedData = SAMPLE_DATA.map((v, index) => ({
     label: v.name,
@@ -47,18 +38,37 @@ export default function LandingPage() {
             borderColor={formattedData.map((d) => d.color)}
           />
         </Stack>
-        {displayModal && (
+
+        {modalState === MODAL_STATE.SIGN_UP && (
           <SimpleModal
-            title={formType === 'signin' ? 'Sign In' : 'Sign Up'}
-            subtitle={
-              formType === 'signin'
-                ? 'Login and manage your account.'
-                : 'Create an account to keep track of all your inventories.'
-            }
-            handleClose={closeDisplayModal}
-            maxSize="xs"
+            title="Sign up"
+            subtitle="Create an account to keep track of all your inventories."
+            handleClose={handleCloseModal}
+            maxSize="sm"
           >
-            {formType === 'signup' ? <Signup handleClose={closeDisplayModal} /> : <Login />}
+            <Signup handleClose={handleCloseModal} />
+          </SimpleModal>
+        )}
+
+        {modalState === MODAL_STATE.SIGN_IN && (
+          <SimpleModal
+            title="Sign in"
+            subtitle="Login and manage your account."
+            handleClose={handleCloseModal}
+            maxSize="sm"
+          >
+            <Login handleClose={handleCloseModal} handleForgotPassword={handleForgotPasswordModal} />
+          </SimpleModal>
+        )}
+
+        {modalState === MODAL_STATE.FORGOT_PASSWORD && (
+          <SimpleModal
+            title="Forgot Password"
+            subtitle="Email sent to reset password"
+            handleClose={handleCloseModal}
+            maxSize="sm"
+          >
+            {/* build a form to reset your password here. */}
           </SimpleModal>
         )}
       </Container>

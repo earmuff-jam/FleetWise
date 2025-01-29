@@ -5,8 +5,9 @@ import { Button, Stack } from '@mui/material';
 import { authActions } from '@features/LandingPage/authSlice';
 import { LOGIN_FORM_FIELDS } from '@features/LandingPage/constants';
 import LoginFormFields from '@features/LandingPage/Authentication/Login/LoginFormFields';
+import ForgotPasswordText from '@features/LandingPage/Authentication/Login/ForgotPasswordText';
 
-const Login = () => {
+const Login = ({ handleForgotPassword }) => {
   const dispatch = useDispatch();
   const [formFields, setFormFields] = useState(LOGIN_FORM_FIELDS);
 
@@ -58,6 +59,7 @@ const Login = () => {
   return (
     <Stack spacing={1}>
       <LoginFormFields formFields={formFields} handleInput={handleInput} submit={submit} />
+      <ForgotPasswordText handleForgotPassword={handleForgotPassword} />
       <Button
         variant="text"
         disabled={validate(formFields)}
