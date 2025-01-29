@@ -1,15 +1,11 @@
 import { produce } from 'immer';
-import { useDispatch, useSelector } from 'react-redux';
-
-import { CheckRounded, CloseRounded } from '@mui/icons-material';
-
-import { Stack, TextField, InputAdornment, Typography, CircularProgress } from '@mui/material';
-
+import { useDispatch } from 'react-redux';
+import { Stack, TextField, InputAdornment } from '@mui/material';
 import { authActions } from '@features/LandingPage/authSlice';
+import SignupHelperText from '@features/LandingPage/Authentication/Signup/SignupHelperText';
 
-export default function SignupFormFields({ formFields, setFormFields, submit }) {
+export default function SignupFormFields({ formFields, setFormFields, isValidUserEmail, loading, submit }) {
   const dispatch = useDispatch();
-  const { isValidUserEmail, loading } = useSelector((state) => state.auth);
 
   const handleInput = (event) => {
     const { name, value } = event.target;
@@ -26,24 +22,6 @@ export default function SignupFormFields({ formFields, setFormFields, submit }) 
         }
       })
     );
-  };
-
-  const validUserEmail = (isValidUserEmail, loading) => {
-    if (loading) {
-      return <CircularProgress size="1.2rem" />;
-    } else {
-      return isValidUserEmail ? (
-        <Stack direction="row" alignItems="center" component="span" spacing={0.2}>
-          <CheckRounded color="success" fontSize="small" />
-          <Typography variant="caption">Unique value for email</Typography>
-        </Stack>
-      ) : (
-        <Stack direction="row" alignItems="center" component="span" spacing={0.2}>
-          <CloseRounded color="error" fontSize="small" />
-          <Typography variant="caption">Existing value for email</Typography>
-        </Stack>
-      );
-    }
   };
 
   return (
@@ -86,7 +64,7 @@ export default function SignupFormFields({ formFields, setFormFields, submit }) 
         required={formFields['email'].required}
         fullWidth={formFields['email'].fullWidth}
         error={!!formFields['email'].errorMsg}
-        helperText={formFields['email'].errorMsg || validUserEmail(isValidUserEmail, loading)}
+        helperText={formFields['email'].errorMsg || SignupHelperText(isValidUserEmail, loading)}
         onKeyDown={(e) => {
           if (e.code === 'Enter') {
             submit(e);
