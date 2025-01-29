@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { enqueueSnackbar } from 'notistack';
-
 import { Button, Stack } from '@mui/material';
 import { authActions } from '@features/LandingPage/authSlice';
 import { SIGN_UP_FORM_FIELDS } from '@features/LandingPage/constants';
-
 import SignupFormFields from '@features/LandingPage/Authentication/Signup/SignupFormFields';
 import SingupCheckboxField from '@features/LandingPage/Authentication/Signup/SignupCheckboxField';
 import SignupTermsConditions from '@features/LandingPage/Authentication/Signup/SignupTermsConditions';
 
 export default function Signup({ handleClose }) {
   const dispatch = useDispatch();
+  const { isValidUserEmail, loading } = useSelector((state) => state.auth);
+
   const [isChecked, setIsChecked] = useState(false);
   const [formFields, setFormFields] = useState(SIGN_UP_FORM_FIELDS);
 
@@ -49,10 +49,16 @@ export default function Signup({ handleClose }) {
 
   return (
     <Stack>
-      <SignupFormFields formFields={formFields} setFormFields={setFormFields} submit={submit} />
+      <SignupFormFields
+        formFields={formFields}
+        setFormFields={setFormFields}
+        isValidUserEmail={isValidUserEmail}
+        loading={loading}
+        submit={submit}
+      />
       <SingupCheckboxField isChecked={isChecked} setIsChecked={setIsChecked} />
       <SignupTermsConditions />
-      <Button variant="text" onClick={submit} disabled={hasError(formFields) || !isChecked}>
+      <Button variant="text" onClick={submit} disabled={hasError(formFields) || !isChecked || !isValidUserEmail}>
         Register
       </Button>
     </Stack>

@@ -177,9 +177,9 @@ func FetchUserStats(user string, userID string) (model.ProfileStats, error) {
 	profileStats := model.ProfileStats{}
 
 	err = row.Scan(
-		&profileStats.TotalAssets,
 		&profileStats.TotalCategories,
 		&profileStats.TotalMaintenancePlans,
+		&profileStats.TotalAssets,
 	)
 	if err != nil {
 		config.Log("unable to scan selected details", err)
