@@ -220,3 +220,36 @@ export const SIGN_UP_FORM_FIELDS = {
     ...GENERIC_TEXTFIELD_VARIANT,
   },
 };
+
+export const RESET_PASSWORD_FIELDS = {
+  email: {
+    label: 'Email Address',
+    placeholder: 'Enter your email address',
+    value: '',
+    name: 'email',
+    size: 'small',
+    errorMsg: '',
+    required: true,
+    type: 'email',
+    icon: <EmailRounded />,
+    fullWidth: true,
+    validators: [
+      {
+        validate: (value) => value.trim().length === 0,
+        message: 'Email is required',
+      },
+      {
+        validate: (value) => value.trim().length >= 50,
+        message: 'Email should be less than 50 characters',
+      },
+      {
+        validate: (value) => {
+          var re = /\S+@\S+\.\S+/;
+          return !re.test(value);
+        },
+        message: 'Email is not in the correct form',
+      },
+    ],
+    ...GENERIC_TEXTFIELD_VARIANT,
+  },
+};

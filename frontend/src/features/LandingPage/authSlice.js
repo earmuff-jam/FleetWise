@@ -78,6 +78,18 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = '';
     },
+    resetPassword: (state) => {
+      state.loading = true;
+      state.error = '';
+    },
+    resetPasswordSuccess: (state) => {
+      state.loading = false;
+      state.error = '';
+    },
+    resetPasswordFailure: (state) => {
+      state.loading = false;
+      state.error = '';
+    },
   },
 });
 

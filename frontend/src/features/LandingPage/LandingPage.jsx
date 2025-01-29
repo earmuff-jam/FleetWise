@@ -10,6 +10,7 @@ import HeroContent from '@features/LandingPage/HeroContent/HeroContent';
 import Signup from '@features/LandingPage/Authentication/Signup/Signup';
 import StyledAppBar from '@features/LandingPage/StyledAppBar/StyledAppBar';
 import { COLORS, MODAL_STATE, SAMPLE_DATA } from '@features/LandingPage/constants';
+import ForgotPassword from '@features/LandingPage/Authentication/ForgotPassword/ForgotPassword';
 
 export default function LandingPage() {
   const [modalState, setModalState] = useState(MODAL_STATE.NONE);
@@ -68,7 +69,7 @@ export default function LandingPage() {
             handleClose={handleCloseModal}
             maxSize="sm"
           >
-            {/* build a form to reset your password here. */}
+            <ForgotPassword handleClose={handleCloseModal} />
           </SimpleModal>
         )}
       </Container>
