@@ -58,7 +58,6 @@ func Test_FetchUser_InvalidUser(t *testing.T) {
 
 	_, err := FetchUser(config.CEO_USER, &draftUserCredentials)
 	assert.Error(t, err)
-
 }
 
 func Test_RegisterUser(t *testing.T) {
@@ -79,7 +78,6 @@ func Test_RegisterUser(t *testing.T) {
 	assert.Equal(t, resp.Email, "test_admin_user@gmail.com")
 
 	db.RemoveUser(config.CTO_USER, resp.ID)
-
 }
 
 func Test_RegisterUser_InvalidUser(t *testing.T) {
@@ -96,7 +94,6 @@ func Test_RegisterUser_InvalidUser(t *testing.T) {
 
 	_, err := RegisterUser(config.CEO_USER, &draftUserCredentials)
 	assert.Error(t, err)
-
 }
 
 func Test_ValidateCredentials(t *testing.T) {
@@ -113,7 +110,6 @@ func Test_ValidateCredentials(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, resp.EmailAddress, "admin@gmail.com")
-
 }
 
 func Test_ValidateCredentials_InvalidUser(t *testing.T) {
@@ -130,5 +126,4 @@ func Test_ValidateCredentials_InvalidUser(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, resp.EmailAddress, "admin@gmail.com")
-
 }

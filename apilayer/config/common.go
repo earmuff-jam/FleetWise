@@ -9,11 +9,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const CTO_USER = "community_test"
-const CEO_USER = "ceo_test"
-
-const DefaultTokenValidityTime = "15"
-
 // InitLogger ...
 //
 // initialize the logger based on the environment variable from config
