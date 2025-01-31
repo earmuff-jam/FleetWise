@@ -224,10 +224,107 @@ func ResetPassword(user string, draftUser *model.UserResponse) error {
 // to login and perform regular operations even without verification of email.
 func PerformEmailNotificationService(user string, emailAddress string, userID string, messageType string) {
 
+	isEmailServiceEnabled := os.Getenv("_SENDGRID_EMAIL_SERVICE")
+	if isEmailServiceEnabled != "true" {
+		config.Log("email service feature flags are disabled. Email Service is inoperative.", nil)
+		return
+	}
+
+	WebApplicationEndpoint := os.Getenv("REACT_APP_LOCALHOST_URL")
+	if len(WebApplicationEndpoint) <= 0 {
+		config.Log("unable to determine the web application endpoint", errors.New(config.ErrorWebApplicationEndpoint))
+		return
+	}
+
+	// Web App routes are protected and web app uses context to determine password reset. Unable to use JWT to validate user
+	// as JWT is only authorized use for logged in users. Web App users pageContext to determine correct navigation as it sits
+	// outside of react-router.
+	if messageType == config.ResetPasswordTokenStringURI {
+
+		// 1. save OTP in db
+		// 2. send OTP via email to user
+		// 3. add token, validity to db
+		// 4. verify token and validity in reset password submission api ( not built )
+
+		generatedOTP := "012345"
+		emailSubjectLine := config.ResetPasswordSubjectLine
+		emailPlainTextMessage := config.ResetPasswordPlainTextMessage
+
+		plainText := fmt.Sprintf("Please use the generated OTP to reset password: %s", generatedOTP)
+		htmlContent := fmt.Sprintf(`<p>%s</p>`, emailPlainTextMessage)
+
+		sendMessage(emailAddress, emailSubjectLine, plainText, htmlContent)
+
+	} else {
+
+		generatedToken, err := generateToken(userID)
+		if err != nil {
+			config.Log("unable to generate token", err)
+			return
+		}
+
+		messageLinkWithAuthorizationToken := fmt.Sprintf("%s%s?token=%s", WebApplicationEndpoint, config.EmailVerificationTokenStringURI, generatedToken)
+		emailSubjectLine := config.VerifyEmailSubjectLine
+		emailPlainTextMessage := config.VerifyEmailPlainTextMessage
+
+		plainText := fmt.Sprintf("Please click on the following: %s", generatedToken)
+		htmlContent := fmt.Sprintf(`
+		<p>%s</p>
+		<a href="%s">%s</a>
+	`, emailPlainTextMessage, messageLinkWithAuthorizationToken, messageLinkWithAuthorizationToken)
+
+		sendMessage(emailAddress, emailSubjectLine, plainText, htmlContent)
+	}
+
+}
+
+// sendMessage ...
+//
+// function used to send message to the client
+func sendMessage(toEmailAddress string, emailSubjectLine string, plainText string, htmlContent string) error {
+
+	sendGridApiKey := os.Getenv("SEND_GRID_API_KEY")
+	if len(sendGridApiKey) <= 0 {
+		config.Log("email service unavailable", errors.New(config.ErrorInvalidApiKey))
+		return errors.New(config.ErrorInvalidApiKey)
+	}
+
+	fromUser := os.Getenv("SEND_GRID_USER")
+	if len(fromUser) <= 0 {
+		config.Log("email service unavailable", errors.New(config.ErrorUserCredentialsNotFound))
+		return errors.New(config.ErrorUserCredentialsNotFound)
+	}
+
+	fromUserEmailAddress := os.Getenv("SEND_GRID_USER_EMAIL_ADDRESS")
+	if len(fromUserEmailAddress) <= 0 {
+		config.Log("email service unavailable", errors.New(config.ErrorUserCredentialsNotFound))
+		return errors.New(config.ErrorUserCredentialsNotFound)
+	}
+
+	from := mail.NewEmail(fromUser, fromUserEmailAddress)
+	to := mail.NewEmail(toEmailAddress, toEmailAddress)
+
+	message := mail.NewSingleEmail(from, emailSubjectLine, to, plainText, htmlContent)
+	client := sendgrid.NewSendClient(sendGridApiKey)
+
+	_, err := client.Send(message)
+	if err != nil {
+		config.Log("unable to send email verification", err)
+		return errors.New(config.ErrorUnableToSendEmail)
+	}
+
+	config.Log("Email notification sent to %s on %+v", nil, toEmailAddress, time.Now())
+	return nil
+}
+
+// generateToken ...
+//
+// function is used to generate token to use in the email notification service
+func generateToken(userID string) (string, error) {
 	formattedTime, err := strconv.ParseInt(config.DefaultTokenValidityTime, 10, 64)
 	if err != nil {
 		config.Log("unable to parse provided time", err)
-		return
+		return "", err
 	}
 
 	secretToken := os.Getenv("TOKEN_SECRET_KEY")
@@ -245,65 +342,9 @@ func PerformEmailNotificationService(user string, emailAddress string, userID st
 	credentials, err := stormRider.CreateJWT(&draftCredentials, secretToken)
 	if err != nil {
 		config.Log("unable to create email token for verification services", err)
-		return
+		return "", err
 	}
-
-	isEmailServiceEnabled := os.Getenv("_SENDGRID_EMAIL_SERVICE")
-	if isEmailServiceEnabled != "true" {
-		config.Log("email service feature flags are disabled. Email Service is inoperative.", nil)
-		return
-	}
-
-	sendGridApiKey := os.Getenv("SEND_GRID_API_KEY")
-	if len(sendGridApiKey) <= 0 {
-		config.Log("email service not available. invalid api key", nil)
-		return
-	}
-
-	sendGridEmailUser := os.Getenv("SEND_GRID_USER")
-	if len(sendGridEmailUser) <= 0 {
-		config.Log("email service username is not configured. Unable to send email.", nil)
-		return
-	}
-
-	sendGridUserEmailAddress := os.Getenv("SEND_GRID_USER_EMAIL_ADDRESS")
-	if len(sendGridUserEmailAddress) <= 0 {
-		config.Log("email service username is not configured. Unable to send email.", nil)
-		return
-	}
-
-	from := mail.NewEmail(sendGridEmailUser, sendGridUserEmailAddress)
-	to := mail.NewEmail(emailAddress, emailAddress)
-
-	WebApplicationEndpoint := os.Getenv("REACT_APP_LOCALHOST_URL")
-	if len(WebApplicationEndpoint) <= 0 {
-		config.Log("unable to determine the web application endpoint", err)
-		return
-	}
-
-	verificationLink := fmt.Sprintf("%s%s?token=%s", WebApplicationEndpoint, config.EmailVerificationTokenStringURI, credentials.Cookie)
-
-	if messageType == config.ResetPasswordTokenStringURI {
-		config.Log("reset password uri requested. using endpoint: %s", nil, config.ResetPasswordTokenStringURI)
-		verificationLink = fmt.Sprintf("%s%s?token=%s", WebApplicationEndpoint, config.ResetPasswordTokenStringURI, credentials.Cookie)
-	}
-
-	plainText := fmt.Sprintf("Please click on the following: %s", credentials.Cookie)
-	htmlContent := fmt.Sprintf(`
-		<p>%s</p>
-		<a href="%s">%s</a>
-	`, config.EmailTextString, verificationLink, verificationLink)
-
-	message := mail.NewSingleEmail(from, config.EmailSubjectLine, to, plainText, htmlContent)
-	client := sendgrid.NewSendClient(sendGridApiKey)
-
-	_, err = client.Send(message)
-	if err != nil {
-		config.Log("unable to send email verification", err)
-		return
-	}
-
-	config.Log("Email notification sent to %s on %+v", nil, emailAddress, time.Now())
+	return credentials.Cookie, nil
 }
 
 // ValidateCredentials ...
