@@ -15,8 +15,8 @@ func ValidateJwtToken(token string) error {
 
 	secretToken := os.Getenv("TOKEN_SECRET_KEY")
 	if len(secretToken) <= 0 {
-		config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 		secretToken = ""
+		config.Log("unable to retrieve secret token key. defaulting to default values", nil)
 	}
 
 	isValid, err := stormRider.ValidateJWT(token, secretToken)

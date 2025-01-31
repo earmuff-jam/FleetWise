@@ -111,6 +111,7 @@ func RetrieveUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 // IsValidUserEmail ...
 //
 // Function is used to validate any email address if they are of the correct form
+// and if they are of a valid user. Returns false if the user is found
 func IsValidUserEmail(user string, draftUserEmail string) (bool, error) {
 	db, err := SetupDB(user)
 	if err != nil {

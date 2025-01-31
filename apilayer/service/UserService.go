@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,11 +18,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-)
-
-const (
-	EMAIL_SUBJECT_LINE  = "Verify your email address for FleetWise Application"
-	WEB_APPLICATION_URI = "/api/v1/"
 )
 
 // FetchUser ...
@@ -180,20 +176,41 @@ func upsertOauthToken(draftUser *model.UserCredentials, tx *sql.Tx) error {
 // RegisterUser ...
 //
 // Performs saveUser operation and sends email service to the user to verify registration.
-// Creates a random 6 digit token and adds it to the database for the selected user
-// if the user is not verified. The random token is sent to the user specific email address.
-// Verified users are users whos six digit cryptographic key has matched during the time of registration.
-func RegisterUser(userName string, draftUser *model.UserCredentials) (*model.UserCredentials, error) {
+// Attempts to save the user in the db and sends a validity token to the user email address
+// for verification purposes.
+func RegisterUser(user string, draftUser *model.UserCredentials) (*model.UserCredentials, error) {
 
-	resp, err := db.SaveUser(userName, draftUser)
+	resp, err := db.SaveUser(user, draftUser)
 	if err != nil {
 		config.Log("unable to save user", err)
 		return nil, err
 	}
 
-	PerformEmailNotificationService(userName, draftUser.Email, draftUser.ID.String())
+	PerformEmailNotificationService(user, draftUser.Email, draftUser.ID.String(), config.EmailVerificationTokenStringURI)
 
 	return resp, nil
+}
+
+// ResetPassword ...
+//
+// Invokes the ability to reset password. If the email address is valid, sends email service to the
+// user with a unique token. The audience must be of a verified user type.
+func ResetPassword(user string, draftUser *model.UserResponse) error {
+
+	// returns false if user is found
+	resp, err := db.IsValidUserEmail(user, draftUser.EmailAddress)
+	if err != nil {
+		config.Log("unable to reset password", err)
+		return err
+	}
+
+	if resp {
+		config.Log("unable to find selected user", errors.New("user not found"))
+		return errors.New("user not found")
+	}
+
+	PerformEmailNotificationService(user, draftUser.EmailAddress, draftUser.ID, config.ResetPasswordTokenStringURI)
+	return nil
 }
 
 // PerformEmailNotificationService ...
@@ -205,7 +222,7 @@ func RegisterUser(userName string, draftUser *model.UserCredentials) (*model.Use
 //
 // Error handling is ignored since email notification service failures are ignored and we still want the user
 // to login and perform regular operations even without verification of email.
-func PerformEmailNotificationService(username string, emailAddress string, userID string) {
+func PerformEmailNotificationService(user string, emailAddress string, userID string, messageType string) {
 
 	formattedTime, err := strconv.ParseInt(config.DefaultTokenValidityTime, 10, 64)
 	if err != nil {
@@ -237,6 +254,12 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 		return
 	}
 
+	sendGridApiKey := os.Getenv("SEND_GRID_API_KEY")
+	if len(sendGridApiKey) <= 0 {
+		config.Log("email service not available. invalid api key", nil)
+		return
+	}
+
 	sendGridEmailUser := os.Getenv("SEND_GRID_USER")
 	if len(sendGridEmailUser) <= 0 {
 		config.Log("email service username is not configured. Unable to send email.", nil)
@@ -250,7 +273,7 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 	}
 
 	from := mail.NewEmail(sendGridEmailUser, sendGridUserEmailAddress)
-	to := mail.NewEmail(username, emailAddress)
+	to := mail.NewEmail(emailAddress, emailAddress)
 
 	WebApplicationEndpoint := os.Getenv("REACT_APP_LOCALHOST_URL")
 	if len(WebApplicationEndpoint) <= 0 {
@@ -258,16 +281,21 @@ func PerformEmailNotificationService(username string, emailAddress string, userI
 		return
 	}
 
-	verificationLink := fmt.Sprintf("%s%sverify?token=%s", WebApplicationEndpoint, WEB_APPLICATION_URI, credentials.Cookie)
+	verificationLink := fmt.Sprintf("%s%s?token=%s", WebApplicationEndpoint, config.EmailVerificationTokenStringURI, credentials.Cookie)
 
-	plainText := fmt.Sprintf("Please use the following verification token: %s", credentials.Cookie)
+	if messageType == config.ResetPasswordTokenStringURI {
+		config.Log("reset password uri requested. using endpoint: %s", nil, config.ResetPasswordTokenStringURI)
+		verificationLink = fmt.Sprintf("%s%s?token=%s", WebApplicationEndpoint, config.ResetPasswordTokenStringURI, credentials.Cookie)
+	}
+
+	plainText := fmt.Sprintf("Please click on the following: %s", credentials.Cookie)
 	htmlContent := fmt.Sprintf(`
-		<p>Click on the following link to verify your email address:</p>
+		<p>%s</p>
 		<a href="%s">%s</a>
-	`, verificationLink, verificationLink)
+	`, config.EmailTextString, verificationLink, verificationLink)
 
-	message := mail.NewSingleEmail(from, EMAIL_SUBJECT_LINE, to, plainText, htmlContent)
-	client := sendgrid.NewSendClient(os.Getenv("SEND_GRID_API_KEY"))
+	message := mail.NewSingleEmail(from, config.EmailSubjectLine, to, plainText, htmlContent)
+	client := sendgrid.NewSendClient(sendGridApiKey)
 
 	_, err = client.Send(message)
 	if err != nil {

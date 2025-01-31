@@ -14,13 +14,6 @@ import (
 	"github.com/earmuff-jam/fleetwise/service"
 )
 
-const (
-	ErrorTokenValidation        = "unable to validate token"
-	ErrorTokenSubjectValidation = "unable to validate token subject"
-	ErrorFetchingCurrentUser    = "unable to retrieve system user"
-	ErrorUserIsAlreadyVerified  = "unable to validate user. user is already verified"
-)
-
 // Signup ...
 // swagger:route POST /api/v1/signup Authentication signup
 //
@@ -233,6 +226,64 @@ func IsValidUserEmail(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(resp)
 }
 
+// ResetPwd ...
+// swagger:route POST /api/v1/reset Authentication ResetPwd
+//
+// # Sends an email notification with email address in the jwt and token in the email address.
+// Use this token to reset password. Only verified email addresses can be reset.
+//
+// Responses:
+// 200: MessageResponse
+// 400: MessageResponse
+// 404: MessageResponse
+// 500: MessageResponse
+func ResetPwd(rw http.ResponseWriter, r *http.Request) {
+
+	draftUser := &model.UserResponse{}
+	err := json.NewDecoder(r.Body).Decode(draftUser)
+	r.Body.Close()
+	if err != nil {
+		config.Log("unable to reset password", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	if !draftUser.IsVerified {
+		config.Log("unable to reset password", errors.New("email address is not verified"))
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	if len(draftUser.EmailAddress) <= 0 || len(draftUser.ID) <= 0 {
+		config.Log("unable to reset password", errors.New("missing required fields"))
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	user := os.Getenv("CLIENT_USER")
+	if len(user) == 0 {
+		config.Log("unable to retrieve user from env. Unable to sign in.", nil)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode("unable to retrieve user from env")
+		return
+	}
+
+	err = service.ResetPassword(user, draftUser)
+	if err != nil {
+		config.Log("unable to reset password", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(err)
+		return
+	}
+
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(http.StatusOK)
+	json.NewEncoder(rw).Encode("200 OK")
+}
+
 // VerifyEmailAddress ...
 // swagger:route GET /api/v1/verify Authentication VerifyEmailAddress
 //
@@ -248,9 +299,9 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	user := os.Getenv("CLIENT_USER")
 	if len(user) == 0 {
-		config.Log("unable to retrieve client user", errors.New(ErrorFetchingCurrentUser))
+		config.Log("unable to retrieve client user", errors.New(config.ErrorFetchingCurrentUser))
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(ErrorFetchingCurrentUser)
+		json.NewEncoder(rw).Encode(config.ErrorFetchingCurrentUser)
 		return
 	}
 
@@ -262,9 +313,9 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 
 	tokenString := r.URL.Query().Get("token")
 	if tokenString == "" {
-		config.Log("unable to validate request params", errors.New(ErrorTokenValidation))
+		config.Log("unable to validate request params", errors.New(config.ErrorTokenValidation))
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(ErrorTokenValidation)
+		json.NewEncoder(rw).Encode(config.ErrorTokenValidation)
 		return
 	}
 
@@ -273,7 +324,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 	if err != nil || !isValid {
 		config.Log("unable to validate token", err)
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(ErrorTokenValidation)
+		json.NewEncoder(rw).Encode(config.ErrorTokenValidation)
 		return
 	}
 
@@ -281,7 +332,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		config.Log("unable to validate token", err)
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(ErrorTokenValidation)
+		json.NewEncoder(rw).Encode(config.ErrorTokenValidation)
 		return
 	}
 
@@ -289,7 +340,7 @@ func VerifyEmailAddress(rw http.ResponseWriter, r *http.Request) {
 	if len(draftUserID) <= 0 {
 		config.Log("unable to validate token", err)
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(ErrorTokenSubjectValidation)
+		json.NewEncoder(rw).Encode(config.ErrorTokenSubjectValidation)
 		return
 	}
 
@@ -346,14 +397,14 @@ func ResetEmailToken(rw http.ResponseWriter, r *http.Request, user string) {
 	}
 
 	if draftUser.IsVerified {
-		config.Log("duplicate request detected", errors.New(ErrorUserIsAlreadyVerified))
+		config.Log("duplicate request detected", errors.New(config.ErrorUserIsAlreadyVerified))
 		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(ErrorUserIsAlreadyVerified)
+		json.NewEncoder(rw).Encode(config.ErrorUserIsAlreadyVerified)
 		return
 	}
 
 	// draft user id is required so that the jwt token can be associated with the user
-	service.PerformEmailNotificationService(user, draftUser.EmailAddress, draftUser.ID)
+	service.PerformEmailNotificationService(user, draftUser.EmailAddress, draftUser.ID, config.EmailVerificationTokenStringURI)
 
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
