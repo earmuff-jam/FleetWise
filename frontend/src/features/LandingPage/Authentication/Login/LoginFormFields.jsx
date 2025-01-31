@@ -1,12 +1,14 @@
-import { Stack, TextField, InputAdornment } from '@mui/material';
+import { Stack, TextField, InputAdornment, Typography } from '@mui/material';
 
 export default function LoginFormFields({ formFields, handleInput, submit }) {
   return (
-    <Stack spacing={2}>
+    <Stack spacing={1}>
+      <Typography variant="subtitle2" color="text.secondary">
+        {formFields['email'].label} {formFields['email'].required && '*'}
+      </Typography>
       <TextField
         id={formFields['email'].name}
         name={formFields['email'].name}
-        label={formFields['email'].label}
         size={formFields['email'].size}
         value={formFields['email'].value}
         type={formFields['email'].type}
@@ -27,10 +29,13 @@ export default function LoginFormFields({ formFields, handleInput, submit }) {
           startAdornment: <InputAdornment position="start">{formFields['email'].icon}</InputAdornment>,
         }}
       />
+
+      <Typography variant="subtitle2" color="text.secondary">
+        {formFields['password'].label} {formFields['password'].required && '*'}
+      </Typography>
       <TextField
         id={formFields['password'].name}
         name={formFields['password'].name}
-        label={formFields['password'].label}
         size={formFields['password'].size}
         value={formFields['password'].value}
         type={formFields['password'].type}

@@ -7,9 +7,7 @@ import { CheckRounded, CloseRounded } from '@mui/icons-material';
 dayjs.extend(relativeTime);
 
 /**
- * Modal State is the display state of modal between adding a single inventory, adding a bulk
- * inventory and removing inventories
- *
+ * Modal State
  */
 export const MODAL_STATE = {
   NONE: 'none',

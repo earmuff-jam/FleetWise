@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import { CakeRounded, EmailRounded, LockRounded, SupervisedUserCircleRounded } from '@mui/icons-material';
 
+/**
+ * Sample Data that is used to populate the landing page graph
+ */
 export const SAMPLE_DATA = [
   { name: 'Entertainment', price: 320.0 },
   { name: 'Tools and equipment', price: 1451.99 },
@@ -12,6 +15,9 @@ export const SAMPLE_DATA = [
   { name: 'Misc', price: 300.0 },
 ];
 
+/**
+ * Sample colors that is used to populate the landing page graph
+ */
 export const COLORS = [
   'rgba(255, 99, 132, 0.6)', // Red
   'rgba(54, 162, 235, 0.6)', // Blue
@@ -24,6 +30,16 @@ export const COLORS = [
   'rgba(255, 206, 86, 0.6)', // Yellow
 ];
 
+/**
+ * Modal State
+ */
+export const MODAL_STATE = {
+  NONE: 'none',
+  SIGN_UP: 'sign_up',
+  SIGN_IN: 'sign_in',
+  FORGOT_PASSWORD: 'forgot_password',
+};
+
 export const GENERIC_TEXTFIELD_VARIANT = {
   variant: 'outlined',
 };
@@ -35,7 +51,7 @@ export const AUTOCOMPLETE_PASSWORD_PROPS = {
 export const LOGIN_FORM_FIELDS = {
   email: {
     label: 'Email Address',
-    placeholder: '',
+    placeholder: 'Enter your email address in correct format',
     value: '',
     name: 'email',
     size: 'small',
@@ -65,7 +81,7 @@ export const LOGIN_FORM_FIELDS = {
   },
   password: {
     label: 'Password',
-    placeholder: '',
+    placeholder: 'Enter your secure password',
     value: '',
     type: 'password',
     name: 'password',
@@ -92,7 +108,7 @@ export const LOGIN_FORM_FIELDS = {
 export const SIGN_UP_FORM_FIELDS = {
   username: {
     label: 'Username',
-    placeholder: 'Enter a username',
+    placeholder: 'Enter a username with at least four characters',
     value: '',
     name: 'username',
     size: 'small',
@@ -119,7 +135,7 @@ export const SIGN_UP_FORM_FIELDS = {
   },
   email: {
     label: 'Email Address',
-    placeholder: '',
+    placeholder: 'Enter your unique email address in correct format',
     value: '',
     name: 'email',
     size: 'small',
@@ -149,7 +165,7 @@ export const SIGN_UP_FORM_FIELDS = {
   },
   password: {
     label: 'Password',
-    placeholder: '',
+    placeholder: 'Enter your secure password with at least six characters',
     value: '',
     type: 'password',
     name: 'password',
@@ -199,6 +215,39 @@ export const SIGN_UP_FORM_FIELDS = {
       {
         validate: (value) => value.trim().length <= 2,
         message: 'User must add birthday.',
+      },
+    ],
+    ...GENERIC_TEXTFIELD_VARIANT,
+  },
+};
+
+export const RESET_PASSWORD_FIELDS = {
+  email: {
+    label: 'Email Address',
+    placeholder: 'Enter your email address',
+    value: '',
+    name: 'email',
+    size: 'small',
+    errorMsg: '',
+    required: true,
+    type: 'email',
+    icon: <EmailRounded />,
+    fullWidth: true,
+    validators: [
+      {
+        validate: (value) => value.trim().length === 0,
+        message: 'Email is required',
+      },
+      {
+        validate: (value) => value.trim().length >= 50,
+        message: 'Email should be less than 50 characters',
+      },
+      {
+        validate: (value) => {
+          var re = /\S+@\S+\.\S+/;
+          return !re.test(value);
+        },
+        message: 'Email is not in the correct form',
       },
     ],
     ...GENERIC_TEXTFIELD_VARIANT,

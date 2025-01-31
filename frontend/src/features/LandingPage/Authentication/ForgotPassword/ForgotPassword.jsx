@@ -1,15 +1,18 @@
-import { produce } from 'immer';
 import { useState } from 'react';
+
+import { produce } from 'immer';
+
 import { useDispatch } from 'react-redux';
+
+import { enqueueSnackbar } from 'notistack';
 import { Button, Stack } from '@mui/material';
 import { authActions } from '@features/LandingPage/authSlice';
-import { LOGIN_FORM_FIELDS } from '@features/LandingPage/constants';
-import LoginFormFields from '@features/LandingPage/Authentication/Login/LoginFormFields';
-import ForgotPasswordText from '@features/LandingPage/Authentication/Login/ForgotPasswordText';
+import { RESET_PASSWORD_FIELDS } from '@features/LandingPage/constants';
+import ForgotPasswordFormFields from '@features/LandingPage/Authentication/ForgotPassword/ForgotPasswordFormFields';
 
-const Login = ({ handleForgotPassword }) => {
+export default function ForgotPassword({ handleClose }) {
   const dispatch = useDispatch();
-  const [formFields, setFormFields] = useState(LOGIN_FORM_FIELDS);
+  const [formFields, setFormFields] = useState(RESET_PASSWORD_FIELDS);
 
   const handleInput = (event) => {
     const { name, value } = event.target;
@@ -52,14 +55,18 @@ const Login = ({ handleForgotPassword }) => {
         }
         return acc;
       }, {});
-      dispatch(authActions.getUserID(formattedData));
+
+      dispatch(authActions.resetPassword(formattedData));
+      enqueueSnackbar('Sent email notification to reset password.', {
+        variant: 'success',
+      });
     }
+    handleClose();
   };
 
   return (
     <Stack spacing={1}>
-      <LoginFormFields formFields={formFields} handleInput={handleInput} submit={submit} />
-      <ForgotPasswordText handleForgotPassword={handleForgotPassword} />
+      <ForgotPasswordFormFields formFields={formFields} handleInput={handleInput} />
       <Button
         variant="text"
         disabled={validate(formFields)}
@@ -67,10 +74,8 @@ const Login = ({ handleForgotPassword }) => {
         disableFocusRipple={true}
         onClick={submit}
       >
-        Login
+        Reset password
       </Button>
     </Stack>
   );
-};
-
-export default Login;
+}
