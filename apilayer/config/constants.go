@@ -19,6 +19,8 @@ const (
 
 const (
 	// Errors
+	ErrorGeneratedOTPFailure     = "invalid otp detected"
+	ErrorInvalidUserID           = "invalid user id"
 	ErrorInvalidApiKey           = "invalid api key"
 	ErrorUnableToSendEmail       = "system down. unable to send email"
 	ErrorUserCredentialsNotFound = "user credentials are not configured"

@@ -10,6 +10,10 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	stormRider "github.com/earmuff-jam/ciri-stormrider"
+
+	ether "github.com/earmuff-jam/ether"
+	etherTypes "github.com/earmuff-jam/ether/types"
+
 	"github.com/earmuff-jam/ciri-stormrider/types"
 	"github.com/earmuff-jam/fleetwise/config"
 	"github.com/earmuff-jam/fleetwise/db"
@@ -194,7 +198,7 @@ func RegisterUser(user string, draftUser *model.UserCredentials) (*model.UserCre
 // ResetPassword ...
 //
 // Invokes the ability to reset password. If the email address is valid, sends email service to the
-// user with a unique token. The audience must be of a verified user type.
+// user with a unique token.
 func ResetPassword(user string, draftUser *model.UserResponse) error {
 
 	// returns false if user is found
@@ -209,7 +213,13 @@ func ResetPassword(user string, draftUser *model.UserResponse) error {
 		return errors.New("user not found")
 	}
 
-	PerformEmailNotificationService(user, draftUser.EmailAddress, draftUser.ID, config.ResetPasswordTokenStringURI)
+	userID, err := db.RetrieveUserDetailsByEmailAddress(user, draftUser.EmailAddress)
+	if err != nil {
+		config.Log("unable to find selected user id.", err)
+		return errors.New("user not found")
+	}
+
+	PerformEmailNotificationService(user, draftUser.EmailAddress, userID, config.ResetPasswordTokenStringURI)
 	return nil
 }
 
@@ -241,17 +251,48 @@ func PerformEmailNotificationService(user string, emailAddress string, userID st
 	// outside of react-router.
 	if messageType == config.ResetPasswordTokenStringURI {
 
-		// 1. save OTP in db
-		// 2. send OTP via email to user
-		// 3. add token, validity to db
+		isOtpServiceEnabled := os.Getenv("_OTP_GENERATOR_SERVICE")
+		if isOtpServiceEnabled != "true" {
+			config.Log("otp service feature flags are disabled. OTP is inoperative.", nil)
+			return
+		}
+
+		key := os.Getenv("OTP_GENERATOR_API_KEY")
+		if len(key) <= 0 {
+			config.Log("missing required values", errors.New(config.ErrorGeneratedOTPFailure))
+			return
+		}
+
+		parsedUserID, err := uuid.Parse(userID)
+		if err != nil {
+			config.Log("unable to parse userID", err)
+			return
+		}
+
+		generatedOTP, err := ether.GenerateOTP(&etherTypes.OTPCredentials{
+			UserID:       parsedUserID,
+			EmailAddress: emailAddress,
+			Token:        key,
+		})
+
+		if err != nil {
+			config.Log("unable to generate otp token", err)
+			return
+		}
+
 		// 4. verify token and validity in reset password submission api ( not built )
 
-		generatedOTP := "012345"
+		err = db.UpdateRecoveryToken(user, userID, generatedOTP)
+		if err != nil {
+			config.Log("unable to update recovery token", err)
+			return
+		}
+
 		emailSubjectLine := config.ResetPasswordSubjectLine
 		emailPlainTextMessage := config.ResetPasswordPlainTextMessage
 
-		plainText := fmt.Sprintf("Please use the generated OTP to reset password: %s", generatedOTP)
-		htmlContent := fmt.Sprintf(`<p>%s</p>`, emailPlainTextMessage)
+		plainText := fmt.Sprintf("Please enter the following digits when prompted: %s", generatedOTP)
+		htmlContent := fmt.Sprintf(`<p>%s</p> <h2>%s</h2>`, emailPlainTextMessage, generatedOTP)
 
 		sendMessage(emailAddress, emailSubjectLine, plainText, htmlContent)
 
