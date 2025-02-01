@@ -2,25 +2,25 @@ import { useContext, useState } from 'react';
 
 import { Container, Stack } from '@mui/material';
 
+import { PageContext } from '@src/PageContext';
+
 import SimpleModal from '@common/SimpleModal';
 import FloatingBarChart from '@common/Chart/FloatingBarChart';
 import Login from '@features/LandingPage/Authentication/Login/Login';
 import HeroContent from '@features/LandingPage/HeroContent/HeroContent';
-
 import Signup from '@features/LandingPage/Authentication/Signup/Signup';
 import StyledAppBar from '@features/LandingPage/StyledAppBar/StyledAppBar';
 import { COLORS, MODAL_STATE, SAMPLE_DATA } from '@features/LandingPage/constants';
 import ForgotPassword from '@features/LandingPage/Authentication/ForgotPassword/ForgotPassword';
-import { PageContext } from '@src/ApplicationValidator';
 
 export default function LandingPage() {
   const { setPage } = useContext(PageContext);
   const [modalState, setModalState] = useState(MODAL_STATE.NONE);
 
-  const handleCloseModal = () => setModalState(MODAL_STATE.NONE);
   const openSignupModal = () => setModalState(MODAL_STATE.SIGN_UP);
   const openLoginModal = () => setModalState(MODAL_STATE.SIGN_IN);
 
+  const handleCloseModal = () => setModalState(MODAL_STATE.NONE);
   const handleForgotPasswordModal = () => setModalState(MODAL_STATE.FORGOT_PASSWORD);
 
   const handlePageTransition = () => setPage('reset');

@@ -1,4 +1,4 @@
-import { createContext, Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 import { useSelector } from 'react-redux';
 
@@ -8,16 +8,16 @@ import { RouterProvider } from 'react-router-dom';
 import { Dialog } from '@mui/material';
 import { router } from '@common/router';
 
+import { PageContext } from '@src/PageContext';
+
 import DEFAULT_TOUR_STEPS from '@utils/tour/steps';
 import LandingPage from '@features/LandingPage/LandingPage';
 import ResetPassword from '@features/LandingPage/Authentication/ResetPassword/ResetPassword';
 
-export const PageContext = createContext();
-
 const ApplicationValidator = () => {
   const { loading } = useSelector((state) => state.auth);
 
-  const [page, setPage] = useState('landing');
+  const [page, setPage] = useState('reset');
   const [loggedInUser, setLoggedInUser] = useState(false);
 
   const navigateAuthComponents = () => {
