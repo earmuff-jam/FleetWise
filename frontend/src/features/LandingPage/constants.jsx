@@ -1,5 +1,12 @@
 import dayjs from 'dayjs';
-import { CakeRounded, EmailRounded, LockRounded, SupervisedUserCircleRounded } from '@mui/icons-material';
+import {
+  CakeRounded,
+  EmailRounded,
+  LockRounded,
+  PasswordRounded,
+  SupervisedUserCircleRounded,
+  TokenRounded,
+} from '@mui/icons-material';
 
 /**
  * Sample Data that is used to populate the landing page graph
@@ -48,6 +55,11 @@ export const AUTOCOMPLETE_PASSWORD_PROPS = {
   autocomplete: 'true',
 };
 
+/**
+ * LOGIN_FORM_FIELDS
+ *
+ * USED TO LOG USERS INTO THE APPLICATION
+ */
 export const LOGIN_FORM_FIELDS = {
   email: {
     label: 'Email Address',
@@ -105,6 +117,11 @@ export const LOGIN_FORM_FIELDS = {
   },
 };
 
+/**
+ * SIGN_UP_FORM_FIELDS
+ *
+ * USED TO SIGN NEW USERS INTO THE APPLICATION
+ */
 export const SIGN_UP_FORM_FIELDS = {
   username: {
     label: 'Username',
@@ -221,6 +238,12 @@ export const SIGN_UP_FORM_FIELDS = {
   },
 };
 
+/**
+ * RESET_PASSWORD_FIELDS
+ *
+ * USED TO BUILD OUT THE FORM THAT USERS CAN INPUT THEIR EMAIL ADDRESS
+ * TO ALLOW RESTTING OF THEIR PASSWORDS
+ */
 export const RESET_PASSWORD_FIELDS = {
   email: {
     label: 'Email Address',
@@ -251,5 +274,85 @@ export const RESET_PASSWORD_FIELDS = {
       },
     ],
     ...GENERIC_TEXTFIELD_VARIANT,
+  },
+};
+
+/**
+ * RESET_PASSWORD_FORM_FIELDS
+ *
+ * USED TO BUILD OUT THE FORM THAT THE USER CAN SUBMIT TO RESET
+ * THEIR PASSWORDS.
+ */
+export const RESET_PASSWORD_FORM_FIELDS = {
+  recovery_token: {
+    label: 'OTP Token',
+    name: 'recovery_token',
+    placeholder: 'Enter your recovery token',
+    value: '',
+    size: 'small',
+    errorMsg: '',
+    required: true,
+    type: 'text',
+    icon: <TokenRounded />,
+    fullWidth: true,
+    validators: [
+      {
+        validate: (value) => value.trim().length === 0,
+        message: 'OTP Token is required',
+      },
+      {
+        validate: (value) => value.trim().length >= 7,
+        message: 'OTP Token should be less than 6 characters',
+      },
+    ],
+    ...GENERIC_TEXTFIELD_VARIANT,
+  },
+  password: {
+    label: 'Password',
+    name: 'password',
+    placeholder: 'Enter your secure password with at least six characters',
+    value: '',
+    type: 'password',
+    size: 'small',
+    errorMsg: '',
+    icon: <LockRounded />,
+    required: true,
+    fullWidth: true,
+    validators: [
+      {
+        validate: (value) => value.trim().length <= 6,
+        message: 'Password is not strong enough.',
+      },
+      {
+        validate: (value) => value.trim().length >= 50,
+        message: 'Password should be less than 50 characters',
+      },
+    ],
+    ...GENERIC_TEXTFIELD_VARIANT,
+    ...AUTOCOMPLETE_PASSWORD_PROPS,
+  },
+  confirmPassword: {
+    label: 'Confirm Password',
+    placeholder: 'Enter the same password',
+    name: 'confirmPassword',
+    value: '',
+    type: 'password',
+    size: 'small',
+    errorMsg: '',
+    icon: <LockRounded />,
+    required: true,
+    fullWidth: true,
+    validators: [
+      {
+        validate: (value) => value.trim().length <= 6,
+        message: 'Password is not strong enough.',
+      },
+      {
+        validate: (value) => value.trim().length >= 50,
+        message: 'Password should be less than 50 characters',
+      },
+    ],
+    ...GENERIC_TEXTFIELD_VARIANT,
+    ...AUTOCOMPLETE_PASSWORD_PROPS,
   },
 };
